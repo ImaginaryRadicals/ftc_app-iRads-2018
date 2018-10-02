@@ -24,9 +24,9 @@ public class robotHardware {
     int armMotor1GearRatio = 40;
     int armMotor2GearRatio = 40;
     int armMotor3GearRatio = 40;
-    public int armMotor1PosDegrees;
-    public int armMotor2PosDegrees;
-    public int armMotor3PosDegrees;
+    public int armMotor1PosDegrees = 0;
+    public int armMotor2PosDegrees = 0;
+    public int armMotor3PosDegrees = 0;
 
 
 
