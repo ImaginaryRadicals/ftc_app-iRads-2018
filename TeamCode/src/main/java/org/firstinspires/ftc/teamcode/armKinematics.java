@@ -9,9 +9,18 @@ package org.firstinspires.ftc.teamcode;
 public class armKinematics extends robotHardware {
 
     //Declare all variables
+
+    //Final Arm Position
     int armPosX = 0;
     int armPosy = 0;
     int armPosz = 0;
+
+    int seg1x = 0;
+    int seg1y = 0;
+    int seg2x = 0;
+    int seg2y = 0;
+    int seg3x = 0;
+    int seg3y = 0;
 
 
     //Code
