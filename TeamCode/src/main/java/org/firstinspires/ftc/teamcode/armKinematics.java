@@ -17,10 +17,13 @@ public class armKinematics extends robotHardware {
     double armSegmentsLength = 10;
 
     //Final Arm Position
-    int armPosX = 0;
-    int armPosy = 0;
-    int armPosz = 0;
-    
+    double armPosX = 0;
+    double armPosY = 0;
+    double armPosZ = 0;
+
+    //Change this after writing the robot tracking code
+    double robotAngle = 0;
+
 
 
 
@@ -53,14 +56,19 @@ public class armKinematics extends robotHardware {
 
     //Code
     public void armTracking() {
-        double seg1x = armSegmentsLength * Math.cos(armMotor1PosDegrees);
-        double seg1y = armSegmentsLength * Math.sin(armMotor1PosDegrees);
 
-        double seg2x = armSegmentsLength * Math.cos(armMotor2PosDegrees);
-        double seg2y = armSegmentsLength * Math.sin(armMotor2PosDegrees);
+        double seg1x = armSegmentsLength * Math.sin(armMotor1PosDegrees);
+        double seg1y = armSegmentsLength * Math.cos(armMotor1PosDegrees);
 
-        double seg3x = armSegmentsLength * Math.cos(armMotor3PosDegrees);
-        double seg3y = armSegmentsLength * Math.sin(armMotor3PosDegrees);
+        double seg2x = armSegmentsLength * Math.sin(armMotor2PosDegrees);
+        double seg2y = armSegmentsLength * Math.cos(armMotor2PosDegrees);
+
+        double seg3x = armSegmentsLength * Math.sin(armMotor3PosDegrees);
+        double seg3y = armSegmentsLength * Math.cos(armMotor3PosDegrees);
+
+        armPosX = 0;
+        armPosY = seg1x + seg2x + seg3x;
+        armPosZ = seg1y + seg2y + seg3y;
     }
 
 
