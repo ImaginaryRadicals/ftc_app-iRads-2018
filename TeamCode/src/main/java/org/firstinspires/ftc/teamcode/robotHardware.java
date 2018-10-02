@@ -19,6 +19,31 @@ public class robotHardware {
     int armSegmentsLength = 10;
 
 
+    //Convert the encoder ticks to degrees
+    int motorPPS = 7; //seven pulses per seconds for an andy mark motor
+    int armMotor1GearRatio = 40;
+    int armMotor2GearRatio = 40;
+    int armMotor3GearRatio = 40;
+    public int armMotor1PosDegrees;
+    public int armMotor2PosDegrees;
+    public int armMotor3PosDegrees;
+
+
+
+    public void getMotorPositionDegrees() {
+       int armMotor1TicksPerRotation = motorPPS * armMotor1GearRatio;
+       int armMotor2TicksPerRotation = motorPPS * armMotor2GearRatio;
+       int armMotor3TicksPerRotation = motorPPS * armMotor3GearRatio;
+
+       int armMotor1PosEncoder = armMotor1.getCurrentPosition();
+       int armMotor2PosEncoder = armMotor2.getCurrentPosition();
+       int armMotor3PosEncoder = armMotor3.getCurrentPosition();
+
+       armMotor1PosDegrees = (360 / armMotor1TicksPerRotation) * armMotor1PosEncoder;
+       armMotor2PosDegrees = (360 / armMotor2TicksPerRotation) * armMotor2PosEncoder;
+       armMotor3PosDegrees = (360 / armMotor3TicksPerRotation) * armMotor3PosEncoder;
+    }
+
 
 
     //Initialize all motors
@@ -28,15 +53,12 @@ public class robotHardware {
     public DcMotor  armMotor2   = null;
     public DcMotor  armMotor3   = null;
 
-    /* local OpMode members. */
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
-    /* Constructor */
     public robotHardware(){
     }
 
     public void init(HardwareMap ahwMap) {
-        // Save reference to Hardware map
         hwMap = ahwMap;
 
         // Define and Initialize Motors
