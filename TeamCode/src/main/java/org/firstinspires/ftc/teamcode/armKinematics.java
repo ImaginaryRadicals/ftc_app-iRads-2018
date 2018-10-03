@@ -48,8 +48,8 @@ public class armKinematics extends robotHardware {
         int armMotor3PosEncoder = armMotor3.getCurrentPosition();
 
         armMotor1PosDegrees = (360 / armMotor1TicksPerRotation) * armMotor1PosEncoder;
-        armMotor2PosDegrees = (360 / armMotor2TicksPerRotation) * armMotor2PosEncoder;
-        armMotor3PosDegrees = (360 / armMotor3TicksPerRotation) * armMotor3PosEncoder;
+        armMotor2PosDegrees = ((360 / armMotor2TicksPerRotation) * armMotor2PosEncoder) + armMotor1PosDegrees;
+        armMotor3PosDegrees = ((360 / armMotor3TicksPerRotation) * armMotor3PosEncoder) + armMotor2PosDegrees;
 
     }
 
