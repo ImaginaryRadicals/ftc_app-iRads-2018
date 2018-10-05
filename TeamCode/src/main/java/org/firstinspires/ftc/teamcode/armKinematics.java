@@ -8,51 +8,27 @@ package org.firstinspires.ftc.teamcode;
 
 import java.lang.Math;
 
-public class armKinematics extends robotHardware {
+public class armKinematics extends RobotHardware {
 
-    //Declare all variables
 
-    //Hardware variables
-    int armSegmentsNumber = 3;
-    double armSegmentsLength = 10;
+
+    public static class Motors {
+        // The arm Motors.
+        public double one;
+        public double two;
+        public double three;
+    }
 
     //Final Arm Position
     double armPosX = 0;
     double armPosY = 0;
     double armPosZ = 0;
 
-    //Change this after writing the robot tracking code
     double robotAngle = 0;
 
-
-
-
-    //Convert the encoder ticks to degrees
-    int motorPPS = 7; //seven pulses per seconds for an andy mark motor
-    int armMotor1GearRatio = 40;
-    int armMotor2GearRatio = 40;
-    int armMotor3GearRatio = 40;
-    public int armMotor1PosDegrees;
-    public int armMotor2PosDegrees;
-    public int armMotor3PosDegrees;
-
-
-
     public void getMotorPositionDegrees() {
-        int armMotor1TicksPerRotation = motorPPS * armMotor1GearRatio;
-        int armMotor2TicksPerRotation = motorPPS * armMotor2GearRatio;
-        int armMotor3TicksPerRotation = motorPPS * armMotor3GearRatio;
-
-        int armMotor1PosEncoder = armMotor1.getCurrentPosition();
-        int armMotor2PosEncoder = armMotor2.getCurrentPosition();
-        int armMotor3PosEncoder = armMotor3.getCurrentPosition();
-
-        armMotor1PosDegrees = (360 / armMotor1TicksPerRotation) * armMotor1PosEncoder;
-        armMotor2PosDegrees = ((360 / armMotor2TicksPerRotation) * armMotor2PosEncoder) + armMotor1PosDegrees;
-        armMotor3PosDegrees = ((360 / armMotor3TicksPerRotation) * armMotor3PosEncoder) + armMotor2PosDegrees;
 
     }
-
 
     //Code
     public void armTracking() {
