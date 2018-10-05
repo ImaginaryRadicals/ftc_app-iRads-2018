@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Created by ryderswan on 10/1/18.
  */
 
-public class robotHardware {
+public class robotHardware extends OpMode{
 
     // Declare all variables
 
@@ -85,5 +85,16 @@ public class robotHardware {
 
 
     }
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public void loop() {
+
+    }
+
 
 }
