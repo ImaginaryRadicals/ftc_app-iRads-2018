@@ -7,8 +7,11 @@ package org.firstinspires.ftc.teamcode;
  */
 
 import java.lang.Math;
+import org.firstinspires.ftc.teamcode.MecanumNavigation;
 
 public class armKinematics extends RobotHardware {
+
+    private MecanumNavigation.Navigation2D pickupPosition = new MecanumNavigation.Navigation2D(0,0,0);
 
 
 
@@ -24,7 +27,7 @@ public class armKinematics extends RobotHardware {
     double armPosY = 0;
     double armPosZ = 0;
 
-    double robotAngle = 0;
+    double robotAngle = pickupPosition.theta;
 
     public void getMotorPositionDegrees() {
 
@@ -43,8 +46,8 @@ public class armKinematics extends RobotHardware {
         double seg3y = armSegmentsLength * Math.cos(armMotor3PosDegrees);
 
         armPosX = 0;
-        armPosY = seg1x + seg2x + seg3x;
-        armPosZ = seg1y + seg2y + seg3y;
+        armPosY = seg1x + seg2x + seg3x + pickupPosition.y;
+        armPosZ = seg1y + seg2y + seg3y + pickupPosition.x;
     }
 
 
