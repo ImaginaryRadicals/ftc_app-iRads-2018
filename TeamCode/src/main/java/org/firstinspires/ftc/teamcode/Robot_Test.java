@@ -11,7 +11,7 @@ import static java.lang.Math.abs;
 
 @TeleOp
 
-public class mecanum_drive_test extends OpMode {
+public class Robot_Test extends OpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor DRIVE_FRONT_LEFT = null;
