@@ -14,10 +14,10 @@ import static java.lang.Math.abs;
 public class mecanum_drive_test extends OpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor left_Front = null;
-    private DcMotor left_Rear = null;
-    private DcMotor right_Front = null;
-    private DcMotor right_Rear = null;
+    private DcMotor DRIVE_FRONT_LEFT = null;
+    private DcMotor DRIVE_FRONT_RIGHT = null;
+    private DcMotor DRIVE_BACK_LEFT = null;
+    private DcMotor DRIVE_BACK_RIGHT = null;
     private DcMotor arm_Motor = null;
     private DcMotor wrist_Motor = null;
     private DcMotor feeder_Motor = null;
@@ -27,25 +27,25 @@ public class mecanum_drive_test extends OpMode {
 
     @Override
     public void init() {
-        telemetry.addData("Status", "Jerry is very dumb!");
+        telemetry.addData("Status", "Initialized");
 
-        left_Front = hardwareMap.get(DcMotor.class, "left_front");
-        left_Rear = hardwareMap.get(DcMotor.class, "left_rear");
-        right_Front = hardwareMap.get(DcMotor.class, "right_front");
-        right_Rear = hardwareMap.get(DcMotor.class, "right_rear");
+        DRIVE_FRONT_LEFT = hardwareMap.get(DcMotor.class, "left_front");
+        DRIVE_FRONT_RIGHT = hardwareMap.get(DcMotor.class, "left_rear");
+        DRIVE_BACK_LEFT = hardwareMap.get(DcMotor.class, "right_front");
+        DRIVE_BACK_RIGHT = hardwareMap.get(DcMotor.class, "right_rear");
         arm_Motor = hardwareMap.get(DcMotor.class, "arm_motor");
         wrist_Motor = hardwareMap.get(DcMotor.class, "wrist_motor");
         feeder_Motor = hardwareMap.get(DcMotor.class,"feeder_motor");
 
-        left_Front.setDirection(DcMotor.Direction.REVERSE);
-        left_Rear.setDirection(DcMotor.Direction.REVERSE);
-        right_Front.setDirection(DcMotor.Direction.FORWARD);
-        right_Rear.setDirection(DcMotor.Direction.FORWARD);
+        DRIVE_FRONT_LEFT.setDirection(DcMotor.Direction.REVERSE);
+        DRIVE_FRONT_RIGHT.setDirection(DcMotor.Direction.REVERSE);
+        DRIVE_BACK_LEFT.setDirection(DcMotor.Direction.FORWARD);
+        DRIVE_BACK_RIGHT.setDirection(DcMotor.Direction.FORWARD);
         arm_Motor.setDirection(DcMotor.Direction.FORWARD);
         wrist_Motor.setDirection(DcMotor.Direction.FORWARD);
         feeder_Motor.setDirection(DcMotor.Direction.FORWARD);
 
-        telemetry.addData("Status ", "Josh is ok but still a noob");
+        telemetry.addData("Status ", "Motors have been Initialized");
     }
 
     @Override
@@ -88,10 +88,10 @@ public class mecanum_drive_test extends OpMode {
 
         }
 
-        left_Front.setPower(front_left);
-        left_Rear.setPower(rear_left);
-        right_Front.setPower(front_right);
-        right_Rear.setPower(rear_right);
+        DRIVE_FRONT_LEFT.setPower(front_left);
+        DRIVE_FRONT_RIGHT.setPower(rear_left);
+        DRIVE_BACK_LEFT.setPower(front_right);
+        DRIVE_BACK_RIGHT.setPower(rear_right);
 
         if (gamepad1.a)
             arm_Motor.setPower(Arm_Speed);
