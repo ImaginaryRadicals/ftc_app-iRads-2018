@@ -18,9 +18,9 @@ public class Robot_Test extends OpMode {
     private DcMotor DRIVE_FRONT_RIGHT = null;
     private DcMotor DRIVE_BACK_LEFT = null;
     private DcMotor DRIVE_BACK_RIGHT = null;
-    private DcMotor arm_Motor = null;
-    private DcMotor wrist_Motor = null;
-    private DcMotor feeder_Motor = null;
+    private DcMotor ARM = null;
+    private DcMotor WRIST = null;
+    private DcMotor FEEDER = null;
     private double Arm_Speed = 0.2;
     private double Wrist_Speed = 0.2;
     private double Feeder_Speed = 0.2;
@@ -29,21 +29,21 @@ public class Robot_Test extends OpMode {
     public void init() {
         telemetry.addData("Status", "Initialized");
 
-        DRIVE_FRONT_LEFT = hardwareMap.get(DcMotor.class, "left_front");
-        DRIVE_FRONT_RIGHT = hardwareMap.get(DcMotor.class, "left_rear");
-        DRIVE_BACK_LEFT = hardwareMap.get(DcMotor.class, "right_front");
-        DRIVE_BACK_RIGHT = hardwareMap.get(DcMotor.class, "right_rear");
-        arm_Motor = hardwareMap.get(DcMotor.class, "arm_motor");
-        wrist_Motor = hardwareMap.get(DcMotor.class, "wrist_motor");
-        feeder_Motor = hardwareMap.get(DcMotor.class,"feeder_motor");
+        DRIVE_FRONT_LEFT = hardwareMap.get(DcMotor.class, "DRIVE_FRONT_LEFT");
+        DRIVE_BACK_LEFT = hardwareMap.get(DcMotor.class, "DRIVE_BACK_LEFT");
+        DRIVE_FRONT_RIGHT = hardwareMap.get(DcMotor.class, "DRIVE_FRONT_RIGHT");
+        DRIVE_BACK_RIGHT = hardwareMap.get(DcMotor.class, "DRIVE_BACK_RIGHT");
+        ARM = hardwareMap.get(DcMotor.class, "ARM");
+        WRIST = hardwareMap.get(DcMotor.class, "WRIST");
+        FEEDER = hardwareMap.get(DcMotor.class,"FEEDER");
 
         DRIVE_FRONT_LEFT.setDirection(DcMotor.Direction.REVERSE);
-        DRIVE_FRONT_RIGHT.setDirection(DcMotor.Direction.REVERSE);
-        DRIVE_BACK_LEFT.setDirection(DcMotor.Direction.FORWARD);
+        DRIVE_BACK_LEFT.setDirection(DcMotor.Direction.REVERSE);
+        DRIVE_FRONT_RIGHT.setDirection(DcMotor.Direction.FORWARD);
         DRIVE_BACK_RIGHT.setDirection(DcMotor.Direction.FORWARD);
-        arm_Motor.setDirection(DcMotor.Direction.FORWARD);
-        wrist_Motor.setDirection(DcMotor.Direction.FORWARD);
-        feeder_Motor.setDirection(DcMotor.Direction.FORWARD);
+        ARM.setDirection(DcMotor.Direction.FORWARD);
+        WRIST.setDirection(DcMotor.Direction.FORWARD);
+        FEEDER.setDirection(DcMotor.Direction.FORWARD);
 
         telemetry.addData("Status ", "Motors have been Initialized");
     }
@@ -94,18 +94,18 @@ public class Robot_Test extends OpMode {
         DRIVE_BACK_RIGHT.setPower(rear_right);
 
         if (gamepad1.a)
-            arm_Motor.setPower(Arm_Speed);
+            ARM.setPower(Arm_Speed);
         else if (gamepad1.y)
-            arm_Motor.setPower(-Arm_Speed);
+            ARM.setPower(-Arm_Speed);
 
         if (gamepad1.b)
-            wrist_Motor.setPower(Wrist_Speed);
+            WRIST.setPower(Wrist_Speed);
         else if (gamepad1.x)
-            wrist_Motor.setPower(-Wrist_Speed);
+            WRIST.setPower(-Wrist_Speed);
 
         if (gamepad1.right_bumper)
-        feeder_Motor.setPower(Feeder_Speed);
+        FEEDER.setPower(Feeder_Speed);
         else if (gamepad1.left_bumper)
-            feeder_Motor.setPower(-Feeder_Speed);
+            FEEDER.setPower(-Feeder_Speed);
     }
 }
