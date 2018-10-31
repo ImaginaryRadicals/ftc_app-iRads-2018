@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.Range;
 
-@TeleOp (name = "Tank", group = "Test")
+@TeleOp (name = "Tank POV", group = "Test")
 public class Tank extends RobotHardware {
 
     @Override
@@ -14,11 +15,15 @@ public class Tank extends RobotHardware {
     public void loop() {
         super.loop();
 
-        setDriveForTank(-gamepad1.left_stick_y, -gamepad1.right_stick_y);
+        double drive = -gamepad1.left_stick_y;
+        double turn  =  gamepad1.left_stick_x;
+        double leftPower  = Range.clip(drive + turn, -1.0, 1.0) ;
+        double rightPower = Range.clip(drive - turn, -1.0, 1.0) ;
+        setDriveForTank(leftPower, rightPower);
 
-        setPower(MotorName.FEEDER,gamepad1.right_trigger);
-        setPower(MotorName.ARM,gamepad1.right_stick_x);
-        setPower(MotorName.WRIST,gamepad1.left_stick_x);
+        setPower(MotorName.FEEDER, gamepad1.right_trigger);
+        setPower(MotorName.ARM, -gamepad1.right_stick_y);
+        setPower(MotorName.WRIST, gamepad1.right_stick_x);
     }
 
 
