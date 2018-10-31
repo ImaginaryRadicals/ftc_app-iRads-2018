@@ -15,6 +15,10 @@ public class Tank extends RobotHardware {
         super.loop();
 
         setDriveForTank(-gamepad1.left_stick_y, -gamepad1.right_stick_y);
+
+        setPower(MotorName.FEEDER,gamepad1.right_trigger);
+        setPower(MotorName.ARM,gamepad1.right_stick_x);
+        setPower(MotorName.WRIST,gamepad1.left_stick_x);
     }
 
 

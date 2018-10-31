@@ -308,8 +308,8 @@ public class RobotHardware extends OpMode {
 
         // Set motor directions.
         try {
-            allMotors.get(MotorName.DRIVE_FRONT_LEFT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
-            allMotors.get(MotorName.DRIVE_BACK_LEFT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
+            allMotors.get(MotorName.DRIVE_FRONT_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
+            allMotors.get(MotorName.DRIVE_BACK_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
             allMotors.get(MotorName.ARM.ordinal()).setDirection(DcMotor.Direction.FORWARD);
             allMotors.get(MotorName.WRIST.ordinal()).setDirection(DcMotor.Direction.FORWARD);
             allMotors.get(MotorName.FEEDER.ordinal()).setDirection(DcMotor.Direction.FORWARD);
@@ -321,7 +321,7 @@ public class RobotHardware extends OpMode {
         setDriveMotorsRunMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Set drive motors to float instead of brake when power is zero.
-        setDriveMotorsZeroPowerBraking(true);
+        setDriveMotorsZeroPowerBraking(false);
 
         // Set arm motor to brake
         try {
