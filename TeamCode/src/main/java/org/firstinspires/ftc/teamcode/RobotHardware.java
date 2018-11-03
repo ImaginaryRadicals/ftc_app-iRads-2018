@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Utilities.Color;
+import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -287,6 +288,34 @@ public class RobotHardware extends OpMode {
         IMU,
     }
 
+    /**
+     * Should be executed at the beginning of loop() function.
+     * Adds the most recent period length (in seconds) to a vector.
+     * then, calculates the average period length.
+     * @return Average period of past execution cycles.
+     */
+    public double updatePeriodTime(){
+        pastPeriods.add(period.seconds());
+        period.reset();
+        if (pastPeriods.size()>= 30) {
+            pastPeriods.remove(0);
+        }
+        return VectorMath.average(pastPeriods);
+    }
+
+    public double getAveragePeriodSec() {
+        return VectorMath.average(pastPeriods);
+    }
+
+    public double getLastPeriodSec() {
+        if (pastPeriods.size() != 0) {
+            return pastPeriods.lastElement();
+        } else {
+            return 0;
+        }
+    }
+
+
     public void init() {
 
         allMotors = new ArrayList<DcMotor>();
@@ -376,7 +405,7 @@ public class RobotHardware extends OpMode {
     }
 
     public void loop() {
-        //updatePeriodTime();
+        updatePeriodTime();
     }
 
     public void stop() {
