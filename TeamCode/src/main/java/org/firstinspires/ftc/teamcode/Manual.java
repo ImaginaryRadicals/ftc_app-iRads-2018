@@ -4,12 +4,21 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
+import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
+import org.firstinspires.ftc.teamcode.Utilities.Mutable;
 
 @TeleOp (name = "Manual", group = "Standard")
 public class Manual extends RobotHardware {
 
     Controller controller1 = null;
     Controller controller2 = null;
+    Mutable<Double> ArmSpeed = new Mutable<>(0.5);
+    Mutable<Double> WristSpeed = new Mutable<>(0.2);
+    Mutable<Double> FeederSpeed = new Mutable<>(.8);
+    Mutable<Boolean> CoPilot = new Mutable<>(false);
+    InteractiveInit interactiveInit = null;
+
+
 
     @Override
     public void init() {
@@ -18,6 +27,25 @@ public class Manual extends RobotHardware {
         controller1 = new Controller (gamepad1);
         controller2 = new Controller (gamepad2);
 
+        interactiveInit = new InteractiveInit(this);
+        interactiveInit.addDouble(ArmSpeed, "Arm speed", 0.1, 0.2, 0.5, 0.8, 1.0);
+        interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, 0.5, 0.8, 1.0);
+        interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, 0.5, 0.8, 1.0);
+        interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
+    }
+
+    @Override
+    public void init_loop() {
+        super.init_loop();
+
+        interactiveInit.update();
+    }
+
+    @Override
+    public void start() {
+        super.start();
+
+        interactiveInit.lock();
     }
 
     @Override
@@ -27,17 +55,50 @@ public class Manual extends RobotHardware {
         controller1.update();
         controller2.update();
 
-        telemetry.addData("Period ", df_prec.format(getAveragePeriodSec()));
+        double triggerThreshhold = 0.1;
+        double armSpeed = ArmSpeed.get();
+        double wristSpeed = WristSpeed.get();
+        double feederSpeed = FeederSpeed.get();
 
-        double drive = -controller1.left_stick_y;
-        double turn  =  controller1.left_stick_x;
-        double leftPower  = Range.clip(drive + turn, -1.0, 1.0) ;
-        double rightPower = Range.clip(drive - turn, -1.0, 1.0) ;
-        setDriveForTank(leftPower, rightPower);
+        boolean copilotEnabled = CoPilot.get();
+        Controller armController = null;
+        if (copilotEnabled) {
+            armController = controller2;
+        } else {
+            armController = controller1;
+        }
 
-        setPower(MotorName.FEEDER, controller1.right_trigger);
-        setPower(MotorName.ARM, -controller1.right_stick_y);
-        setPower(MotorName.WRIST, controller1.right_stick_x);
+
+        setDriveForSimpleMecanum(controller1.left_stick_x, controller1.left_stick_y,
+                                 controller1.right_stick_x, controller1.right_stick_y);
+        // Feeder control
+        if (armController.right_trigger > triggerThreshhold) {
+            setPower(MotorName.FEEDER, armController.right_trigger * feederSpeed);
+        } else if (armController.left_trigger > triggerThreshhold){
+            setPower(MotorName.FEEDER, -armController.left_trigger * feederSpeed);
+        } else {
+            setPower(MotorName.FEEDER, 0);
+        }
+
+        // Arm control and speed
+        if (armController.rightBumper()) {
+            setPower(MotorName.ARM, armSpeed);
+        } else if (armController.leftBumper()){
+            setPower(MotorName.ARM, -armSpeed);
+        } else {
+            setPower(MotorName.ARM, 0);
+        }
+
+        // Wrist control and speed
+        if (armController.dpadUp()) {
+            setPower(MotorName.WRIST, wristSpeed);
+        } else if (armController.dpadDown()){
+            setPower(MotorName.WRIST, -wristSpeed);
+        } else {
+            setPower(MotorName.WRIST, 0);
+        }
+
+
     }
 
 
