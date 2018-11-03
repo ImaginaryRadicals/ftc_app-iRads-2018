@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
@@ -196,6 +197,28 @@ public class RobotHardware extends OpMode {
         } else {
             return s.getPosition();
         }
+    }
+
+    public boolean moveServoAtRate(ServoName servo, double targetPos, double rate) {
+        boolean isMovementDone;
+        double distanceThreshold = 0.05;
+        rate = Range.clip(rate,0,10);
+        targetPos = Range.clip(targetPos,0,1);
+        double currentPosition = getAngle(servo);
+        double distance = targetPos - currentPosition;
+        double direction = targetPos > currentPosition ? 1 : -1;
+        double nextPosition;
+        if ( Math.abs(distance) > distanceThreshold ) {
+            nextPosition = rate * direction * getLastPeriodSec() + currentPosition;
+            isMovementDone = false;
+        } else {
+            nextPosition = targetPos;
+            isMovementDone = true;
+        }
+        nextPosition = Range.clip(nextPosition,0,1);
+        setAngle(servo, nextPosition);
+
+        return isMovementDone;
     }
 
     // The color sensors on the robot.
