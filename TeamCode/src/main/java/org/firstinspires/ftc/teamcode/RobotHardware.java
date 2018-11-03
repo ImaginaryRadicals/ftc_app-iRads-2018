@@ -37,7 +37,7 @@ public class RobotHardware extends OpMode {
 
     // Execution cycle period monitor.
     private ElapsedTime period = new ElapsedTime();
-    private Vector<Double> pastPeriods = new Vector();
+    private Vector<Double> pastPeriods = new Vector<Double>();
 
 
     // The motors on the robot.
