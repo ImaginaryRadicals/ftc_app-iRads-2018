@@ -4,14 +4,12 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Mecanum;
-import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
 
 import java.text.DecimalFormat;
@@ -187,35 +185,13 @@ public class RobotHardware extends OpMode {
         setDriveForMecanumWheels(wheels);
     }
 
-    public boolean driveToPosition(MecanumNavigation mecanumNavigation,
-                                   MecanumNavigation.Navigation2D targetPosition,
-                                   double rate) {
-        double distanceThresholdInches = 1;
-        double angleThresholdRadians = 2 * (2*Math.PI/180);
-        rate = Range.clip(rate,0,1);
-        MecanumNavigation.Navigation2D currentPosition =
-                (MecanumNavigation.Navigation2D)mecanumNavigation.currentPosition.clone();
-        MecanumNavigation.Navigation2D deltaPosition = targetPosition.minusEquals(currentPosition);
 
-        // Not Close enough to target, keep moving
-        if ( Math.abs(deltaPosition.x) > distanceThresholdInches ||
-                Math.abs(deltaPosition.y) > distanceThresholdInches ||
-                Math.abs(deltaPosition.theta) > angleThresholdRadians) {
-
-            Mecanum.Wheels wheels = mecanumNavigation.deltaWheelsFromPosition(targetPosition);
-            wheels.scaleWheelPower(rate);
-            setDriveForMecanumWheels(wheels);
-            return false;
-        } else {  // Close enough
-            setDriveForMecanumWheels(new Mecanum.Wheels(0,0,0,0));
-            return true;
-        }
-    }
 
     // The servos on the robot.
     public enum ServoName {
         FLIPPER_RIGHT,
         FIPPER_LEFT,
+        FEEDER_LIFTER,
     }
 
     // Servo methods
@@ -275,7 +251,7 @@ public class RobotHardware extends OpMode {
 
     // The color sensors on the robot.
     public enum ColorSensorName {
-        JEWEL_COLOR,
+        MINERAL_COLOR,
     }
 
     /**
@@ -305,6 +281,15 @@ public class RobotHardware extends OpMode {
         }
     }
 
+    public boolean colorSensorExists(ColorSensorName sensor) {
+        ColorSensor s = allColorSensors.get(sensor.ordinal());
+        if (s == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     /**
      * Sets the LED power for the color sensor.
      *
@@ -322,13 +307,13 @@ public class RobotHardware extends OpMode {
     }
 
     /**
-     * Checks JEWEL_COLOR sensor and returns enum based on color detected.
+     * Checks MINERAL_COLOR sensor and returns enum based on color detected.
      *
      * @return RED, BLUE, or null
      */
     public Color.Mineral getMineralColor() {
-        int red = getColorSensor(ColorSensorName.JEWEL_COLOR, Color.Channel.RED);
-        int blue = getColorSensor(ColorSensorName.JEWEL_COLOR, Color.Channel.BLUE);
+        int red = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED);
+        int blue = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE);
         if (red > blue) {
             return Color.Mineral.GOLD;
         } else if (blue > red) {
@@ -339,9 +324,10 @@ public class RobotHardware extends OpMode {
     }
 
     public void displayColorSensorTelemetry() {
-        telemetry.addData("Color RED", getColorSensor(ColorSensorName.JEWEL_COLOR, Color.Channel.RED));
-        telemetry.addData("Color BLUE", getColorSensor(ColorSensorName.JEWEL_COLOR, Color.Channel.BLUE));
-        telemetry.addData("Jewel Color:", getMineralColor().toString());
+        telemetry.addData("Color RED", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED));
+        telemetry.addData("Color GREEN", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.GREEN));
+        telemetry.addData("Color BLUE", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE));
+        telemetry.addData("Mineral Color:", getMineralColor().toString());
     }
 
     // Possible starting positions.

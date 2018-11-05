@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Utilities.Color;
@@ -36,9 +35,11 @@ public class DiagnosticOpMode extends Manual {
     public void showDiagnosticTelemetry() {
 
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
-        telemetry.addData("Color RED", getColorSensor(ColorSensorName.JEWEL_COLOR, Color.Channel.RED));
-        telemetry.addData("Color BLUE", getColorSensor(ColorSensorName.JEWEL_COLOR, Color.Channel.BLUE));
-        telemetry.addData("Jewel Color:", getMineralColor().toString());
+
+        // Show color sensor telemetry only if sensor is attached
+        if (colorSensorExists(ColorSensorName.MINERAL_COLOR)) {
+            displayColorSensorTelemetry();
+        }
 
         // Display all ODS sensor light levels
 //        for (OpticalDistanceSensorName o : OpticalDistanceSensorName.values()) {
