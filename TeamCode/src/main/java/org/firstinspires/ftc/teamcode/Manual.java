@@ -92,9 +92,9 @@ public class Manual extends RobotHardware {
             armController = controller1;
         }
 
-        // Mecanum Drive COntrol
-        setDriveForSimpleMecanum(controller1.left_stick_x, controller1.left_stick_y,
-                                 controller1.right_stick_x, controller1.right_stick_y);
+        // Mecanum Drive Control
+        setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, 3), Math.pow(controller1.left_stick_y, 3),
+                                 Math.pow(controller1.right_stick_x, 3), Math.pow( controller1.right_stick_y, 3));
 
 
         if (copilotEnabled) {
@@ -102,16 +102,16 @@ public class Manual extends RobotHardware {
 
             // Feeder control
             if (armController.right_trigger > triggerThreshhold) {
-                setPower(MotorName.FEEDER, armController.right_trigger * feederSpeed);
+                setPower(MotorName.FEEDER, Math.pow(armController.right_trigger, 3) * feederSpeed);
             } else if (armController.left_trigger > triggerThreshhold) {
-                setPower(MotorName.FEEDER, -armController.left_trigger * feederSpeed);
+                setPower(MotorName.FEEDER, Math.pow(-armController.left_trigger, 3) * feederSpeed);
             } else {
                 setPower(MotorName.FEEDER, 0);
             }
 
             // Arm and Wrist Control
-            setPower(MotorName.ARM, -armController.right_stick_y * armSpeed);
-            setPower(MotorName.WRIST, -armController.left_stick_y * wristSpeed);
+            setPower(MotorName.ARM, Math.pow(-armController.right_stick_y, 3) * armSpeed);
+            setPower(MotorName.WRIST, Math.pow(-armController.left_stick_y, 3) * wristSpeed);
 
         } else { // Arm control for pilot
 
