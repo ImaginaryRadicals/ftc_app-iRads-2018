@@ -49,7 +49,7 @@ public class Manual extends RobotHardware {
         controller2 = new Controller (gamepad2);
 
         interactiveInit = new InteractiveInit(this);
-        interactiveInit.addDouble(ArmSpeed, "Arm speed", 0.1, 0.2, .03, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
+        interactiveInit.addDouble(ArmSpeed, "Arm speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .03, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, .03, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
@@ -78,7 +78,8 @@ public class Manual extends RobotHardware {
         mecanumNavigation.update();
         mecanumNavigation.displayPosition();
 
-        double triggerThreshhold = 0.1;
+        double triggerThreshholdPositive = 0.1;
+        double triggerThreshholdNegative = -0.1;
         double armSpeed = ArmSpeed.get();
         double wristSpeed = WristSpeed.get();
         double feederSpeed = FeederSpeed.get();
@@ -98,28 +99,28 @@ public class Manual extends RobotHardware {
         setDriveForSimpleMecanum(controller1.left_stick_x, controller1.left_stick_y,
                                  controller1.right_stick_x, controller1.right_stick_y);
         // Feeder control
-        if (armController.right_trigger > triggerThreshhold) {
+        if (armController.right_trigger > triggerThreshholdPositive) {
             setPower(MotorName.FEEDER, armController.right_trigger * feederSpeed);
-        } else if (armController.left_trigger > triggerThreshhold){
+        } else if (armController.left_trigger > triggerThreshholdPositive){
             setPower(MotorName.FEEDER, -armController.left_trigger * feederSpeed);
         } else {
             setPower(MotorName.FEEDER, 0);
         }
 
         // Arm control and speed
-        if (armController.rightBumper()) {
-            setPower(MotorName.ARM, armSpeed);
-        } else if (armController.leftBumper()){
-            setPower(MotorName.ARM, -armSpeed);
+        if (armController.right_stick_y < triggerThreshholdPositive){
+            setPower(MotorName.ARM, armController.right_stick_y * armSpeed);
+        } else if (armController.right_stick_y > triggerThreshholdNegative){
+            setPower(MotorName.ARM, -armController.right_stick_y * armSpeed);
         } else {
             setPower(MotorName.ARM, 0);
         }
 
         // Wrist control and speed
-        if (armController.dpadUp()) {
-            setPower(MotorName.WRIST, wristSpeed);
-        } else if (armController.dpadDown()){
-            setPower(MotorName.WRIST, -wristSpeed);
+        if (armController.left_stick_y < triggerThreshholdPositive) {
+            setPower(MotorName.WRIST, armController.left_stick_y * wristSpeed);
+        } else if (armController.left_stick_x > triggerThreshholdNegative){
+            setPower(MotorName.WRIST, -armController.left_stick_y * wristSpeed);
         } else {
             setPower(MotorName.WRIST, 0);
         }
@@ -127,7 +128,6 @@ public class Manual extends RobotHardware {
         if (controller1.YOnce()) {
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
         }
-
 
     }
 
