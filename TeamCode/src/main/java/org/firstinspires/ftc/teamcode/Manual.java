@@ -20,6 +20,9 @@ public class Manual extends RobotHardware {
     Mutable<Double> WristSpeed = new Mutable<>(0.2);
     Mutable<Double> FeederSpeed = new Mutable<>(.8);
     Mutable<Boolean> CoPilot = new Mutable<>(false);
+    Mutable<Double> Exponential = new Mutable<>(1.0);
+
+
     InteractiveInit interactiveInit = null;
     MecanumNavigation mecanumNavigation;
     AutoDrive autoDrive;
@@ -52,6 +55,7 @@ public class Manual extends RobotHardware {
         interactiveInit.addDouble(ArmSpeed, "Arm speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
+        interactiveInit.addDouble(Exponential, "Exponential", 1.0, 2.0, 3.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
     }
 
@@ -78,10 +82,11 @@ public class Manual extends RobotHardware {
         mecanumNavigation.update();
         mecanumNavigation.displayPosition();
 
-        double triggerThreshhold = 0.1;
+        double triggerThreshold = 0.1;
         double armSpeed = ArmSpeed.get();
         double wristSpeed = WristSpeed.get();
         double feederSpeed = FeederSpeed.get();
+        double exponential = Exponential.get();
         boolean copilotEnabled = CoPilot.get();
         Controller armController = null;
 
@@ -92,26 +97,28 @@ public class Manual extends RobotHardware {
             armController = controller1;
         }
 
+
+
         // Mecanum Drive Control
-        setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, 3), Math.pow(controller1.left_stick_y, 3),
-                                 Math.pow(controller1.right_stick_x, 3), Math.pow( controller1.right_stick_y, 3));
+        setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, exponential), Math.pow(controller1.left_stick_y, exponential),
+                                 Math.pow(controller1.right_stick_x, exponential), Math.pow( controller1.right_stick_y, exponential));
 
 
         if (copilotEnabled) {
 
 
             // Feeder control
-            if (armController.right_trigger > triggerThreshhold) {
-                setPower(MotorName.FEEDER, Math.pow(armController.right_trigger, 3) * feederSpeed);
-            } else if (armController.left_trigger > triggerThreshhold) {
-                setPower(MotorName.FEEDER, Math.pow(-armController.left_trigger, 3) * feederSpeed);
+            if (armController.right_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(armController.right_trigger, exponential) * feederSpeed);
+            } else if (armController.left_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(-armController.left_trigger, exponential) * feederSpeed);
             } else {
                 setPower(MotorName.FEEDER, 0);
             }
 
             // Arm and Wrist Control
-            setPower(MotorName.ARM, Math.pow(-armController.right_stick_y, 3) * armSpeed);
-            setPower(MotorName.WRIST, Math.pow(-armController.left_stick_y, 3) * wristSpeed);
+            setPower(MotorName.ARM, Math.pow(-armController.right_stick_y, exponential) * armSpeed);
+            setPower(MotorName.WRIST, Math.pow(-armController.left_stick_y, exponential) * wristSpeed);
 
         } else { // Arm control for pilot
 
