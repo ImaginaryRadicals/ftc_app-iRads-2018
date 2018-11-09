@@ -202,14 +202,15 @@ public class InteractiveInit {
             telemetry.addData("To lock:", "    Press  A button");
         } else { // not interactiveMode
             telemetry.addData("INITIALIZATION", "*** LOCKED ***");
+            telemetry.addData("To unlock:", "    Press  B button");
         }
     } // displayMenu()
 
     // Updates the menu display
     public void update() {
+        displayMenu();
+        telemetry.update();
         if (interactiveMode) {
-            displayMenu();
-            telemetry.update();
             updateInputs();
         }
     }
@@ -263,6 +264,8 @@ public class InteractiveInit {
                 prevOption();
             } else if (controller.AOnce()) {
                 interactiveMode = false;
+            } else if (controller.BOnce()) {
+                interactiveMode = true;
             }
         }
         else { // No gamepad detected or opMode started.

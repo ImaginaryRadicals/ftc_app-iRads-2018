@@ -34,8 +34,8 @@ public class Constants {
     public static final double BLOCK_HEIGHT_INCHES = 6;
     public static final double BLOCK_OFFSET_INCHES = 1;
 
-    public static final double DRIVE_WHEEL_DIAMETER_INCHES  =  6;
-    public static final double DRIVE_WHEEL_LATERAL_RATIO = 0.89;
+    public static final double DRIVE_WHEEL_DIAMETER_INCHES  =  6/1.057;
+    public static final double DRIVE_WHEEL_LATERAL_RATIO = 0.89*0.963;
 
     public static final double MM_PER_IN = 25.4f;
     private static double rotationScaleIncrease = 1.0975;
