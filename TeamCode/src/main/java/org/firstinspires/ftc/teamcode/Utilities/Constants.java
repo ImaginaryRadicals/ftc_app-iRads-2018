@@ -35,10 +35,10 @@ public class Constants {
     public static final double BLOCK_OFFSET_INCHES = 1;
 
     public static final double DRIVE_WHEEL_DIAMETER_INCHES  =  6/1.057;
-    public static final double DRIVE_WHEEL_LATERAL_RATIO = 0.89*0.963;
+    public static final double DRIVE_WHEEL_LATERAL_RATIO = 0.89 * 0.963 / 0.95884;
 
     public static final double MM_PER_IN = 25.4f;
-    private static double rotationScaleIncrease = 1.0975;
+    private static double rotationScaleIncrease = 1.0975 / 1.088844444;
     public static final double WHEELBASE_WIDTH_IN = 15 / rotationScaleIncrease;
     public static final double WHEELBASE_LENGTH_IN = 11.75 / rotationScaleIncrease;
     public static final double WHEELBASE_WIDTH_MM  = WHEELBASE_WIDTH_IN  * MM_PER_IN;

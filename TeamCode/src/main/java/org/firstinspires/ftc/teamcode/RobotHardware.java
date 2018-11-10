@@ -110,6 +110,17 @@ public class RobotHardware extends OpMode {
         }
     }
 
+    public void resetAndStopAllMotors() {
+        for (MotorName name : MotorName.values()) {
+            DcMotor motor = allMotors.get(name.ordinal());
+            if (motor == null) {
+                telemetry.addData("Motor missing" ,name.name());
+            } else {
+                motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+        }
+    }
+
     /**
      * Set all four drive motors to the same runMode.
      * Options are RUN_WITHOUT_ENCODER, RUN_USING_ENCODER,
@@ -395,6 +406,8 @@ public class RobotHardware extends OpMode {
         driveMotorNames.add(MotorName.DRIVE_FRONT_RIGHT);
         driveMotorNames.add(MotorName.DRIVE_BACK_LEFT);
         driveMotorNames.add(MotorName.DRIVE_BACK_RIGHT);
+
+        resetAndStopAllMotors();
 
         // Set motor directions.
         try {

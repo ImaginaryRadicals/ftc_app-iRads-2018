@@ -55,7 +55,7 @@ public class Manual extends RobotHardware {
         interactiveInit.addDouble(ArmSpeed, "Arm speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(Exponential, "Exponential", 1.0, 2.0, 3.0);
+        interactiveInit.addDouble(Exponential, "Exponential", 1.0, 3.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
     }
 
