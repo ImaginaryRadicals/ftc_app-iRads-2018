@@ -22,10 +22,23 @@ public class Manual extends RobotHardware {
     Mutable<Boolean> CoPilot = new Mutable<>(false);
     Mutable<Double> Exponential = new Mutable<>(1.0);
 
+    //
+    public enum ArmStates{
+        ARM_START,
+        WRIST_UP,
+        ARM_LEVEL,
+        ARM_VERTICAL,
+        ARM_SCORE,
+        MANUAL,
+    }
+
+    ArmStates armStates = ArmStates.ARM_START;
 
     InteractiveInit interactiveInit = null;
     MecanumNavigation mecanumNavigation;
     AutoDrive autoDrive;
+
+    Controller armController = null;
 
 
 
@@ -88,7 +101,6 @@ public class Manual extends RobotHardware {
         double feederSpeed = FeederSpeed.get();
         double exponential = Exponential.get();
         boolean copilotEnabled = CoPilot.get();
-        Controller armController = null;
 
         // Copilot / Arm control selector.
         if (copilotEnabled) {
@@ -148,5 +160,56 @@ public class Manual extends RobotHardware {
 
     }
 
+    public boolean driveMotorToPos (MotorName motorName, int targetTicks, double power) {
+        power = Range.clip(Math.abs(power), 0, 1);
+        int targetThreshold = 20;
+        int rampThreshold = 200;
+        double maxRampPower = 1;
+        double minRampPower = .1;
+        int errorSignal = getEncoderValue(motorName) - targetTicks;
+        double direction = errorSignal > 0 ? -1: 1;
+        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, minRampPower, maxRampPower);
+
+        if(Math.abs(errorSignal) < targetThreshold) {
+            return true;
+        }else {
+            setPower(motorName, direction * power * rampDownRatio);
+            return false;
+        }
+    }
+
+    public void armStateMachine () {
+        boolean wristArrived = false;
+        boolean armArrived = false;
+        double power = .5;
+
+        switch (armStates) {
+            case ARM_START:
+                armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_BOTTOM_TICKS, power);
+                wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_START_TICKS, power);
+                if (armArrived && wristArrived && armController.XOnce()) {
+                    armStates = ArmStates.WRIST_UP;
+                }
+                break;
+            case WRIST_UP:
+
+                break;
+            case ARM_LEVEL:
+
+                break;
+            case ARM_SCORE:
+
+                break;
+            case ARM_VERTICAL:
+
+                break;
+            case MANUAL:
+
+                break;
+            default:
+                break;
+        }
+
+    }
 
 }

@@ -6,33 +6,20 @@ package org.firstinspires.ftc.teamcode.Utilities;
 
 public class Constants {
 
-    // public doubles for the left and right CLAW
-    public static final double LEFT_CLAW_OPEN = 0.39;
-    public static final double RIGHT_CLAW_OPEN = 0.49;
-    public static final double LEFT_CLAW_RELEASE = 0.22;
-    public static final double RIGHT_CLAW_RELEASE = 0.32;
-
-    public static final double LEFT_CLAW_CLOSED = 0.05;
-    public static final double RIGHT_CLAW_CLOSED = 0.15;
-    public static final double INITIAL_LEFT_CLAW_POS = 0.73;
-    public static final double INITIAL_RIGHT_CLAW_POS = 0.83;
-
-    public static final double JEWEL_ARM_INITIAL = 0.97;
-    public static final double JEWEL_ARM_BOTTOM = 0.05;
-    public static final double JEWEL_ARM_TOP = 0.81;
-
     // Arm geometry
-    public static final double ARM_LENGTH_INCHES = 13.75;
-    public static final double ARM_BOTTOM_ANGLE_DEGREES = -40;
-    public static final double ARM_TOP_ANGLE_DEGREES = 43;
+    public static final double ARM_BOTTOM_ANGLE_DEGREES = -60;
+    public static final double ARM_BOTTOM_HARDSTOP = -60; //fix
     public static final int ARM_BOTTOM_TICKS = 0;
-    public static final int ARM_LEVEL_TICKS = 600;
-    public static final int ARM_TOP_TICKS = 1200;
-    public static final double ARM_SLOP_DEGREES = 12;
+    public static final int ARM_LEVEL_TICKS = 2140;
+    public static final int ARM_VERTICAL_TICKS = 5858;
+    public static final double ARM_TICKS_PER_DEGREE = (ARM_VERTICAL_TICKS - ARM_LEVEL_TICKS) / 90;
 
-    // Block stacking geometry
-    public static final double BLOCK_HEIGHT_INCHES = 6;
-    public static final double BLOCK_OFFSET_INCHES = 1;
+    public static final int WRIST_MAX_TICKS = 326;
+    public static final int WRIST_MIN_TICKS = 848;
+    public static final int WRIST_START_TICKS = 0;
+    public static final int WRIST_STRAIGHT_TICKS = -100; //get value
+    public static final double WRIST_MAX_ANGLE = 59; //Above start
+    public static final double WRIST_TICKS_PER_DEGREE = (WRIST_MAX_TICKS - WRIST_START_TICKS) / WRIST_MAX_ANGLE;
 
     public static final double DRIVE_WHEEL_DIAMETER_INCHES  =  6/1.057;
     public static final double DRIVE_WHEEL_LATERAL_RATIO = 0.89 * 0.963 / 0.95884;
