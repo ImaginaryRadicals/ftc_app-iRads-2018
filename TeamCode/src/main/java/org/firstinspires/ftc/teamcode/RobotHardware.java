@@ -201,7 +201,7 @@ public class RobotHardware extends OpMode {
     // The servos on the robot.
     public enum ServoName {
         FLIPPER_RIGHT,
-        FIPPER_LEFT,
+        FLIPPER_LEFT,
         FEEDER_LIFTER,
     }
 
@@ -450,7 +450,7 @@ public class RobotHardware extends OpMode {
         }
         // Set servo direction
         try {
-            allServos.get(ServoName.FIPPER_LEFT.ordinal()).setDirection(Servo.Direction.REVERSE);
+            allServos.get(ServoName.FLIPPER_LEFT.ordinal()).setDirection(Servo.Direction.REVERSE);
         } catch (Exception e) {
             telemetry.addData("Unable to set left servo direction", "");
         }
