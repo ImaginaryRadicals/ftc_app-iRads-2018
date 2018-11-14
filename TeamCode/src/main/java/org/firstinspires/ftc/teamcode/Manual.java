@@ -36,7 +36,7 @@ public class Manual extends RobotHardware {
         MANUAL,
     }
 
-    ArmStates armState = ArmStates.ARM_START;
+    ArmStates armState = ArmStates.MANUAL;
 
     InteractiveInit interactiveInit = null;
     MecanumNavigation mecanumNavigation;
@@ -72,11 +72,11 @@ public class Manual extends RobotHardware {
         //Adding Interactive init options
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(ArmSpeed, "Arm speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
+        interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.0, 0.5);
+        interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.0, 0.8);
         interactiveInit.addDouble(GoToPosPower, "Power to goto position", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(Exponential, "Exponential", 1.0, 3.0);
-        interactiveInit.addBoolean(CoPilot, "Copilot Enable", true, false);
+        interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
+        interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
     }
 
     @Override
@@ -102,7 +102,6 @@ public class Manual extends RobotHardware {
         controller2.update();
 
         mecanumNavigation.update();
-        mecanumNavigation.displayPosition();
 
         double armSpeed = ArmSpeed.get();
         double wristSpeed = WristSpeed.get();
@@ -117,79 +116,126 @@ public class Manual extends RobotHardware {
             armController = controller1;
         }
 
+        // Telemetry
+        mecanumNavigation.displayPosition();
+        telemetry.addData("ArmStates", armState.toString());
 
+        armStateMachine();
 
-        // Mecanum Drive Control
-        setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, exponential), Math.pow(controller1.left_stick_y, exponential),
-                                 Math.pow(controller1.right_stick_x, exponential), Math.pow( controller1.right_stick_y, exponential));
+        // Cord controls
+        if (armController.leftBumper() && armController.rightBumper()) {
+            // Winch controls
+            setPower(MotorName.LIFT_WINCH, -armController.left_stick_y);
+            // Feeder lifter
+            double servoTarget = -armController.right_stick_y > 0 ? 1 : 0;
+            moveServoAtRate(ServoName.FEEDER_LIFTER, servoTarget, Math.abs(armController.right_stick_y));
 
-
-        if (copilotEnabled) { // Arm control for 2 pilots
-
-
-            // Feeder control
-            if (armController.right_trigger > triggerThreshold) {
-                setPower(MotorName.FEEDER, Math.pow(armController.right_trigger, exponential) * feederSpeed);
-            } else if (armController.left_trigger > triggerThreshold) {
-                setPower(MotorName.FEEDER, Math.pow(-armController.left_trigger, exponential) * feederSpeed);
-            } else {
-                setPower(MotorName.FEEDER, 0);
+            if (armController.YOnce()) {
+                mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
             }
 
-            // Arm and Wrist Control
-            setPower(MotorName.ARM, Math.pow(-armController.right_stick_y, exponential) * armSpeed);
-            setPower(MotorName.WRIST, Math.pow(-armController.left_stick_y, exponential) * wristSpeed);
-
-        } else { // Arm control for 1 pilot
-
-            // Arm control and speed
-            if (armController.rightBumper()) {
-                setPower(MotorName.ARM, armSpeed);
-            } else if (armController.leftBumper()){
-                setPower(MotorName.ARM, -armSpeed);
-            } else {
-                setPower(MotorName.ARM, 0);
+            if (armController.A()) {
+                autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, 0), 0.5);
             }
-
-            // Wrist control and speed
-            if (armController.dpadUp()) {
-                setPower(MotorName.WRIST, wristSpeed);
-            } else if (armController.dpadDown()){
-                setPower(MotorName.WRIST, -wristSpeed);
-            } else {
-                setPower(MotorName.WRIST, 0);
-            }
-
         }
 
         if (controller1.YOnce()) {
             mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0, 0, 0));
+        } else { // Else for Cord controls
+            // Mecanum Drive Control
+            setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, exponential), Math.pow(controller1.left_stick_y, exponential),
+                    Math.pow(controller1.right_stick_x, exponential), Math.pow(controller1.right_stick_y, exponential));
+
+
+
+            if (copilotEnabled) { // Arm control for 2 pilots
+
+
+                // Feeder control
+                if (armController.right_trigger > triggerThreshold) {
+                    setPower(MotorName.FEEDER, Math.pow(armController.right_trigger, exponential) * feederSpeed);
+                } else if (armController.left_trigger > triggerThreshold) {
+                    setPower(MotorName.FEEDER, Math.pow(-armController.left_trigger, exponential) * feederSpeed);
+                } else {
+                    setPower(MotorName.FEEDER, 0);
+                }
+
+                if (armState == ArmStates.MANUAL) {
+
+                    // Arm and Wrist Control
+                    setPower(MotorName.ARM, Math.pow(-armController.left_stick_y, exponential) * armSpeed);
+                    setPower(MotorName.WRIST, Math.pow(-armController.right_stick_y, exponential) * wristSpeed);
+                }
+
+            } else { // Arm control for 1 pilot
+
+                if (armState == ArmStates.MANUAL) {
+
+                    // Arm control and speed
+                    if (armController.rightBumper()) {
+                        setPower(MotorName.ARM, armSpeed);
+                    } else if (armController.leftBumper()) {
+                        setPower(MotorName.ARM, -armSpeed);
+                    } else {
+                        setPower(MotorName.ARM, 0);
+                    }
+
+                    // Wrist control and speed
+                    if (armController.dpadUp()) {
+                        setPower(MotorName.WRIST, wristSpeed);
+                    } else if (armController.dpadDown()) {
+                        setPower(MotorName.WRIST, -wristSpeed);
+                    } else {
+                        setPower(MotorName.WRIST, 0);
+                    }
+                }
+            }
+
         }
 
     }
+
 
     public boolean driveMotorToPos (MotorName motorName, int targetTicks, double power) {
         power = Range.clip(Math.abs(power), 0, 1);
-        int targetThreshold = 20;
-        int rampThreshold = 200;
-        double maxRampPower = 1;
-        double minRampPower = .1;
+        int poweredDistance = 20;
+        int arrivedDistance = 90;
+        int rampThreshold = 400;
+        double maxRampPower = 0.8;
+        double minRampPower = 0;
         int errorSignal = getEncoderValue(motorName) - targetTicks;
-        double direction = errorSignal > 0 ? -1: 1;
+        double direction = errorSignal > 0 ? -1.0: 1.0;
         double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, minRampPower, maxRampPower);
 
-        if(Math.abs(errorSignal) < targetThreshold) {
+        if (Math.abs(errorSignal) > poweredDistance)
+            {setPower(motorName, direction * power * rampDownRatio);
+        }
+
+        if(Math.abs(errorSignal) < arrivedDistance) {
             return true;
         }else {
-            setPower(motorName, direction * power * rampDownRatio);
             return false;
         }
     }
+
+
     //Arm and wrist state machine
     public void armStateMachine () {
+
+        double goToPos = GoToPosPower.get();
         boolean wristArrived = false;
         boolean armArrived = false;
-        double power = GoToPosPower.get();
+        double power = goToPos;
+
+        if(
+            CoPilot.get() == true && ((Math.abs(armController.right_stick_y) >= triggerThreshold) ||
+            (Math.abs(armController.left_stick_y) >= triggerThreshold) ) ||
+            CoPilot.get() == false &&
+            (armController.dpadUp() || armController.dpadDown() ||
+            armController.rightBumper() || armController.leftBumper()))
+        {
+                armState = ArmStates.MANUAL;
+        }
 
         switch (armState) {
             case ARM_START:
@@ -197,8 +243,6 @@ public class Manual extends RobotHardware {
                 wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_START_TICKS, power);
                 if (armArrived && wristArrived && armController.XOnce()) {
                     armState = ArmStates.WRIST_UP;
-                } else if(Math.abs(armController.right_stick_y) >= triggerThreshold) {
-                    armState = ArmStates.MANUAL;
                 }
                 break;
 
@@ -209,8 +253,6 @@ public class Manual extends RobotHardware {
                     armState = ArmStates.ARM_LEVEL;
                 } else if (armArrived && wristArrived && armController.BOnce()) {
                     armState = ArmStates.ARM_START;
-                } else if(Math.abs(armController.right_stick_y) >= triggerThreshold) {
-            armState = ArmStates.MANUAL;
                 }
                 break;
 
@@ -221,8 +263,6 @@ public class Manual extends RobotHardware {
                     armState = ArmStates.ARM_VERTICAL;
                 } else if (armArrived && wristArrived && armController.BOnce()) {
                     armState = ArmStates.WRIST_UP;
-                } else if(Math.abs(armController.right_stick_y) >= triggerThreshold) {
-                    armState = ArmStates.MANUAL;
                 }
                 break;
 
@@ -233,8 +273,6 @@ public class Manual extends RobotHardware {
                     armState = ArmStates.ARM_SCORE;
                 } else if (armArrived && wristArrived && armController.BOnce()) {
                     armState = ArmStates.ARM_LEVEL;
-                } else if(Math.abs(armController.right_stick_y) >= triggerThreshold) {
-                    armState = ArmStates.MANUAL;
                 }
                 break;
 
@@ -245,8 +283,6 @@ public class Manual extends RobotHardware {
                     armState = ArmStates.ARM_START;
                 } else if (armArrived && wristArrived && armController.BOnce()) {
                     armState = ArmStates.ARM_VERTICAL;
-                } else if(Math.abs(armController.right_stick_y) >= triggerThreshold) {
-                    armState = ArmStates.MANUAL;
                 }
                 break;
 

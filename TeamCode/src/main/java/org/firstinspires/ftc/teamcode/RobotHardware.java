@@ -52,6 +52,7 @@ public class RobotHardware extends OpMode {
         ARM,
         WRIST,
         FEEDER,
+        LIFT_WINCH,
     }
 
     /**
