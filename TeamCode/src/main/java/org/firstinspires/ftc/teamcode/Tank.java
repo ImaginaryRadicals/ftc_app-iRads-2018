@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp (name = "Tank POV", group = "Test")
+@TeleOp (name = "Tank POV", group = "Testing")
 public class Tank extends RobotHardware {
 
     @Override

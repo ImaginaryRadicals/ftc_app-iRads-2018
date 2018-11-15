@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
  * Created by Ashley on 12/14/2017.
  */
 
-@TeleOp(name="Diagnostic", group="diagnostic")
+@TeleOp(name="Diagnostic", group="Diagnostic")
 public class DiagnosticOpMode extends Manual {
 
     IMUUtilities imuHelper;

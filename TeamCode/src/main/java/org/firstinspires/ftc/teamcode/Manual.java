@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
 
-@TeleOp (name = "Manual", group = "Standard")
+@TeleOp (name = "Manual", group = "Competition")
 public class Manual extends RobotHardware {
 
     //Setting controller variables
