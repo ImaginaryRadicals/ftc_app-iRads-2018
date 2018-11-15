@@ -15,7 +15,7 @@ public class AutoOpmode extends RobotHardware {
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
 //    protected AutoDeluxeStateMachine autoDeluxeStateMachine;
-//    protected SimpleVuforia vuforia;
+//    protected SimpleVision vuforia;
 //    public RelicRecoveryVuMark glyphPositionVuMark = RelicRecoveryVuMark.UNKNOWN;
     private Thread thread;
     public Controller controller;
@@ -128,7 +128,7 @@ public class AutoOpmode extends RobotHardware {
     // Initialize vuforia in a separate thread to avoid init() hangups.
     class VuforiaLoader implements Runnable {
         public void run() {
-//            vuforia = new SimpleVuforia(getVuforiaLicenseKey(), AutoDeluxe.this, false, false);
+//            vuforia = new SimpleVision(getVuforiaLicenseKey(), AutoDeluxe.this, false, false);
         }
     }
 
