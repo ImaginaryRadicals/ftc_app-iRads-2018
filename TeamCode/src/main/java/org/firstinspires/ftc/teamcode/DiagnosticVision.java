@@ -41,7 +41,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
         super.loop();
         if (simpleVision != null) {
             simpleVision.updateVuMarkPose();
-            simpleVision.updateTensorFlow();
+            simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
         }
     }

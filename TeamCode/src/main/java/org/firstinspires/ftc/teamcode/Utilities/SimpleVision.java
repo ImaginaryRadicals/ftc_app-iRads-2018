@@ -88,6 +88,16 @@ public class SimpleVision {
     public List<Recognition> pastRecognitions;
 
 
+    public static enum GoldMineralPosition {
+        LEFT,
+        CENTER,
+        RIGHT,
+        UNKNOWN,
+    }
+
+    public GoldMineralPosition goldMineralPosition = GoldMineralPosition.UNKNOWN;
+
+
     /**
      * Creates a Vuforia localizer and starts localization.
      * @param vuforiaLicenseKey The license key to access Vuforia code.
@@ -337,7 +347,7 @@ public class SimpleVision {
     }
 
 
-    public void updateTensorFlow() {
+    public void updateTensorFlow(boolean portrait) {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
@@ -351,20 +361,23 @@ public class SimpleVision {
                     int silverMineral2X = -1;
                     for (Recognition recognition : updatedRecognitions) {
                         if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getLeft();
+                            goldMineralX = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
                         } else if (silverMineral1X == -1) {
-                            silverMineral1X = (int) recognition.getLeft();
+                            silverMineral1X = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
                         } else {
-                            silverMineral2X = (int) recognition.getLeft();
+                            silverMineral2X = portrait ? (int) recognition.getLeft() : (int) recognition.getTop();
                         }
                     }
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             opMode.telemetry.addData("Gold Mineral Position", "Left");
+                            setGoldMineralPosition(GoldMineralPosition.LEFT);
                         } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
                             opMode.telemetry.addData("Gold Mineral Position", "Right");
+                            setGoldMineralPosition(GoldMineralPosition.RIGHT);
                         } else {
                             opMode.telemetry.addData("Gold Mineral Position", "Center");
+                            setGoldMineralPosition(GoldMineralPosition.CENTER);
                         }
                     }
                 }
@@ -375,9 +388,16 @@ public class SimpleVision {
 
     }
 
+    public void setGoldMineralPosition(GoldMineralPosition goldMineralPosition) {
+        if (goldMineralPosition != GoldMineralPosition.UNKNOWN) {
+            this.goldMineralPosition = goldMineralPosition;
+        }
+    }
+
     public void displayTensorFlowDetections() {
         if (tfod != null) {
             if (pastRecognitions != null) {
+                opMode.telemetry.addData("Gold Location:",goldMineralPosition.toString());
                 int number_of_recognitions = pastRecognitions.size();
                 opMode.telemetry.addData("# Object Detected", number_of_recognitions);
                 if (number_of_recognitions > 0 && number_of_recognitions <= 5) {
