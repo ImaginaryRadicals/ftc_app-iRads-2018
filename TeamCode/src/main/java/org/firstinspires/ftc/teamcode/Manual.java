@@ -198,20 +198,22 @@ public class Manual extends RobotHardware {
 
     public boolean driveMotorToPos (MotorName motorName, int targetTicks, double power) {
         power = Range.clip(Math.abs(power), 0, 1);
-        int poweredDistance = 20;
-        int arrivedDistance = 90;
+        int poweredDistance = 5;
+        int arrivedDistance = 50;
         int rampThreshold = 400;
-        double maxRampPower = 0.8;
-        double minRampPower = 0;
+        double maxRampPower = 1.0;
+        double minRampPower = 0.0;
         int errorSignal = getEncoderValue(motorName) - targetTicks;
         double direction = errorSignal > 0 ? -1.0: 1.0;
-        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, minRampPower, maxRampPower);
+        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, maxRampPower, minRampPower);
 
-        if (Math.abs(errorSignal) > poweredDistance)
-            {setPower(motorName, direction * power * rampDownRatio);
+        if (Math.abs(errorSignal) >= poweredDistance) {
+            setPower(motorName, direction * power * rampDownRatio);
+        } else {
+            setPower(motorName, 0);
         }
 
-        if(Math.abs(errorSignal) < arrivedDistance) {
+        if(Math.abs(errorSignal) <= arrivedDistance) {
             return true;
         }else {
             return false;

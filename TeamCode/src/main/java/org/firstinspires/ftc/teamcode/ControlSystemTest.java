@@ -30,7 +30,7 @@ public class ControlSystemTest extends RobotHardware {
         controller1.update();
 
         // Emulate encoder ticks for arm position.
-        int maxTicks = 1000;
+        int maxTicks = 500;
         simulated_ticks = (int) (-1*controller1.left_stick_y*maxTicks);
 
 
@@ -51,21 +51,24 @@ public class ControlSystemTest extends RobotHardware {
                                        Mutable<Double> LastPower, Mutable<Boolean> Arrived, Mutable<Integer> ErrorSignal) {
         power = Range.clip(Math.abs(power), 0, 1);
         int poweredDistance = 20;
-        int arrivedDistance = 90;
+        int arrivedDistance = 50;
         int rampThreshold = 400;
-        double maxRampPower = 0.8;
-        double minRampPower = 0;
+        double maxRampPower = 1.0;
+        double minRampPower = .1;
         int errorSignal = getEncoderValue(motorName) - targetTicks;
         ErrorSignal.set(errorSignal);
         double direction = errorSignal > 0 ? -1.0: 1.0;
-        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, minRampPower, maxRampPower);
+        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, maxRampPower, minRampPower);
 
-        if (Math.abs(errorSignal) > poweredDistance)
-        {setPower(motorName, direction * power * rampDownRatio);
+        if (Math.abs(errorSignal) >= poweredDistance) {
+            setPower(motorName, direction * power * rampDownRatio);
             LastPower.set(direction * power * rampDownRatio);
+        } else {
+            setPower(motorName, 0);
+            LastPower.set(0.0);
         }
 
-        if(Math.abs(errorSignal) < arrivedDistance) {
+        if(Math.abs(errorSignal) <= arrivedDistance) {
             Arrived.set(true);
             return true;
         }else {

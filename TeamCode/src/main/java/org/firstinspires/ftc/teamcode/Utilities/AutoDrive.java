@@ -85,8 +85,16 @@ public class AutoDrive {
     }
 
     static public double rampDown(double errSignal, double signalRampDownThreshold, double maxRatio, double minRatio) {
+        // Error Check: Swap values to ensure max >= min
+        if (maxRatio < minRatio) {
+            double temp = maxRatio;
+            maxRatio = minRatio;
+            minRatio = temp;
+        }
+
         double output;
         double standardOutput = 1.0;
+
         if (errSignal > signalRampDownThreshold) {
             output = standardOutput;
         } else {
