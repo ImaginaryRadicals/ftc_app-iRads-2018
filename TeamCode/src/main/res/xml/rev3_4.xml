@@ -15,6 +15,7 @@
             <NeveRest60Gearmotor name="ARM" port="0" />
 			<NeveRest60Gearmotor name="WRIST" port="1" />
 			<NeveRest60Gearmotor name="FEEDER" port="2" />
+			<NeveRest40Gearmotor name="LIFT_WINCH" port="3" />
             <LynxEmbeddedIMU name="IMU_2" port="0" bus="0" />
         </LynxModule>
     </LynxUsbDevice>
