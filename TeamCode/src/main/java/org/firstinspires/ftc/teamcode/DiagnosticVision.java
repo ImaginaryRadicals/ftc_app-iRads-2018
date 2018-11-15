@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
  */
 
 @TeleOp(name="Diagnostic Vision", group="Diagnostic")
-public class DiagnosticVision extends Manual {
+public class DiagnosticVision extends DiagnosticOpMode {
 
     SimpleVision simpleVision;
     private Thread thread;
@@ -42,6 +42,7 @@ public class DiagnosticVision extends Manual {
         if (simpleVision != null) {
             simpleVision.updateVuMarkPose();
             simpleVision.updateTensorFlow();
+            simpleVision.displayTensorFlowDetections();
         }
     }
 

@@ -84,6 +84,8 @@ public class SimpleVision {
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
     private TFObjectDetector tfod;
+    public List<Recognition> updatedRecognitions;
+    public List<Recognition> pastRecognitions;
 
 
     /**
@@ -339,8 +341,9 @@ public class SimpleVision {
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
+                pastRecognitions = updatedRecognitions;
                 opMode.telemetry.addData("# Object Detected", updatedRecognitions.size());
                 if (updatedRecognitions.size() == 3) {
                     int goldMineralX = -1;
@@ -370,6 +373,24 @@ public class SimpleVision {
         }
 
 
+    }
+
+    public void displayTensorFlowDetections() {
+        if (tfod != null) {
+            if (pastRecognitions != null) {
+                int number_of_recognitions = pastRecognitions.size();
+                opMode.telemetry.addData("# Object Detected", number_of_recognitions);
+                if (number_of_recognitions > 0 && number_of_recognitions <= 5) {
+                    for (Recognition recognition : pastRecognitions) {
+                        opMode.telemetry.addData(recognition.getLabel(),
+                        "{Left, Right, Top, Bottom} = %.0f, %.0f, %.0f, %.0f",
+                                recognition.getLeft(),recognition.getRight(), recognition.getTop(), recognition.getBottom());
+                    }
+//                    opMode.telemetry.update();
+                }
+
+            }
+        }
     }
 
 
