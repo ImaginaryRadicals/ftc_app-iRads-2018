@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.teamcode.Utilities.RobotStateMachine;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
+import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
 
 public class AutoOpmode extends RobotHardware {
 
@@ -14,9 +17,8 @@ public class AutoOpmode extends RobotHardware {
     public AutoDrive autoDrive;
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
-//    protected AutoDeluxeStateMachine autoDeluxeStateMachine;
-//    protected SimpleVision vuforia;
-//    public RelicRecoveryVuMark glyphPositionVuMark = RelicRecoveryVuMark.UNKNOWN;
+    protected RobotStateMachine robotStateMachine;
+    protected SimpleVision vuforia;
     private Thread thread;
     public Controller controller;
 
@@ -77,7 +79,7 @@ public class AutoOpmode extends RobotHardware {
                         getEncoderValue(MotorName.DRIVE_BACK_RIGHT)));
         autoDrive = new AutoDrive(this, mecanumNavigation);
         // Finally, construct the state machine.
-//        autoDeluxeStateMachine = new AutoDeluxeStateMachine(this, robotColor, robotStartPos);
+        robotStateMachine = new RobotStateMachine(this, robotColor, robotStartPos);
         telemetry.addData("Initialization:", "Successful!");
     }
 
@@ -100,7 +102,7 @@ public class AutoOpmode extends RobotHardware {
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
-//        autoDeluxeStateMachine.init();
+        robotStateMachine.init();
     }
 
     @Override
@@ -115,9 +117,9 @@ public class AutoOpmode extends RobotHardware {
 //        } catch (Exception e) {
 //            telemetry.addData("Vuforia", "NOT INITIALIZED");
 //        }
-//        autoDeluxeStateMachine.update();
+        robotStateMachine.update();
         mecanumNavigation.displayPosition();
-//        telemetry.addData("Current State", autoDeluxeStateMachine.state.toString());
+        telemetry.addData("Current State", robotStateMachine.state.toString());
         telemetry.addLine();
         displayColorSensorTelemetry();
     }
