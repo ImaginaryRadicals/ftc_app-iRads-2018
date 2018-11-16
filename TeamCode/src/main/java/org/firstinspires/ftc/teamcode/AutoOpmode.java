@@ -18,7 +18,7 @@ public class AutoOpmode extends RobotHardware {
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
     protected RobotStateMachine robotStateMachine;
-    protected SimpleVision vuforia;
+    protected SimpleVision simpleVision;
     private Thread thread;
     public Controller controller;
 
@@ -65,7 +65,7 @@ public class AutoOpmode extends RobotHardware {
     public void init() {
         super.init();
         controller = new Controller(gamepad1);
-        thread = new Thread(new VuforiaLoader());
+        thread = new Thread(new VisionLoader());
         thread.start();
         mecanumNavigation = new MecanumNavigation(this,
                 new MecanumNavigation.DriveTrainMecanum(
@@ -88,12 +88,11 @@ public class AutoOpmode extends RobotHardware {
         super.init_loop();
         controller.update();
 
-//        if (vuforia == null) {
-//            telemetry.addData("Vuforia:", "LOADING...");
-//        } else {
-//            telemetry.addData("Vuforia:", "INITIALIZED");
-//        }
-        displayColorSensorTelemetry();
+        if (simpleVision == null) {
+            telemetry.addData("Vision:", "LOADING...");
+        } else {
+            telemetry.addData("Vision:", "INITIALIZED");
+        }
     }
 
     @Override
@@ -110,27 +109,27 @@ public class AutoOpmode extends RobotHardware {
         super.loop();
         controller.update();
         mecanumNavigation.update();
-//        try {
-//            RelicRecoveryVuMark vuMark = vuforia.detectMark();
-//            setVumark(vuMark); // Store last non-UNKNOWN vumark detected.
-//            telemetry.addData("Vuforia Glyph Position", vuMark);
-//        } catch (Exception e) {
-//            telemetry.addData("Vuforia", "NOT INITIALIZED");
-//        }
         robotStateMachine.update();
         mecanumNavigation.displayPosition();
         telemetry.addData("Current State", robotStateMachine.state.toString());
         telemetry.addLine();
-        displayColorSensorTelemetry();
+        try {
+            simpleVision.updateTensorFlow(true);
+            simpleVision.displayTensorFlowDetections();
+        } catch(Exception e) {
+            telemetry.addData("Vision Not Loaded", "");
+        }
     }
 
 
 
 
     // Initialize vuforia in a separate thread to avoid init() hangups.
-    class VuforiaLoader implements Runnable {
+    class VisionLoader implements Runnable {
         public void run() {
-//            vuforia = new SimpleVision(getVuforiaLicenseKey(), AutoDeluxe.this, false, false);
+            simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
+                    false, true,false,
+                    true);
         }
     }
 
