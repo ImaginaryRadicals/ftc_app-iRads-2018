@@ -85,9 +85,9 @@ public class RobotStateMachine {
             state = AutoState.DISMOUNT;
         } else if (state == AutoState.DISMOUNT) {
 
-            opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(10, 0, 90), 0.5);
+            opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(10, 0, degreesToRadians(90)), 0.5);
 
-            if (stateTimer.seconds() >= 4) {
+            if (stateTimer.seconds() >= 20) {
                 stateTimer.reset();
 
                 state = AutoState.STOP;
