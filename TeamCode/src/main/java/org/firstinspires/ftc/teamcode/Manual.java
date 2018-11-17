@@ -72,7 +72,7 @@ public class Manual extends RobotHardware {
         //Adding Interactive init options
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(ArmSpeed, "Arm speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
-        interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .3, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 0.4);
+        interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.8, 0.9, 1.0, 0.7);
         interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.0, 0.8);
         interactiveInit.addDouble(GoToPosPower, "Power to goto position", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);

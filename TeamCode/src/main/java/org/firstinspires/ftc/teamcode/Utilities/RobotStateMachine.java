@@ -246,9 +246,7 @@ public class RobotStateMachine {
             opMode.stopAllMotors();
         }
     }
-
-
-
+    
     private double degreesToRadians(double degrees) {
         return degrees * Math.PI / 180;
     }
