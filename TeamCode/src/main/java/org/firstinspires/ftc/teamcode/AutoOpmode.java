@@ -86,6 +86,7 @@ public class AutoOpmode extends RobotHardware {
         robotStateMachine = new RobotStateMachine(this, robotColor, robotStartPos);
         telemetry.addData("Initialization:", "Successful!");
 
+        interactiveInit = new InteractiveInit(this);
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
     }
 

@@ -185,7 +185,6 @@ public class RobotStateMachine {
 
         } else if (state == AutoState.SIMPLE_START) {
 
-
             if (startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
                 simpleWaypointArray = new ArrayList<>(Arrays.asList(
                     // DISMOUNT
@@ -201,17 +200,17 @@ public class RobotStateMachine {
             } else {
                 simpleWaypointArray = new ArrayList<>(Arrays.asList(
 
-                    new MecanumNavigation.Navigation2D(-19, 19, degreesToRadians(-225)),
+                        new MecanumNavigation.Navigation2D(-19, 19, degreesToRadians(-225)),
 
-                    new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-255)),
+                        new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-255)),
 
-                    new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-270)),
+                        new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-270)),
 
-                    new MecanumNavigation.Navigation2D(-48, 24, degreesToRadians(-270)),
+                        new MecanumNavigation.Navigation2D(-48, 24, degreesToRadians(-270)),
 
-                    new MecanumNavigation.Navigation2D(-60, 24, degreesToRadians(-270)),
+                        new MecanumNavigation.Navigation2D(-60, 24, degreesToRadians(-270)),
 
-                    new MecanumNavigation.Navigation2D(-60, -48, degreesToRadians(-270))
+                        new MecanumNavigation.Navigation2D(-60, -48, degreesToRadians(-270))
 
                 ));
             }
@@ -227,7 +226,12 @@ public class RobotStateMachine {
 
 
         } else if (state == AutoState.SIMPLE_CRATER ) {
-            boolean done = simpleWaypointDrive(simpleWaypointArray);
+            boolean done = false;
+
+            if (!opMode.controller.X()) {
+                done = simpleWaypointDrive(simpleWaypointArray);
+            }
+
             if(done) {
                 stateTimer.reset();
                 state = AutoState.STOP;
@@ -257,7 +261,7 @@ public class RobotStateMachine {
 
     private boolean simpleWaypointDrive(ArrayList<MecanumNavigation.Navigation2D> waypointList) {
         boolean arrived = false;
-        boolean finalArived = false;
+        boolean finalArrived = false;
         // Skip first point, used for setting navigation start in SIMPLE_START
         if (currentDriveWaypoint < 1) {
             currentDriveWaypoint = 1;
@@ -273,12 +277,12 @@ public class RobotStateMachine {
         }
         if (currentDriveWaypoint == lastIndex) {
             // Ramming SPEED! Get over crater.
-            finalArived = opMode.autoDrive.rotateThenDriveToPosition(waypointList.get(lastIndex),1.0);
+            finalArrived = opMode.autoDrive.rotateThenDriveToPosition(waypointList.get(lastIndex),1.0);
         }
-        if (finalArived) {
+        if (finalArrived) {
             opMode.stopAllMotors();
         }
-        return finalArived;
+        return finalArrived;
     }
 
 
