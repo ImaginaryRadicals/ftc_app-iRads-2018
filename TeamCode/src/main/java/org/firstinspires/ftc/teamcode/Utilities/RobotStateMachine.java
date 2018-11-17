@@ -92,9 +92,9 @@ public class RobotStateMachine {
             state = AutoState.DISMOUNT;
         } else if (state == AutoState.DISMOUNT) {
 
-            opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(5, 0, degreesToRadians(90)), speed);
+            boolean arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(5, 0, degreesToRadians(0)), speed);
 
-            if (stateTimer.seconds() >= 10) {
+            if (stateTimer.seconds() >= 10 || arrived) {
                 stateTimer.reset();
 
                 state = AutoState.IDENTIFY_CENTER;
