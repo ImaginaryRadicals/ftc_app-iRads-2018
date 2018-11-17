@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
+import org.firstinspires.ftc.teamcode.Utilities.Mutable;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateMachine;
 import org.firstinspires.ftc.teamcode.Utilities.AutoDrive;
 import org.firstinspires.ftc.teamcode.Utilities.Color;
@@ -22,7 +24,9 @@ public class AutoOpmode extends RobotHardware {
     private Thread thread;
     public Controller controller;
 
+    public Mutable<Boolean> Simple = new Mutable<>(false);
 
+    InteractiveInit interactiveInit = null;
 
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
@@ -81,6 +85,8 @@ public class AutoOpmode extends RobotHardware {
         // Finally, construct the state machine.
         robotStateMachine = new RobotStateMachine(this, robotColor, robotStartPos);
         telemetry.addData("Initialization:", "Successful!");
+
+        interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
     }
 
     @Override
@@ -93,6 +99,8 @@ public class AutoOpmode extends RobotHardware {
         } else {
             telemetry.addData("Vision:", "INITIALIZED");
         }
+
+        interactiveInit.update();
     }
 
     @Override
@@ -102,6 +110,8 @@ public class AutoOpmode extends RobotHardware {
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
         robotStateMachine.init();
+
+        interactiveInit.lock();
     }
 
     @Override

@@ -33,6 +33,9 @@ public class RobotStateMachine {
         DRIVE_CRATER,
         ENTER_CRATER,
         STOP,
+        SIMPLE_CRATER,
+        SIMPLE_DEPOT,
+        SIMPLE_START,
     }
 
     public AutoState state = AutoState.START;
@@ -62,6 +65,8 @@ public class RobotStateMachine {
     public boolean foundMineral = false;
     public boolean centerGold = false;
 
+    private ArrayList<MecanumNavigation.Navigation2D> simpleWaypointArray;
+
     DcMotor armMotor;
 
 
@@ -84,9 +89,14 @@ public class RobotStateMachine {
         stateLoopTimer.reset();
 
         if (state == AutoState.START) {
-            initialArmEncoderTicks = opMode.getEncoderValue(RobotHardware.MotorName.ARM);
-            stateTimer.reset();
-            state = AutoState.LAND;
+            if (opMode.Simple.get()) {
+                stateTimer.reset();
+                state = AutoState.SIMPLE_START;
+
+            } else {
+                stateTimer.reset();
+                state = AutoState.LAND;
+            }
         } else if (state == AutoState.LAND) {
             stateTimer.reset();
             state = AutoState.DISMOUNT;
@@ -175,6 +185,61 @@ public class RobotStateMachine {
             stateTimer.reset();
 
             opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
+
+        } else if (state == AutoState.SIMPLE_START) {
+            if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
+                simpleWaypointArray = new ArrayList<>(Arrays.asList(
+                        // DISMOUNT
+                        new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0))
+                            ));
+
+                        new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                            ));
+
+                        new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                            ));
+
+                        new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                            ));
+
+            } else {
+                new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                            ));
+
+                new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                ));
+
+                new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                ));
+
+                new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                ));
+
+                new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0))
+                            ));
+
+                new MecanumNavigation.Navigation2D(0,
+                        0, degreesToRadians(0
+                ));
+
+
+            }
+
+
+        } else if (state == AutoState.SIMPLE_CRATER ) {
+
+
+        } else if (state == AutoState.SIMPLE_DEPOT) {
+
 
         } else if (state == AutoState.STOP) {
             opMode.stopAllMotors();
