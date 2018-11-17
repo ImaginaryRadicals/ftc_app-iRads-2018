@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -187,51 +188,37 @@ public class RobotStateMachine {
             opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
 
         } else if (state == AutoState.SIMPLE_START) {
-            if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
+
+
+
+            if (startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
                 simpleWaypointArray = new ArrayList<>(Arrays.asList(
                         // DISMOUNT
-                        new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0))
-                            ));
+                        new MecanumNavigation.Navigation2D(19, 19, degreesToRadians(-135)),
 
-                        new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
-                            ));
+                        new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-135)),
 
-                        new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
-                            ));
+                        new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)),
 
-                        new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
-                            ));
+                        new MecanumNavigation.Navigation2D(48, 48, degreesToRadians(-45))
+                ));
 
             } else {
-                new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
-                            ));
+                simpleWaypointArray = new ArrayList<>(Arrays.asList(
 
-                new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
+                new MecanumNavigation.Navigation2D(-19, 19, degreesToRadians(-225)),
+
+                new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-255)),
+
+                new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-270)),
+
+                new MecanumNavigation.Navigation2D(-48, 24, degreesToRadians(-270)),
+
+                new MecanumNavigation.Navigation2D(-60, 24, degreesToRadians(-270)),
+
+                new MecanumNavigation.Navigation2D(-60, -48, degreesToRadians(-270))
+
                 ));
-
-                new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
-                ));
-
-                new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
-                ));
-
-                new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0))
-                            ));
-
-                new MecanumNavigation.Navigation2D(0,
-                        0, degreesToRadians(0
-                ));
-
-
             }
 
 
