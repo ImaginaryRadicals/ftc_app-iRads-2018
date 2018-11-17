@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
@@ -21,9 +22,12 @@ public class RobotStateMachine {
         LAND,
         DISMOUNT,
         IDENTIFY_CENTER,
-        IDENTIFY_RIGHT,
         IDENTIFY_LEFT,
-        KNOCK_GOLD,
+        IDENTIFY_RIGHT,
+        UNKNOWN,
+        KNOCK_GOLD_CENTER,
+        KNOCK_GOLD_LEFT,
+        KNOCK_GOLD_RIGHT,
         DRIVE_DEPOT,
         CLAIM_DEPOT,
         DRIVE_CRATER,
@@ -54,6 +58,9 @@ public class RobotStateMachine {
     private double driveRate = 0.5;
     private double armLiftHeight = 700;
     private double signedSkewAngleRadiansCCW;
+    public double speed = 0.5;
+    public boolean foundMineral = false;
+    public boolean centerGold = false;
 
     DcMotor armMotor;
 
@@ -85,14 +92,89 @@ public class RobotStateMachine {
             state = AutoState.DISMOUNT;
         } else if (state == AutoState.DISMOUNT) {
 
-            opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(10, 0, degreesToRadians(90)), 0.5);
+            opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(5, 0, degreesToRadians(90)), speed);
 
-            if (stateTimer.seconds() >= 20) {
+            if (stateTimer.seconds() >= 10) {
                 stateTimer.reset();
 
-                state = AutoState.STOP;
+                state = AutoState.IDENTIFY_CENTER;
 
             }
+        } else if (state == AutoState.IDENTIFY_CENTER) {
+            if (goldMineralPosition == SimpleVision.GoldMineralPosition.CENTER) {
+                stateTimer.reset();
+
+                foundMineral = true;
+                centerGold = true;
+
+                state = AutoState.KNOCK_GOLD_CENTER;
+
+
+            } else {
+                state = AutoState.IDENTIFY_LEFT;
+            }
+
+        } else if (state == AutoState.IDENTIFY_LEFT) {
+                if (goldMineralPosition == SimpleVision.GoldMineralPosition.LEFT) {
+                    stateTimer.reset();
+
+                    foundMineral = true;
+
+                    state = AutoState.KNOCK_GOLD_LEFT;
+
+                } else {
+                    state = AutoState.IDENTIFY_RIGHT;
+                }
+
+
+        } else if (state == AutoState.IDENTIFY_RIGHT) {
+            if (goldMineralPosition == SimpleVision.GoldMineralPosition.RIGHT) {
+                stateTimer.reset();
+
+                foundMineral = true;
+
+                state = AutoState.KNOCK_GOLD_RIGHT;
+
+            } else {
+                state = AutoState.UNKNOWN;
+            }
+
+        } else if (state == AutoState.UNKNOWN) {
+            if (goldMineralPosition == SimpleVision.GoldMineralPosition.UNKNOWN) {
+
+                foundMineral = false;
+
+                state = AutoState.UNKNOWN;
+                
+            } else {
+                state = AutoState.IDENTIFY_CENTER;
+            }
+
+
+        } else if (state == AutoState.KNOCK_GOLD_CENTER || state == AutoState.KNOCK_GOLD_RIGHT || state == AutoState.KNOCK_GOLD_LEFT) {
+            if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.CENTER) {
+                stateTimer.reset();
+
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(8, 8, degreesToRadians(0)), speed);
+
+            } else if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.RIGHT) {
+                stateTimer.reset();
+
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
+
+            } else if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.LEFT) {
+                stateTimer.reset();
+
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
+
+            } else {
+
+                state = AutoState.IDENTIFY_CENTER;
+            }
+        } else if (state == AutoState.DRIVE_DEPOT) {
+            stateTimer.reset();
+
+            opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
 
         } else if (state == AutoState.STOP) {
             opMode.stopAllMotors();
