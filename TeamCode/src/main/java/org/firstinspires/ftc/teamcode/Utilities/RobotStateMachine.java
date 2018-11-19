@@ -183,33 +183,38 @@ public class RobotStateMachine {
             opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
 
         } else if (state == AutoState.SIMPLE_START) {
+            // In these waypoint lists, the first entry is only used to set the
+            // initial position for navigating.
+            // The last position is moved to at full speed to get into the crater.
+            // The intermediate positions are moved to at a reduced speed.
+            // Motions first rotate, then translate.
 
             if (startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
                 simpleWaypointArray = new ArrayList<>(Arrays.asList(
-                    // DISMOUNT
+                    // START POSITION (used to set mecanumNavigation initial position)
                     new MecanumNavigation.Navigation2D(19, 19, degreesToRadians(-135)),
-
+                    // DISMOUNT (make space to turn)
                     new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-135)),
-
+                    // ROTATE IN PLACE
                     new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)),
-
+                    // JUMP INTO CRATER (full speed waypoint)
                     new MecanumNavigation.Navigation2D(48, 48, degreesToRadians(-45))
                 ));
 
             } else {
                 simpleWaypointArray = new ArrayList<>(Arrays.asList(
-
-                        new MecanumNavigation.Navigation2D(-19, 19, degreesToRadians(-225)),
-
-                        new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-255)),
-
-                        new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-270)),
-
-                        new MecanumNavigation.Navigation2D(-48, 24, degreesToRadians(-270)),
-
-                        new MecanumNavigation.Navigation2D(-60, 24, degreesToRadians(-270)),
-
-                        new MecanumNavigation.Navigation2D(-60, -48, degreesToRadians(-270))
+                    // START POSITION
+                    new MecanumNavigation.Navigation2D(-19, 19, degreesToRadians(-225)),
+                    // DISMOUNT
+                    new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-225)),
+                    // ROTATE IN PLACE
+                    new MecanumNavigation.Navigation2D(-24, 24, degreesToRadians(-270)),
+                    // HIT LEFT MINERAL
+                    new MecanumNavigation.Navigation2D(-48, 24, degreesToRadians(-270)),
+                    // LINE UP WITH CRATER
+                    new MecanumNavigation.Navigation2D(-60, 24, degreesToRadians(-270)),
+                    // JUMP INTO CRATER (full speed)
+                    new MecanumNavigation.Navigation2D(-60, -48, degreesToRadians(-270))
 
                 ));
             }
