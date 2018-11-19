@@ -228,8 +228,10 @@ public class RobotStateMachine {
         } else if (state == AutoState.SIMPLE_CRATER ) {
             boolean done = false;
 
-            if (!opMode.controller.X()) {
+            if (!opMode.controller.X()) { // Pause Robot while X button is held.
                 done = simpleWaypointDrive(simpleWaypointArray);
+            } else {
+                opMode.stopAllMotors();
             }
 
             if(done) {
@@ -282,6 +284,9 @@ public class RobotStateMachine {
         if (finalArrived) {
             opMode.stopAllMotors();
         }
+        opMode.telemetry.addData("Simple Waypoint Drive","");
+        opMode.telemetry.addData("Current Waypoint: ", currentDriveWaypoint);
+        opMode.telemetry.addData("Target", waypointList.get(currentDriveWaypoint).toString());
         return finalArrived;
     }
 
