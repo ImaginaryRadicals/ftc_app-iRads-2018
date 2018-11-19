@@ -91,6 +91,8 @@ public class RobotStateMachine {
                 state = AutoState.SIMPLE_START;
 
             } else {
+                // This needs to be set based on our starting location. DEBUG
+                opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
                 stateTimer.reset();
                 state = AutoState.LAND;
             }
@@ -108,40 +110,37 @@ public class RobotStateMachine {
 
             }
         } else if (state == AutoState.IDENTIFY_CENTER) {
-            if (goldMineralPosition == SimpleVision.GoldMineralPosition.CENTER) {
-                stateTimer.reset();
-
+            // Detect mineral at image center
+            centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+            if (centerMineral == Color.Mineral.GOLD) {
                 foundMineral = true;
                 centerGold = true;
-
+                stateTimer.reset();
                 state = AutoState.KNOCK_GOLD_CENTER;
-
-
             } else {
+                stateTimer.reset();
                 state = AutoState.IDENTIFY_LEFT;
             }
-
         } else if (state == AutoState.IDENTIFY_LEFT) {
-                if (goldMineralPosition == SimpleVision.GoldMineralPosition.LEFT) {
-                    stateTimer.reset();
+            // First rotate robot to point camera toward the left mineral.
 
+            // Detect mineral at image center
+            leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+            if (leftMineral == Color.Mineral.GOLD) {
                     foundMineral = true;
-
+                    stateTimer.reset();
                     state = AutoState.KNOCK_GOLD_LEFT;
-
                 } else {
+                    stateTimer.reset();
                     state = AutoState.IDENTIFY_RIGHT;
                 }
-
-
         } else if (state == AutoState.IDENTIFY_RIGHT) {
-            if (goldMineralPosition == SimpleVision.GoldMineralPosition.RIGHT) {
-                stateTimer.reset();
-
+            // Detect mineral at image center
+            rightMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+            if (rightMineral == Color.Mineral.GOLD) {
                 foundMineral = true;
-
+                stateTimer.reset();
                 state = AutoState.KNOCK_GOLD_RIGHT;
-
             } else {
                 state = AutoState.UNKNOWN;
             }

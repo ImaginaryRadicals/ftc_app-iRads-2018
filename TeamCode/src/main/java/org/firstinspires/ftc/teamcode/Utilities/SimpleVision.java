@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
 import com.qualcomm.robotcore.robot.Robot;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -53,6 +54,7 @@ public class SimpleVision {
 
     // opMode reference
     private RobotHardware opMode;
+    private ElapsedTime tfTimer;
 
     // The external Vuforia ID localizer.
     private VuforiaLocalizer vuforia;
@@ -93,6 +95,10 @@ public class SimpleVision {
         CENTER,
         RIGHT,
         UNKNOWN,
+    }
+
+    public static enum MineralIdentificationLocation {
+        CENTER,
     }
 
     public GoldMineralPosition goldMineralPosition = GoldMineralPosition.UNKNOWN;
@@ -333,6 +339,7 @@ public class SimpleVision {
      * Initialize the Tensor Flow Object Detection engine.
      */
     private void initTfod(boolean useTensorFlowMonitor) {
+        tfTimer = new ElapsedTime();
         TFObjectDetector.Parameters tfodParameters;
         if (useTensorFlowMonitor) {
             int tfodMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier(
@@ -354,6 +361,7 @@ public class SimpleVision {
             updatedRecognitions = tfod.getUpdatedRecognitions();
             if (updatedRecognitions != null) {
                 pastRecognitions = updatedRecognitions;
+                tfTimer.reset();
                 opMode.telemetry.addData("# Object Detected", updatedRecognitions.size());
                 if (updatedRecognitions.size() == 3) {
                     int goldMineralX = -1;
@@ -381,7 +389,6 @@ public class SimpleVision {
                         }
                     }
                 }
-//                opMode.telemetry.update();
             }
         }
 
@@ -396,21 +403,80 @@ public class SimpleVision {
 
     public void displayTensorFlowDetections() {
         if (tfod != null) {
-            if (pastRecognitions != null) {
+            if (pastRecognitions != null && tfTimer.seconds() <= 1) {
                 opMode.telemetry.addData("Gold Location:",goldMineralPosition.toString());
                 int number_of_recognitions = pastRecognitions.size();
                 opMode.telemetry.addData("# Object Detected", number_of_recognitions);
-                if (number_of_recognitions > 0 && number_of_recognitions <= 5) {
+                if (number_of_recognitions > 0) {
                     for (Recognition recognition : pastRecognitions) {
                         opMode.telemetry.addData(recognition.getLabel(),
                         "{Left, Right, Top, Bottom} = %.0f, %.0f, %.0f, %.0f",
                                 recognition.getLeft(),recognition.getRight(), recognition.getTop(), recognition.getBottom());
                     }
-//                    opMode.telemetry.update();
                 }
 
             }
         }
+    }
+
+    public Color.Mineral identifyMineral(MineralIdentificationLocation idLocation) {
+        Color.Mineral detectedMineralColor = Color.Mineral.UNKNOWN;
+        int closestDetectionIndex = 0; // Assume 1st is closest.
+        double closestDetectionDistance = 1e6; //
+        double currentDistance;
+        int imageHeight = pastRecognitions.get(0).getImageHeight();
+        int imageWidth = pastRecognitions.get(0).getImageHeight();
+
+        int targetX;
+        int targetY;
+        double detectionX;
+        double detectionY;
+
+        if (idLocation == MineralIdentificationLocation.CENTER) {
+            // Find image center
+            targetX = imageWidth/2;
+            targetY = imageHeight/2;
+        } else { // Default to image center.
+            targetX = imageWidth/2;
+            targetY = imageHeight/2;
+        }
+
+        if (pastRecognitions != null && pastRecognitions.size() > 0 && tfTimer.seconds() <= 1) {
+            // Fresh detection exist:
+            int detectionIndex = -1;
+            for(Recognition recognition : pastRecognitions) {
+                // find distance to target location.
+                detectionIndex++;
+                detectionX = (recognition.getLeft() + recognition.getRight())/2;
+                detectionY = (recognition.getTop() + recognition.getBottom())/2;
+                currentDistance = Math.sqrt( Math.pow(targetX - detectionX,2) + Math.pow(targetY - detectionY,2));
+                if(currentDistance < closestDetectionDistance) {
+                    closestDetectionDistance = currentDistance;
+                    closestDetectionIndex = detectionIndex;
+                }
+            }
+            // After finding closest mineral, identify it and return its color.
+            String idLabel = pastRecognitions.get(closestDetectionIndex).getLabel();
+            if(idLabel == LABEL_GOLD_MINERAL) {
+                detectedMineralColor = Color.Mineral.GOLD;
+            } else if(idLabel == LABEL_SILVER_MINERAL) {
+                detectedMineralColor = Color.Mineral.SILVER;
+            } else {
+                detectedMineralColor = Color.Mineral.UNKNOWN;
+            }
+
+            // Telemetry
+            if(detectedMineralColor != Color.Mineral.UNKNOWN) {
+                opMode.telemetry.addData("Found",idLabel);
+                opMode.telemetry.addData("Mineral distance to target",closestDetectionDistance);
+            } else {
+                opMode.telemetry.addData("No Mineral Detected in target location","");
+            }
+
+        }
+
+
+        return detectedMineralColor;
     }
 
 

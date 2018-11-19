@@ -43,6 +43,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
             simpleVision.updateVuMarkPose();
             simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
+            simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
         }
     }
 

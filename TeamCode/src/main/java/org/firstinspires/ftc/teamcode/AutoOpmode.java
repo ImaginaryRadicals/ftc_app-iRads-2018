@@ -20,7 +20,7 @@ public class AutoOpmode extends RobotHardware {
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
     protected RobotStateMachine robotStateMachine;
-    protected SimpleVision simpleVision;
+    public SimpleVision simpleVision;
     private Thread thread;
     public Controller controller;
 
