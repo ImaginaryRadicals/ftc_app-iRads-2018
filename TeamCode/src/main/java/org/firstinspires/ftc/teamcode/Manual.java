@@ -282,18 +282,28 @@ public class Manual extends RobotHardware {
                 armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_VERTICAL_TICKS, power);
                 wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MIN_TICKS, power);
                 if (armArrived && wristArrived && armController.XOnce()) {
-                    armState = ArmStates.ARM_START;
+                    //armState = ArmStates.ARM_LEVEL;
                 } else if (armArrived && wristArrived && armController.BOnce()) {
                     armState = ArmStates.ARM_VERTICAL;
                 }
                 break;
 
             case MANUAL:
-                if (armController.XOnce()) {
-                    armState = ArmStates.ARM_START;
-                } else if (armController.BOnce()) {
-                    armState = ArmStates.ARM_VERTICAL;
+                if (getEncoderValue(MotorName.ARM) < Constants.ARM_LEVEL_TICKS) {
+                    // If Arm is currently below level
+                    if (armController.XOnce()) {
+                        armState = ArmStates.ARM_START;
+                    } else if (armController.BOnce()) {
+                        armState = ArmStates.WRIST_UP;
+                    }
+                } else { // else if Arm is currently Above Level
+                    if (armController.XOnce()) {
+                        armState = ArmStates.ARM_VERTICAL;
+                    } else if (armController.BOnce()) {
+                        armState = ArmStates.ARM_LEVEL;
+                    }
                 }
+
                 break;
 
             default:
