@@ -7,18 +7,20 @@ package org.firstinspires.ftc.teamcode.Utilities;
 public class Constants {
 
     // Arm geometry
-    public static final double ARM_BOTTOM_ANGLE_DEGREES = -60;
-    public static final double ARM_BOTTOM_HARDSTOP = -60; //fix
-    public static final int ARM_BOTTOM_TICKS = 0;
-    public static final int ARM_LEVEL_TICKS = 2140;
-    public static final int ARM_VERTICAL_TICKS = 5858;
+    static final int armFoldedOffset = 0; //60;
+    static final int wristFoldedOffset = 0; //1095;
+    public static final double ARM_BOTTOM_ANGLE_DEGREES = -60 + armFoldedOffset;
+    public static final double ARM_BOTTOM_HARDSTOP = -60 +armFoldedOffset; //fix
+    public static final int ARM_BOTTOM_TICKS = 0 + armFoldedOffset;
+    public static final int ARM_LEVEL_TICKS = 2140 + armFoldedOffset;
+    public static final int ARM_VERTICAL_TICKS = 5858 + armFoldedOffset;
     public static final double ARM_TICKS_PER_DEGREE = (ARM_VERTICAL_TICKS - ARM_LEVEL_TICKS) / 90;
 
-    public static final int WRIST_MAX_TICKS = 267;
-    public static final int WRIST_MIN_TICKS = -1095;
-    public static final int WRIST_START_TICKS = 0;
-    public static final int WRIST_STRAIGHT_TICKS = -320; //get value
-    public static final double WRIST_MAX_ANGLE = 59; //Above start
+    public static final int WRIST_MAX_TICKS = 267 + wristFoldedOffset;
+    public static final int WRIST_MIN_TICKS = -1095 + wristFoldedOffset;
+    public static final int WRIST_START_TICKS = 0 + wristFoldedOffset;
+    public static final int WRIST_STRAIGHT_TICKS = -320 + wristFoldedOffset; //get value
+    public static final double WRIST_MAX_ANGLE = 59 + wristFoldedOffset; //Above start
     public static final double WRIST_TICKS_PER_DEGREE = (WRIST_MAX_TICKS - WRIST_START_TICKS) / WRIST_MAX_ANGLE;
 
     public static final double DRIVE_WHEEL_DIAMETER_INCHES  =  6/1.057;
