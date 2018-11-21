@@ -87,7 +87,7 @@ public class AutoOpmode extends RobotHardware {
         telemetry.addData("Initialization:", "Successful!");
 
         interactiveInit = new InteractiveInit(this);
-        interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
+        interactiveInit.addBoolean(Simple, "Simple Mode", false, true);
     }
 
     @Override

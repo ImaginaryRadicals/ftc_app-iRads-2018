@@ -421,60 +421,65 @@ public class SimpleVision {
 
     public Color.Mineral identifyMineral(MineralIdentificationLocation idLocation) {
         Color.Mineral detectedMineralColor = Color.Mineral.UNKNOWN;
-        int closestDetectionIndex = 0; // Assume 1st is closest.
-        double closestDetectionDistance = 1e6; //
-        double currentDistance;
-        int imageHeight = pastRecognitions.get(0).getImageHeight();
-        int imageWidth = pastRecognitions.get(0).getImageHeight();
 
-        int targetX;
-        int targetY;
-        double detectionX;
-        double detectionY;
+        if (pastRecognitions != null && pastRecognitions.size() > 0) {
+            int closestDetectionIndex = 0; // Assume 1st is closest.
+            double closestDetectionDistance = 1e6; //
+            double currentDistance;
 
-        if (idLocation == MineralIdentificationLocation.CENTER) {
-            // Find image center
-            targetX = imageWidth/2;
-            targetY = imageHeight/2;
-        } else { // Default to image center.
-            targetX = imageWidth/2;
-            targetY = imageHeight/2;
-        }
+            int imageHeight = pastRecognitions.get(0).getImageHeight();
+            int imageWidth = pastRecognitions.get(0).getImageHeight();
 
-        if (pastRecognitions != null && pastRecognitions.size() > 0 && tfTimer.seconds() <= 1) {
-            // Fresh detection exist:
-            int detectionIndex = -1;
-            for(Recognition recognition : pastRecognitions) {
-                // find distance to target location.
-                detectionIndex++;
-                detectionX = (recognition.getLeft() + recognition.getRight())/2;
-                detectionY = (recognition.getTop() + recognition.getBottom())/2;
-                currentDistance = Math.sqrt( Math.pow(targetX - detectionX,2) + Math.pow(targetY - detectionY,2));
-                if(currentDistance < closestDetectionDistance) {
-                    closestDetectionDistance = currentDistance;
-                    closestDetectionIndex = detectionIndex;
+            int targetX;
+            int targetY;
+            double detectionX;
+            double detectionY;
+
+            if (idLocation == MineralIdentificationLocation.CENTER) {
+                // Find image center
+                targetX = imageWidth / 2;
+                targetY = imageHeight / 2;
+            } else { // Default to image center.
+                targetX = imageWidth / 2;
+                targetY = imageHeight / 2;
+            }
+
+            if (pastRecognitions != null && pastRecognitions.size() > 0 && tfTimer.seconds() <= 1) {
+                // Fresh detection exist:
+                int detectionIndex = -1;
+                for (Recognition recognition : pastRecognitions) {
+                    // find distance to target location.
+                    detectionIndex++;
+                    detectionX = (recognition.getLeft() + recognition.getRight()) / 2;
+                    detectionY = (recognition.getTop() + recognition.getBottom()) / 2;
+                    currentDistance = Math.sqrt(Math.pow(targetX - detectionX, 2) + Math.pow(targetY - detectionY, 2));
+                    if (currentDistance < closestDetectionDistance) {
+                        closestDetectionDistance = currentDistance;
+                        closestDetectionIndex = detectionIndex;
+                    }
                 }
-            }
-            // After finding closest mineral, identify it and return its color.
-            String idLabel = pastRecognitions.get(closestDetectionIndex).getLabel();
-            if(idLabel == LABEL_GOLD_MINERAL) {
-                detectedMineralColor = Color.Mineral.GOLD;
-            } else if(idLabel == LABEL_SILVER_MINERAL) {
-                detectedMineralColor = Color.Mineral.SILVER;
-            } else {
-                detectedMineralColor = Color.Mineral.UNKNOWN;
+                // After finding closest mineral, identify it and return its color.
+                String idLabel = pastRecognitions.get(closestDetectionIndex).getLabel();
+                if (idLabel == LABEL_GOLD_MINERAL) {
+                    detectedMineralColor = Color.Mineral.GOLD;
+                } else if (idLabel == LABEL_SILVER_MINERAL) {
+                    detectedMineralColor = Color.Mineral.SILVER;
+                } else {
+                    detectedMineralColor = Color.Mineral.UNKNOWN;
+                }
+
+                // Telemetry
+                if (detectedMineralColor != Color.Mineral.UNKNOWN) {
+                    opMode.telemetry.addData("Found", idLabel);
+                    opMode.telemetry.addData("Mineral distance to target", closestDetectionDistance);
+                } else {
+                    opMode.telemetry.addData("No Mineral Detected in target location", "");
+                }
+
             }
 
-            // Telemetry
-            if(detectedMineralColor != Color.Mineral.UNKNOWN) {
-                opMode.telemetry.addData("Found",idLabel);
-                opMode.telemetry.addData("Mineral distance to target",closestDetectionDistance);
-            } else {
-                opMode.telemetry.addData("No Mineral Detected in target location","");
-            }
-
+            return  detectedMineralColor;
         }
-
 
         return detectedMineralColor;
     }
