@@ -428,7 +428,7 @@ public class SimpleVision {
             double currentDistance;
 
             int imageHeight = pastRecognitions.get(0).getImageHeight();
-            int imageWidth = pastRecognitions.get(0).getImageHeight();
+            int imageWidth = pastRecognitions.get(0).getImageWidth();
 
             int targetX;
             int targetY;
