@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Utilities;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
@@ -58,9 +59,10 @@ public class RobotStateMachine {
     public RobotHardware.StartPosition startPosition;
     private int currentDriveWaypoint = 0;
     private double driveRate = 0.5;
-    public double speed = 0.5;
+    public double speed = 1;
     public boolean foundMineral = false;
     public boolean centerGold = false;
+    public boolean arrived = false;
 
     private ArrayList<MecanumNavigation.Navigation2D> simpleWaypointArray;
 
@@ -79,6 +81,30 @@ public class RobotStateMachine {
         stateTimer.reset();
     }
 
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+        power = Range.clip(Math.abs(power), 0, 1);
+        int poweredDistance = 5;
+        int arrivedDistance = 50;
+        int rampThreshold = 400;
+        double maxRampPower = 1.0;
+        double minRampPower = 0.0;
+        int errorSignal = opMode.getEncoderValue(motorName) - targetTicks;
+        double direction = errorSignal > 0 ? -1.0: 1.0;
+        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, maxRampPower, minRampPower);
+
+        if (Math.abs(errorSignal) >= poweredDistance) {
+            opMode.setPower(motorName, direction * power * rampDownRatio);
+        } else {
+            opMode.setPower(motorName, 0);
+        }
+
+        if(Math.abs(errorSignal) <= arrivedDistance) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+
 
     public void update() {
 
@@ -92,16 +118,22 @@ public class RobotStateMachine {
 
             } else {
                 // This needs to be set based on our starting location. DEBUG
-                opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
+                opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(-19,-19,0));
                 stateTimer.reset();
                 state = AutoState.LAND;
             }
         } else if (state == AutoState.LAND) {
-            stateTimer.reset();
-            state = AutoState.DISMOUNT;
+            arrived = driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, speed);
+
+            if (arrived == true) {
+                stateTimer.reset();
+
+                state = AutoState.DISMOUNT;
+            }
+
         } else if (state == AutoState.DISMOUNT) {
 
-            boolean arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(5, 0, degreesToRadians(0)), speed);
+            boolean arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-24, -24, degreesToRadians(0)), speed);
 
             if (stateTimer.seconds() >= 10 || arrived) {
                 stateTimer.reset();
@@ -126,6 +158,7 @@ public class RobotStateMachine {
 
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-24, -24, degreesToRadians(35)), speed);
             if (leftMineral == Color.Mineral.GOLD) {
                     foundMineral = true;
                     stateTimer.reset();
@@ -137,6 +170,7 @@ public class RobotStateMachine {
         } else if (state == AutoState.IDENTIFY_RIGHT) {
             // Detect mineral at image center
             rightMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-24, -24, degreesToRadians(-70)), speed);
             if (rightMineral == Color.Mineral.GOLD) {
                 foundMineral = true;
                 stateTimer.reset();
@@ -154,6 +188,7 @@ public class RobotStateMachine {
                 
             } else {
                 state = AutoState.IDENTIFY_CENTER;
+
             }
 
 
@@ -161,17 +196,17 @@ public class RobotStateMachine {
             if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.CENTER) {
                 stateTimer.reset();
 
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(8, 8, degreesToRadians(0)), speed);
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-36, -36, degreesToRadians(0)), speed);
 
             } else if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.RIGHT) {
                 stateTimer.reset();
 
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-36, -36, degreesToRadians(0)), speed);
 
             } else if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.LEFT) {
                 stateTimer.reset();
 
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 0, degreesToRadians(0)), speed);
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-36, -36, degreesToRadians(0)), speed);
 
             } else {
 

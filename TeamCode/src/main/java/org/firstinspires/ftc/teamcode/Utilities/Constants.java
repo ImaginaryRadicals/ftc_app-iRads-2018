@@ -23,6 +23,10 @@ public class Constants {
     public static final double WRIST_MAX_ANGLE = 59 + wristFoldedOffset; //Above start
     public static final double WRIST_TICKS_PER_DEGREE = (WRIST_MAX_TICKS - WRIST_START_TICKS) / WRIST_MAX_ANGLE;
 
+    public static final int LIFTER_MAX_TICKS = 0;
+    public static final int LIFTER_MIN_TICKS = 0;
+    public static final double LIFTER_MAX_ANGEL = 0;
+
     public static final double DRIVE_WHEEL_DIAMETER_INCHES  =  6/1.057;
     public static final double DRIVE_WHEEL_LATERAL_RATIO = 0.89 * 0.963 / 0.95884;
 

@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -417,6 +418,7 @@ public class RobotHardware extends OpMode {
             allMotors.get(MotorName.ARM.ordinal()).setDirection(DcMotor.Direction.REVERSE);
             allMotors.get(MotorName.WRIST.ordinal()).setDirection(DcMotor.Direction.FORWARD);
             allMotors.get(MotorName.FEEDER.ordinal()).setDirection(DcMotor.Direction.FORWARD);
+            allMotors.get(MotorName.LIFT_WINCH.ordinal()).setDirection(DcMotor.Direction.FORWARD);
         } catch (Exception e) {
             telemetry.addData("Unable to set motor direction", "");
         }

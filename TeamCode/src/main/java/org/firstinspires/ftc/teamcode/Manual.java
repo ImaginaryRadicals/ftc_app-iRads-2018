@@ -25,6 +25,7 @@ public class Manual extends RobotHardware {
     Mutable<Boolean> CoPilot = new Mutable<>(false);
     Mutable<Double> Exponential = new Mutable<>(1.0);
     Mutable<Double> GoToPosPower = new Mutable<>(1.0);
+    Mutable<Double> LifterSpeed = new Mutable<>(1.0);
 
     //Enum for arm states
     public enum ArmStates{
@@ -75,6 +76,7 @@ public class Manual extends RobotHardware {
         interactiveInit.addDouble(WristSpeed, "Wrist speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.8, 0.9, 1.0, 0.7);
         interactiveInit.addDouble(FeederSpeed, "Feeder speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.9, 1.0, 0.8);
         interactiveInit.addDouble(GoToPosPower, "Power to goto position", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
+        interactiveInit.addDouble(LifterSpeed, "Lifter Speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
     }
@@ -106,6 +108,7 @@ public class Manual extends RobotHardware {
         double armSpeed = ArmSpeed.get();
         double wristSpeed = WristSpeed.get();
         double feederSpeed = FeederSpeed.get();
+        double lifterSpeed = LifterSpeed.get();
         double exponential = Exponential.get();
         boolean copilotEnabled = CoPilot.get();
 
@@ -160,12 +163,28 @@ public class Manual extends RobotHardware {
                     setPower(MotorName.FEEDER, 0);
                 }
 
+                if (armController.Y() || controller1.Y()) {
+                    setPower(MotorName.LIFT_WINCH, lifterSpeed);
+
+                } else if (armController.X() || controller1.X()) {
+                    setPower(MotorName.LIFT_WINCH, -lifterSpeed);
+
+                } else {
+                    setPower(MotorName.LIFT_WINCH, 0);
+
+                }
+
                 if (armState == ArmStates.MANUAL) {
+
+
 
                     // Arm and Wrist Control
                     setPower(MotorName.ARM, Math.pow(-armController.left_stick_y, exponential) * armSpeed);
                     setPower(MotorName.WRIST, Math.pow(-armController.right_stick_y, exponential) * wristSpeed);
+
+
                 }
+
 
             } else { // Arm control for 1 pilot
 
@@ -243,7 +262,7 @@ public class Manual extends RobotHardware {
             case ARM_START:
                 armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_BOTTOM_TICKS, power);
                 wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_START_TICKS, power);
-                if (armArrived && wristArrived && armController.XOnce()) {
+                if (armArrived && wristArrived && armController.rightBumper()) {
                     armState = ArmStates.WRIST_UP;
                 }
                 break;
@@ -251,9 +270,9 @@ public class Manual extends RobotHardware {
             case WRIST_UP:
                 armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_BOTTOM_TICKS, power);
                 wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MAX_TICKS, power);
-                if (armArrived && wristArrived && armController.XOnce()) {
+                if (armArrived && wristArrived && armController.rightBumper()) {
                     armState = ArmStates.ARM_LEVEL;
-                } else if (armArrived && wristArrived && armController.BOnce()) {
+                } else if (armArrived && wristArrived && armController.leftBumper()) {
                     armState = ArmStates.ARM_START;
                 }
                 break;
@@ -261,9 +280,9 @@ public class Manual extends RobotHardware {
             case ARM_LEVEL:
                 armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_LEVEL_TICKS, power);
                 wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MAX_TICKS, power);
-                if (armArrived && wristArrived && armController.XOnce()) {
+                if (armArrived && wristArrived && armController.rightBumper()) {
                     armState = ArmStates.ARM_VERTICAL;
-                } else if (armArrived && wristArrived && armController.BOnce()) {
+                } else if (armArrived && wristArrived && armController.leftBumper()) {
                     armState = ArmStates.WRIST_UP;
                 }
                 break;
@@ -271,9 +290,9 @@ public class Manual extends RobotHardware {
             case ARM_VERTICAL:
                 armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_VERTICAL_TICKS, power);
                 wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_STRAIGHT_TICKS, power);
-                if (armArrived && wristArrived && armController.XOnce()) {
+                if (armArrived && wristArrived && armController.rightBumper()) {
                     armState = ArmStates.ARM_SCORE;
-                } else if (armArrived && wristArrived && armController.BOnce()) {
+                } else if (armArrived && wristArrived && armController.leftBumper()) {
                     armState = ArmStates.ARM_LEVEL;
                 }
                 break;
@@ -281,9 +300,9 @@ public class Manual extends RobotHardware {
             case ARM_SCORE:
                 armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_VERTICAL_TICKS, power);
                 wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MIN_TICKS, power);
-                if (armArrived && wristArrived && armController.XOnce()) {
+                if (armArrived && wristArrived && armController.rightBumper()) {
                     //armState = ArmStates.ARM_LEVEL;
-                } else if (armArrived && wristArrived && armController.BOnce()) {
+                } else if (armArrived && wristArrived && armController.leftBumper()) {
                     armState = ArmStates.ARM_VERTICAL;
                 }
                 break;
@@ -291,15 +310,15 @@ public class Manual extends RobotHardware {
             case MANUAL:
                 if (getEncoderValue(MotorName.ARM) < Constants.ARM_LEVEL_TICKS) {
                     // If Arm is currently below level
-                    if (armController.XOnce()) {
+                    if (armController.rightBumper()) {
                         armState = ArmStates.ARM_START;
-                    } else if (armController.BOnce()) {
+                    } else if (armController.leftBumper()) {
                         armState = ArmStates.WRIST_UP;
                     }
                 } else { // else if Arm is currently Above Level
-                    if (armController.XOnce()) {
+                    if (armController.rightBumper()) {
                         armState = ArmStates.ARM_VERTICAL;
-                    } else if (armController.BOnce()) {
+                    } else if (armController.leftBumper()) {
                         armState = ArmStates.ARM_LEVEL;
                     }
                 }
