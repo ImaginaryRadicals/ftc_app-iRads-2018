@@ -140,7 +140,7 @@ public class AutoOpmode extends RobotHardware {
         public void run() {
             simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
                     false, true,false,
-                    true);
+                    true, false);
         }
     }
 

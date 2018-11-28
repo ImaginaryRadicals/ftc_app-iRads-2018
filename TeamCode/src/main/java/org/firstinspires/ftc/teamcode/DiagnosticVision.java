@@ -52,7 +52,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
     class VisionLoader implements Runnable {
         public void run() {
         simpleVision = new SimpleVision(getVuforiaLicenseKey(),DiagnosticVision.this,
-        false, true,true, true);
+        false, true,true, true, true);
         }
     }
 
