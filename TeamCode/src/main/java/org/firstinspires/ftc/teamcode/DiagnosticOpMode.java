@@ -19,7 +19,7 @@ public class DiagnosticOpMode extends Manual {
     @Override
     public void init() {
         super.init();
-        //imuHelper = new IMUUtilities(this, "IMU");
+        //imuHelper = new IMUUtilities(this, "IMU_1");
         telemetry.addData("Diagnostic Mode ", " Initialized");
     }
 
@@ -35,6 +35,7 @@ public class DiagnosticOpMode extends Manual {
     public void showDiagnosticTelemetry() {
 
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
+        telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
 
         // Show color sensor telemetry only if sensor is attached
         if (colorSensorExists(ColorSensorName.MINERAL_COLOR)) {

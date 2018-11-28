@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Utilities.VectorMath;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Vector;
 
 public class RobotHardware extends OpMode {
@@ -371,7 +372,7 @@ public class RobotHardware extends OpMode {
     public double updatePeriodTime(){
         pastPeriods.add(period.seconds());
         period.reset();
-        if (pastPeriods.size()>= 30) {
+        if (pastPeriods.size()>= 200) {
             pastPeriods.remove(0);
         }
         return VectorMath.average(pastPeriods);
@@ -379,6 +380,10 @@ public class RobotHardware extends OpMode {
 
     public double getAveragePeriodSec() {
         return VectorMath.average(pastPeriods);
+    }
+
+    public double getMaxPeriodSec() {
+        return Collections.max(pastPeriods);
     }
 
     public double getLastPeriodSec() {
