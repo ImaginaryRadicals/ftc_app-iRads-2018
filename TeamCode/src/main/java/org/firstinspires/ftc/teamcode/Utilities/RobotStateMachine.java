@@ -118,12 +118,12 @@ public class RobotStateMachine {
 
             } else {
                 // This needs to be set based on our starting location. DEBUG
-                opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(-19,-19,0));
+                opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(12.43, 12.43, degreesToRadians(-45)));
                 stateTimer.reset();
                 state = AutoState.LAND;
             }
         } else if (state == AutoState.LAND) {
-            arrived = driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, speed);
+            arrived = true; //driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, speed);
 
             if (arrived == true) {
                 stateTimer.reset();
@@ -133,9 +133,9 @@ public class RobotStateMachine {
 
         } else if (state == AutoState.DISMOUNT) {
 
-            boolean arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-24, -24, degreesToRadians(0)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12.43, 12.43, degreesToRadians(-30)), speed);
 
-            if (stateTimer.seconds() >= 10 || arrived) {
+            if (arrived) {
                 stateTimer.reset();
 
                 state = AutoState.IDENTIFY_CENTER;
@@ -145,8 +145,6 @@ public class RobotStateMachine {
             // Detect mineral at image center
             centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
             if (centerMineral == Color.Mineral.GOLD) {
-                foundMineral = true;
-                centerGold = true;
                 stateTimer.reset();
                 state = AutoState.KNOCK_GOLD_CENTER;
             } else {
@@ -158,7 +156,7 @@ public class RobotStateMachine {
 
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-24, -24, degreesToRadians(35)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
             if (leftMineral == Color.Mineral.GOLD) {
                     foundMineral = true;
                     stateTimer.reset();
