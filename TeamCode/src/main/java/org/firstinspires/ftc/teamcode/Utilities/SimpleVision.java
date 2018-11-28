@@ -1,10 +1,19 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import android.graphics.Bitmap;
+import android.webkit.WebChromeClient;
+
 import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
+import com.qualcomm.robotcore.util.ThreadPool;
+import com.vuforia.Frame;
 import com.vuforia.Vuforia;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.function.Consumer;
+import org.firstinspires.ftc.robotcore.external.function.Continuation;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,10 +28,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
@@ -55,6 +69,7 @@ public class SimpleVision {
     // opMode reference
     private RobotHardware opMode;
     private ElapsedTime tfTimer;
+    public static final String TAG = "simpleVision class";
 
     // The external Vuforia ID localizer.
     private VuforiaLocalizer vuforia;
@@ -89,6 +104,12 @@ public class SimpleVision {
     public List<Recognition> updatedRecognitions;
     public List<Recognition> pastRecognitions;
 
+    // Webcam Support
+    private boolean useWebcam;
+    int captureCounter = 0;
+    File captureDirectory = AppUtil.ROBOT_DATA_DIR;
+    WebcamName webcamName;
+
 
     public static enum GoldMineralPosition {
         LEFT,
@@ -109,9 +130,12 @@ public class SimpleVision {
      * @param vuforiaLicenseKey The license key to access Vuforia code.
      */
     public SimpleVision(String vuforiaLicenseKey, RobotHardware opMode, boolean useVuforiaMonitor,
-                        boolean useTensorFlowMonitor, boolean useBackCamera, boolean useVuforiaTrackables) {
+                        boolean useTensorFlowMonitor, boolean useBackCamera, boolean useVuforiaTrackables,
+                        boolean useWebcam) {
         this.opMode = opMode;
         this.useBackCamera = useBackCamera;
+        this.useWebcam = useWebcam;
+
         this.useVuforiaTrackables = useVuforiaTrackables;
         VuforiaLocalizer.Parameters parameters;
         if (useVuforiaMonitor) {
@@ -122,12 +146,29 @@ public class SimpleVision {
             parameters = new VuforiaLocalizer.Parameters();
         }
         parameters.vuforiaLicenseKey = vuforiaLicenseKey;
-        if (useBackCamera) {
-            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        } else {
-            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+         if (useWebcam){ // useWebcam
+             try {
+                 webcamName = opMode.hardwareMap.get(WebcamName.class, "Webcam 1");
+                 parameters.cameraName = webcamName;
+             } catch (Exception e) {
+                 useWebcam = false; this.useWebcam = false; // Default to not using webcam.
+                 opMode.telemetry.addData("Webcam"," not detected");
+             }
+        }
+
+        if (!useWebcam) {
+            if (useBackCamera) {
+                parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            } else {
+                parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
+            }
         }
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        if(useWebcam) {
+            vuforia.enableConvertFrameToBitmap();
+            AppUtil.getInstance().ensureDirectoryExists(captureDirectory);
+        }
 
         if(useVuforiaTrackables) {
             initializeVuforiaTrackingGeometry(parameters);
@@ -428,7 +469,7 @@ public class SimpleVision {
             double currentDistance;
 
             int imageHeight = pastRecognitions.get(0).getImageHeight();
-            int imageWidth = pastRecognitions.get(0).getImageHeight();
+            int imageWidth = pastRecognitions.get(0).getImageWidth();
 
             int targetX;
             int targetY;
@@ -482,6 +523,38 @@ public class SimpleVision {
         }
 
         return detectedMineralColor;
+    }
+
+    /**
+     * Sample one frame from the Vuforia stream and write it to a .PNG image file on the robot
+     * controller in the /sdcard/FIRST/data directory. The images can be downloaded using Android
+     * Studio's Device File Explorer, ADB, or the Media Transfer Protocol (MTP) integration into
+     * Windows Explorer, among other means. The images can be useful during robot design and calibration
+     * in order to get a sense of what the camera is actually seeing and so assist in camera
+     * aiming and alignment.
+     */
+    void captureFrameToFile() {
+        vuforia.getFrameOnce(Continuation.create(ThreadPool.getDefault(), new Consumer<Frame>()
+        {
+            @Override public void accept(Frame frame)
+            {
+                Bitmap bitmap = vuforia.convertFrameToBitmap(frame);
+                if (bitmap != null) {
+                    File file = new File(captureDirectory, String.format(Locale.getDefault(), "VuforiaFrame-%d.png", captureCounter++));
+                    try {
+                        FileOutputStream outputStream = new FileOutputStream(file);
+                        try {
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        } finally {
+                            outputStream.close();
+                            opMode.telemetry.log().add("captured %s", file.getName());
+                        }
+                    } catch (IOException e) {
+                        RobotLog.ee(TAG, e, "exception in captureFrameToFile()");
+                    }
+                }
+            }
+        }));
     }
 
 
