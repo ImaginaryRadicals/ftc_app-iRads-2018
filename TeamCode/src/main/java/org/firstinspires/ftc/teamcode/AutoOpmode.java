@@ -11,10 +11,12 @@ import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
+import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 
 public class AutoOpmode extends RobotHardware {
 
 
+    public TimingMonitor timingMonitor;
     public MecanumNavigation mecanumNavigation;
     public AutoDrive autoDrive;
     protected Color.Ftc robotColor;
@@ -68,6 +70,7 @@ public class AutoOpmode extends RobotHardware {
     @Override
     public void init() {
         super.init();
+        timingMonitor = new TimingMonitor(AutoOpmode.this);
         controller = new Controller(gamepad1);
 //        thread = new Thread(new VisionLoader());
 //        thread.start();
@@ -117,21 +120,30 @@ public class AutoOpmode extends RobotHardware {
 
     @Override
     public void loop() {
+        timingMonitor.loopStart();
+        if(controller.start()) { timingMonitor.reset();} // Clear with start button
         super.loop();
+        timingMonitor.checkpoint("POST super.loop()");
         controller.update();
+        timingMonitor.checkpoint("POST controller.update()");
         mecanumNavigation.update();
+        timingMonitor.checkpoint("POST mecanumNavigation.update()");
         robotStateMachine.update();
+        timingMonitor.checkpoint("POST robotStateMachine.update()");
         mecanumNavigation.displayPosition();
         telemetry.addData("Current State", robotStateMachine.state.toString());
         telemetry.addLine();
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
+        timingMonitor.displayMaxTimes();
+        timingMonitor.checkpoint("POST TELEMETRY");
 //        try {
 //            simpleVision.updateTensorFlow(true);
 //            simpleVision.displayTensorFlowDetections();
 //        } catch(Exception e) {
 //            telemetry.addData("Vision Not Loaded", "");
 //        }
+        timingMonitor.checkpoint("END");
     }
 
 

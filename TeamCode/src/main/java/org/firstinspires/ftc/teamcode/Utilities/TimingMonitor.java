@@ -26,6 +26,7 @@ public class TimingMonitor {
 
     public TimingMonitor(RobotHardware opMode) {
         this.opMode = opMode;
+        timer = new ElapsedTime();
         this.reset();
     }
 
@@ -125,7 +126,7 @@ public class TimingMonitor {
         if(firstLoopCompleted) {
             int index = 0;
             for (String checkpoint : checkpointNames) {
-                opMode.telemetry.addData(checkpoint, checkpointTimes.get(index));
+                opMode.telemetry.addData(checkpoint, opMode.df_prec.format(checkpointTimes.get(index)));
                 index++;
             }
         }
