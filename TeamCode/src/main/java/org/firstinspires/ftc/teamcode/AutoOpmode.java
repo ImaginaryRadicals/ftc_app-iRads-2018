@@ -72,8 +72,8 @@ public class AutoOpmode extends RobotHardware {
         super.init();
         timingMonitor = new TimingMonitor(AutoOpmode.this);
         controller = new Controller(gamepad1);
-//        thread = new Thread(new VisionLoader());
-//        thread.start();
+        thread = new Thread(new VisionLoader());
+        thread.start();
         mecanumNavigation = new MecanumNavigation(this,
                 new MecanumNavigation.DriveTrainMecanum(
                         Constants.WHEELBASE_LENGTH_IN, Constants.WHEELBASE_WIDTH_IN,
@@ -98,11 +98,11 @@ public class AutoOpmode extends RobotHardware {
         super.init_loop();
         controller.update();
 
-//        if (simpleVision == null) {
-//            telemetry.addData("Vision:", "LOADING...");
-//        } else {
-//            telemetry.addData("Vision:", "INITIALIZED");
-//        }
+        if (simpleVision == null) {
+            telemetry.addData("Vision:", "LOADING...");
+        } else {
+            telemetry.addData("Vision:", "INITIALIZED");
+        }
 
         interactiveInit.update();
     }
@@ -130,6 +130,7 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
         robotStateMachine.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
+
         mecanumNavigation.displayPosition();
         telemetry.addData("Current State", robotStateMachine.state.toString());
         telemetry.addLine();
@@ -137,13 +138,14 @@ public class AutoOpmode extends RobotHardware {
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
         timingMonitor.displayMaxTimes();
         timingMonitor.checkpoint("POST TELEMETRY");
-//        try {
-//            simpleVision.updateTensorFlow(true);
-//            simpleVision.displayTensorFlowDetections();
-//        } catch(Exception e) {
-//            telemetry.addData("Vision Not Loaded", "");
-//        }
-        timingMonitor.checkpoint("END");
+
+        try {
+            simpleVision.updateTensorFlow(true);
+            simpleVision.displayTensorFlowDetections();
+        } catch(Exception e) {
+            telemetry.addData("Vision Not Loaded", "");
+        }
+        timingMonitor.checkpoint("POST Vision");
     }
 
 
