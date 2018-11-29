@@ -26,6 +26,9 @@ public class RobotStateMachine {
         IDENTIFY_CENTER,
         IDENTIFY_LEFT,
         IDENTIFY_RIGHT,
+        PREPARATION_CENTER,
+        PREPARATION_LEFT,
+        PREPARATION_RIGHT,
         UNKNOWN,
         KNOCK_GOLD_CENTER,
         KNOCK_GOLD_LEFT,
@@ -135,28 +138,45 @@ public class RobotStateMachine {
 
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12.43, 12.43, degreesToRadians(-30)), speed);
 
+
             if (arrived) {
                 stateTimer.reset();
 
-                state = AutoState.IDENTIFY_CENTER;
+                state = AutoState.PREPARATION_CENTER;
 
             }
+        } else if (state == AutoState.PREPARATION_CENTER) {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-30)), speed);
+            if (arrived) {
+                boolean arrivedToPos = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
+
+                if (arrivedToPos == true) {
+                    stateTimer.reset();
+                    state = AutoState.IDENTIFY_CENTER;
+
+                }
+            }
         } else if (state == AutoState.IDENTIFY_CENTER) {
+
             // Detect mineral at image center
             centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+
             if (centerMineral == Color.Mineral.GOLD) {
                 stateTimer.reset();
                 state = AutoState.KNOCK_GOLD_CENTER;
             } else {
                 stateTimer.reset();
-                state = AutoState.IDENTIFY_LEFT;
+                state = AutoState.PREPARATION_LEFT;
             }
+        } else if (state == AutoState.PREPARATION_LEFT) {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(0)), speed);
+
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
 
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
+
             if (leftMineral == Color.Mineral.GOLD) {
                     foundMineral = true;
                     stateTimer.reset();
@@ -168,7 +188,6 @@ public class RobotStateMachine {
         } else if (state == AutoState.IDENTIFY_RIGHT) {
             // Detect mineral at image center
             rightMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-24, -24, degreesToRadians(-70)), speed);
             if (rightMineral == Color.Mineral.GOLD) {
                 foundMineral = true;
                 stateTimer.reset();
@@ -190,21 +209,27 @@ public class RobotStateMachine {
             }
 
 
-        } else if (state == AutoState.KNOCK_GOLD_CENTER || state == AutoState.KNOCK_GOLD_RIGHT || state == AutoState.KNOCK_GOLD_LEFT) {
-            if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.CENTER) {
+        } else if (state == AutoState.KNOCK_GOLD_CENTER || state == AutoState.KNOCK_GOLD_RIGHT || state == AutoState.KNOCK_GOLD_LEFT && foundMineral) {
+            if (state == AutoState.KNOCK_GOLD_CENTER && foundMineral) {
                 stateTimer.reset();
 
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-36, -36, degreesToRadians(0)), speed);
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
 
-            } else if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.RIGHT) {
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(32, 32, degreesToRadians(-45)), speed);
+
+            } else if (state == AutoState.KNOCK_GOLD_LEFT && foundMineral) {
                 stateTimer.reset();
 
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-36, -36, degreesToRadians(0)), speed);
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(14, 36, degreesToRadians(-45)), speed);
 
-            } else if (foundMineral && goldMineralPosition == SimpleVision.GoldMineralPosition.LEFT) {
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(20, 44, degreesToRadians(-45)), speed);
+
+            } else if (state == AutoState.KNOCK_GOLD_RIGHT && foundMineral) {
                 stateTimer.reset();
 
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-36, -36, degreesToRadians(0)), speed);
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(36, 14, degreesToRadians(-45)), speed);
+
+                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(44, 20, degreesToRadians(-45)), speed);
 
             } else {
 
