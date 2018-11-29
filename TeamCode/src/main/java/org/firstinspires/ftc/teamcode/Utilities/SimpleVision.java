@@ -403,7 +403,6 @@ public class SimpleVision {
             if (updatedRecognitions != null) {
                 pastRecognitions = updatedRecognitions;
                 tfTimer.reset();
-                opMode.telemetry.addData("# Object Detected", updatedRecognitions.size());
                 if (updatedRecognitions.size() == 3) {
                     int goldMineralX = -1;
                     int silverMineral1X = -1;
@@ -419,13 +418,10 @@ public class SimpleVision {
                     }
                     if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                         if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                            opMode.telemetry.addData("Gold Mineral Position", "Left");
                             setGoldMineralPosition(GoldMineralPosition.LEFT);
                         } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                            opMode.telemetry.addData("Gold Mineral Position", "Right");
                             setGoldMineralPosition(GoldMineralPosition.RIGHT);
                         } else {
-                            opMode.telemetry.addData("Gold Mineral Position", "Center");
                             setGoldMineralPosition(GoldMineralPosition.CENTER);
                         }
                     }
@@ -434,6 +430,18 @@ public class SimpleVision {
         }
 
 
+    }
+
+    public void displayTensorFlowDetectionSample() {
+        opMode.telemetry.addData("# Object Detected", pastRecognitions.size());
+
+        if (goldMineralPosition == GoldMineralPosition.LEFT) {
+            opMode.telemetry.addData("Gold Mineral Position", "Left");
+        } else if (goldMineralPosition == GoldMineralPosition.RIGHT) {
+            opMode.telemetry.addData("Gold Mineral Position", "Right");
+        } else {
+            opMode.telemetry.addData("Gold Mineral Position", "Center");
+        }
     }
 
     public void setGoldMineralPosition(GoldMineralPosition goldMineralPosition) {

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Utilities.Color;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
+import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 
 
 /**
@@ -15,25 +16,36 @@ import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 public class DiagnosticOpMode extends Manual {
 
     IMUUtilities imuHelper;
+    TimingMonitor timingMonitor;
 
     @Override
     public void init() {
         super.init();
-        //imuHelper = new IMUUtilities(this, "IMU_1");
+        imuHelper = new IMUUtilities(this, "IMU_1");
         telemetry.addData("Diagnostic Mode ", " Initialized");
+        timingMonitor = new TimingMonitor(this);
     }
 
     @Override
     public void loop() {
+        timingMonitor.loopStart();
         super.loop();
-        //imuHelper.update();
+        timingMonitor.checkpoint("Main Loop");
+        imuHelper.update();
+        timingMonitor.checkpoint("IMU update");
         showDiagnosticTelemetry();
-        //imuHelper.displayTelemetry();
+        telemetry.addLine();
+        imuHelper.displayTelemetry();
+        telemetry.addLine();
+        timingMonitor.displayMaxTimes();
+        telemetry.addLine();
+        timingMonitor.checkpoint("Telemetry Displayed");
     }
 
 
     public void showDiagnosticTelemetry() {
 
+        telemetry.addLine();
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
 
