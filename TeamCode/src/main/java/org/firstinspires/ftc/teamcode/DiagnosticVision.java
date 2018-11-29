@@ -41,6 +41,7 @@ public class DiagnosticVision extends DiagnosticOpMode {
         super.loop();
         if (simpleVision != null) {
             simpleVision.updateVuMarkPose();
+            telemetry.addData("VuForia Nav2D",simpleVision.getPositionNav2D());
             simpleVision.updateTensorFlow(false);
             simpleVision.displayTensorFlowDetections();
             simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);

@@ -39,7 +39,9 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XZY;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.FRONT;
@@ -309,14 +311,18 @@ public class SimpleVision {
          * In this example, it is centered (left to right), but 110 mm forward of the middle of the robot, and 200 mm above ground level.
          */
 
-        final int CAMERA_FORWARD_DISPLACEMENT  = 110;   // eg: Camera is 110 mm in front of robot center
-        final int CAMERA_VERTICAL_DISPLACEMENT = 200;   // eg: Camera is 200 mm above ground
-        final int CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
+        final float CAMERA_FORWARD_DISPLACEMENT  = (float)(0*mmPerInch); //110;   // eg: Camera is 110 mm in front of robot center
+        final float CAMERA_VERTICAL_DISPLACEMENT = (float)(6*mmPerInch); //200;   // eg: Camera is 200 mm above ground
+        final float CAMERA_LEFT_DISPLACEMENT     = (float)(6*mmPerInch); //0;     // eg: Camera is ON the robot's center line
+        if(useWebcam) {
+            // Webcam coordinates coincide with front camera.
+            useBackCamera = false;
+        }
 
         OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
-                        useBackCamera ? -90 : 90, 0, 0));
+                        90, -90, 0));
 
         /**  Let all the trackable listeners know where the phone is.  */
         for (VuforiaTrackable trackable : allTrackables)
@@ -367,6 +373,17 @@ public class SimpleVision {
                 opMode.telemetry.addData("Visible Target", "none");
             }
             //opMode.telemetry.update();
+        }
+    }
+
+    public MecanumNavigation.Navigation2D getPositionNav2D() {
+        if (lastLocation != null) {
+            return new MecanumNavigation.Navigation2D(
+                    lastLocation.getTranslation().get(0)/mmPerInch,
+                    lastLocation.getTranslation().get(1)/mmPerInch,
+                    Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, RADIANS).thirdAngle);
+        } else {
+                return new MecanumNavigation.Navigation2D(0,0,0);
         }
     }
 
