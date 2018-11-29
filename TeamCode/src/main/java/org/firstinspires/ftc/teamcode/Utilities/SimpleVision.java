@@ -314,20 +314,19 @@ public class SimpleVision {
         final float CAMERA_FORWARD_DISPLACEMENT  = (float)(0*mmPerInch); //110;   // eg: Camera is 110 mm in front of robot center
         final float CAMERA_VERTICAL_DISPLACEMENT = (float)(6*mmPerInch); //200;   // eg: Camera is 200 mm above ground
         final float CAMERA_LEFT_DISPLACEMENT     = (float)(6*mmPerInch); //0;     // eg: Camera is ON the robot's center line
-        if(useWebcam) {
-            // Webcam coordinates coincide with front camera.
-            useBackCamera = false;
-        }
 
-        OpenGLMatrix phoneLocationOnRobot = OpenGLMatrix
+        OpenGLMatrix cameraLocationOnRobot = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES,
-                        90, -90, 0));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XZY, DEGREES,
+                        90, 180, 0));
+        // For left side Z = 180, for right side Z = 0.
+        // Note that reported pitch increases downward, since Y is to the robot's left.
 
         /**  Let all the trackable listeners know where the phone is.  */
         for (VuforiaTrackable trackable : allTrackables)
         {
-            ((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+            //((VuforiaTrackableDefaultListener)trackable.getListener()).setPhoneInformation(phoneLocationOnRobot, parameters.cameraDirection);
+            ((VuforiaTrackableDefaultListener)trackable.getListener()).setCameraLocationOnRobot(parameters.cameraName, cameraLocationOnRobot);
         }
 
     }
@@ -368,6 +367,7 @@ public class SimpleVision {
 
                 // express the rotation of the robot in degrees.
                 Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+                // Note that reported pitch increases downward, since Y is to the robot's left.
                 opMode.telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
             } else {
                 opMode.telemetry.addData("Visible Target", "none");
