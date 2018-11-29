@@ -26,6 +26,7 @@ public class Manual extends RobotHardware {
     Mutable<Double> Exponential = new Mutable<>(1.0);
     Mutable<Double> GoToPosPower = new Mutable<>(1.0);
     Mutable<Double> LifterSpeed = new Mutable<>(1.0);
+    Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
 
     //Enum for arm states
     public enum ArmStates{
@@ -52,20 +53,6 @@ public class Manual extends RobotHardware {
     public void init() {
         super.init();
 
-        //Mecanum navigation
-        mecanumNavigation = new MecanumNavigation(this,
-                new MecanumNavigation.DriveTrainMecanum(
-                        Constants.WHEELBASE_LENGTH_IN, Constants.WHEELBASE_WIDTH_IN,
-                        Constants.DRIVE_WHEEL_DIAMETER_INCHES, Constants.DRIVE_WHEEL_STEPS_PER_ROT,
-                        Constants.DRIVE_WHEEL_LATERAL_RATIO));
-        mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0),
-                new MecanumNavigation.WheelTicks(getEncoderValue(MotorName.DRIVE_FRONT_LEFT),
-                        getEncoderValue(MotorName.DRIVE_FRONT_RIGHT),
-                        getEncoderValue(MotorName.DRIVE_BACK_LEFT),
-                        getEncoderValue(MotorName.DRIVE_BACK_RIGHT)));
-        autoDrive = new AutoDrive(this, mecanumNavigation);
-
-
         //Changing gamepads to controllers
         controller1 = new Controller (gamepad1);
         controller2 = new Controller (gamepad2);
@@ -79,6 +66,8 @@ public class Manual extends RobotHardware {
         interactiveInit.addDouble(LifterSpeed, "Lifter Speed", 0.1, 0.2, .3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0);
         interactiveInit.addDouble(Exponential, "Exponential", 3.0, 1.0);
         interactiveInit.addBoolean(CoPilot, "Copilot Enable", false, true);
+        interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
+
     }
 
     @Override
@@ -91,6 +80,14 @@ public class Manual extends RobotHardware {
     @Override
     public void start() {
         super.start();
+        // MecanumNavigation and auto control
+        if(UsingMiniRobot.get()) {
+            mecanumNavigation = new MecanumNavigation(this,Constants.MiniRobot.getDriveTrainMecanum());
+        } else {
+            mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
+        }
+        mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
+        autoDrive = new AutoDrive(this, mecanumNavigation);
 
         interactiveInit.lock();
     }

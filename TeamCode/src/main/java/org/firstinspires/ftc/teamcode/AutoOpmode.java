@@ -26,10 +26,10 @@ public class AutoOpmode extends RobotHardware {
     private Thread thread;
     public Controller controller;
 
-    public Mutable<Boolean> Simple = new Mutable<>(false);
-
+    //Interactive Init menu
     InteractiveInit interactiveInit = null;
-
+    public Mutable<Boolean> Simple = new Mutable<>(false);
+    public Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
@@ -74,15 +74,14 @@ public class AutoOpmode extends RobotHardware {
         controller = new Controller(gamepad1);
         thread = new Thread(new VisionLoader());
         thread.start();
-        mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
-        mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
-        autoDrive = new AutoDrive(this, mecanumNavigation);
+
         // Finally, construct the state machine.
         robotStateMachine = new RobotStateMachine(this, robotColor, robotStartPos);
         telemetry.addData("Initialization:", "Successful!");
-
+        // Initialization Menu
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addBoolean(Simple, "Simple Mode", false, true);
+        interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
     }
 
     @Override
@@ -102,6 +101,16 @@ public class AutoOpmode extends RobotHardware {
     @Override
     public void start() {
         super.init();
+
+        // Navigation and control
+        if(UsingMiniRobot.get()) {
+            mecanumNavigation = new MecanumNavigation(this,Constants.MiniRobot.getDriveTrainMecanum());
+        } else {
+            mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
+        }
+        mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
+        autoDrive = new AutoDrive(this, mecanumNavigation);
+
         // Ensure starting position at origin, even if wheels turned since initialize.
         mecanumNavigation.update();
         mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(0,0,0));
