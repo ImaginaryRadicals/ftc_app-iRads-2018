@@ -27,6 +27,11 @@ public class MecanumNavigation {
         wheelTicks = initialWheelTicks;
     }
 
+    public void initialize(Navigation2D initialNavPosition) {
+        currentPosition = initialNavPosition;
+        wheelTicks = getCurrentWheelTicks();
+    }
+
     public void setCurrentPosition(Navigation2D currentPosition) {
         this.currentPosition = currentPosition;
     }
@@ -305,6 +310,16 @@ public class MecanumNavigation {
             return null;
         }
     }
+
+    // Quality of life function for enclosing class.
+    public WheelTicks getCurrentWheelTicks() {
+        return new MecanumNavigation.WheelTicks(
+                opMode.getEncoderValue(RobotHardware.MotorName.DRIVE_FRONT_LEFT),
+                opMode.getEncoderValue(RobotHardware.MotorName.DRIVE_FRONT_RIGHT),
+                opMode.getEncoderValue(RobotHardware.MotorName.DRIVE_BACK_LEFT),
+                opMode.getEncoderValue(RobotHardware.MotorName.DRIVE_BACK_RIGHT));
+    }
+
 
     /**
      * Round an angle in radians so it falls within [-PI, PI]

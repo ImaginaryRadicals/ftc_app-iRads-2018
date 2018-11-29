@@ -74,16 +74,8 @@ public class AutoOpmode extends RobotHardware {
         controller = new Controller(gamepad1);
         thread = new Thread(new VisionLoader());
         thread.start();
-        mecanumNavigation = new MecanumNavigation(this,
-                new MecanumNavigation.DriveTrainMecanum(
-                        Constants.WHEELBASE_LENGTH_IN, Constants.WHEELBASE_WIDTH_IN,
-                        Constants.DRIVE_WHEEL_DIAMETER_INCHES, Constants.DRIVE_WHEEL_STEPS_PER_ROT,
-                        Constants.DRIVE_WHEEL_LATERAL_RATIO));
-        mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0),
-                new MecanumNavigation.WheelTicks(getEncoderValue(MotorName.DRIVE_FRONT_LEFT),
-                        getEncoderValue(MotorName.DRIVE_FRONT_RIGHT),
-                        getEncoderValue(MotorName.DRIVE_BACK_LEFT),
-                        getEncoderValue(MotorName.DRIVE_BACK_RIGHT)));
+        mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
+        mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
         autoDrive = new AutoDrive(this, mecanumNavigation);
         // Finally, construct the state machine.
         robotStateMachine = new RobotStateMachine(this, robotColor, robotStartPos);

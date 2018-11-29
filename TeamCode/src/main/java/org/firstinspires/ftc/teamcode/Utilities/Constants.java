@@ -40,5 +40,33 @@ public class Constants {
     public static final double DRIVE_WHEEL_MM_PER_ROT = DRIVE_WHEEL_RADIUS_MM * 2 *  Math.PI;
 
     public static final int DRIVE_WHEEL_STEPS_PER_ROT     = 28*20*2;
+    
+    // Simplify initializing mecanum navigation.
+    public static MecanumNavigation.DriveTrainMecanum getDriveTrainMecanum() {
+        return new MecanumNavigation.DriveTrainMecanum(
+                Constants.WHEELBASE_LENGTH_IN, Constants.WHEELBASE_WIDTH_IN,
+                Constants.DRIVE_WHEEL_DIAMETER_INCHES, Constants.DRIVE_WHEEL_STEPS_PER_ROT,
+                Constants.DRIVE_WHEEL_LATERAL_RATIO);
+    }
+
+
+
+    // CONSTANTS specific to our purple testing MiniRobot
+    public static class MiniRobot {
+        public static final double DRIVE_WHEEL_DIAMETER_INCHES  =  4;
+        public static final double DRIVE_WHEEL_LATERAL_RATIO = 0.89;
+        private static double rotationScaleIncrease = 1.0975;
+        public static final double WHEELBASE_WIDTH_IN = 15.268 / rotationScaleIncrease;
+        public static final double WHEELBASE_LENGTH_IN = 13.5 / rotationScaleIncrease;
+        public static final int DRIVE_WHEEL_STEPS_PER_ROT     = 28*40;
+
+        // Simplify initializing mecanum navigation.
+        public static MecanumNavigation.DriveTrainMecanum getDriveTrainMecanum() {
+            return new MecanumNavigation.DriveTrainMecanum(
+                    Constants.MiniRobot.WHEELBASE_LENGTH_IN, Constants.MiniRobot.WHEELBASE_WIDTH_IN,
+                    Constants.MiniRobot.DRIVE_WHEEL_DIAMETER_INCHES, Constants.MiniRobot.DRIVE_WHEEL_STEPS_PER_ROT,
+                    Constants.MiniRobot.DRIVE_WHEEL_LATERAL_RATIO);
+        }
+    }
 
 }
