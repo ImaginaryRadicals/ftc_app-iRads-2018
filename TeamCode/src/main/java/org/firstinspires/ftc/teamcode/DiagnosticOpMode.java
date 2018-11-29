@@ -31,11 +31,11 @@ public class DiagnosticOpMode extends Manual {
         timingMonitor.loopStart();
         super.loop();
         timingMonitor.checkpoint("Main Loop");
-        imuHelper.update();
+        if (imuHelper.imu != null) imuHelper.update();
         timingMonitor.checkpoint("IMU update");
         showDiagnosticTelemetry();
         telemetry.addLine();
-        imuHelper.displayTelemetry();
+        if (imuHelper.imu != null) imuHelper.displayTelemetry();
         telemetry.addLine();
         timingMonitor.displayMaxTimes();
         telemetry.addLine();

@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
@@ -48,6 +49,9 @@ public class IMUUtilities {
 
 
     public void update() {
+        // If IMU is missing, do nothing.
+        if (imu == null) {return;}
+
         // Update rate is limited by minUpdateDelay to prevent too many costly operations.
         // Updating this data is quite expensive.
         if (opMode.time - lastUpdateSec > minUpdateDelay) {
@@ -76,6 +80,8 @@ public class IMUUtilities {
 
     public void displayTelemetry() {
         // Uses class data from most recent update.
+        // If IMU is missing, do nothing.
+        if (imu == null) {return;}
         displayIMUTelemetry(imuSystemStatus, imuCalibrationStatus, angles, gravity, acceleration, opMode);
         opMode.telemetry.addData("IMU data age", dataAge());
     }
@@ -116,6 +122,8 @@ public class IMUUtilities {
      * @param imu
      */
     static public void startIMU (BNO055IMU imu) {
+        // If IMU is missing, do nothing.
+        if (imu == null) {return;}
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
     }
 
@@ -133,7 +141,6 @@ public class IMUUtilities {
                                            BNO055IMU.CalibrationStatus calibrationStatus,
                                            Orientation angles, Acceleration gravity, Acceleration acceleration,
                                            RobotHardware opMode) {
-
         opMode.telemetry.addLine().
             addData("status",  systemStatus.toShortString())
             .addData("calib",calibrationStatus.toString());
@@ -159,6 +166,8 @@ public class IMUUtilities {
 
 
     static public void displayIMUTelemetry(final BNO055IMU imu, RobotHardware opMode) {
+        // If IMU is missing, do nothing.
+        if (imu == null) {return;}
         BNO055IMU.SystemStatus systemStatus = imu.getSystemStatus();
         BNO055IMU.CalibrationStatus calibrationStatus = imu.getCalibrationStatus();
         Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -188,6 +197,10 @@ public class IMUUtilities {
      * @return OrientationAngles object
      */
     static public OrientationAngles getOrientation(BNO055IMU imu) {
+        // If IMU is missing, do nothing.
+        if (imu == null) {
+            return new OrientationAngles(-999, -999, -999);
+        }
         final Orientation angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         // Return heading, roll, pitch
         return new OrientationAngles(angles.firstAngle, angles.secondAngle, angles.thirdAngle);
@@ -199,6 +212,10 @@ public class IMUUtilities {
      * @return Acceleration object
      */
     static public Acceleration getAccelerationComponents(BNO055IMU imu) {
+        // If IMU is missing, do nothing.
+        if (imu == null) {
+            return new Acceleration(DistanceUnit.METER,-999, -999, -999,1000);
+        }
         return  imu.getLinearAcceleration();
     }
     //----------------------------------------------------------------------------------------------
