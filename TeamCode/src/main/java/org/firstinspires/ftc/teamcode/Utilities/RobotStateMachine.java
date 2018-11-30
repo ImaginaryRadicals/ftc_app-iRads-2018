@@ -128,7 +128,7 @@ public class RobotStateMachine {
         } else if (state == AutoState.LAND) {
             arrived = true; //driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, speed);
 
-            if (arrived == true) {
+            if (arrived) {
                 stateTimer.reset();
 
                 state = AutoState.DISMOUNT;
@@ -150,7 +150,7 @@ public class RobotStateMachine {
             if (arrived) {
                 boolean arrivedToPos = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
 
-                if (arrivedToPos == true) {
+                if (arrivedToPos) {
                     stateTimer.reset();
                     state = AutoState.IDENTIFY_CENTER;
 
@@ -171,6 +171,8 @@ public class RobotStateMachine {
         } else if (state == AutoState.PREPARATION_LEFT) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(0)), speed);
 
+            state = AutoState.IDENTIFY_LEFT;
+
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
 
@@ -183,9 +185,9 @@ public class RobotStateMachine {
                     state = AutoState.KNOCK_GOLD_LEFT;
                 } else {
                     stateTimer.reset();
-                    state = AutoState.IDENTIFY_RIGHT;
+                    state = AutoState.PREPARATION_RIGHT;
                 }
-        } else if (state == AutoState.IDENTIFY_RIGHT) {
+        } else if (state == AutoState.PREPARATION_RIGHT) {
             // Detect mineral at image center
             rightMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
             if (rightMineral == Color.Mineral.GOLD) {
