@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotHardware;
@@ -9,7 +8,18 @@ import java.util.ArrayList;
 
 /**
  *  Timing Monitor is a debug tool for discovering the source of
- *  slowdowns in code.
+ *  slowdowns in code. This is done by keeping track of the LONGEST
+ *  time interval observed between labeled checkpoints.
+ *
+ *  To use, first create a TimingMonitor object with a reference to the opMode
+ *  e.g. TimingMonitor timingMonitor = new TimingMonitor(this)
+ *  Then place the timingMonitor.loopStart() call at the beginning of the execution loop.
+ *  It is important that this runs before any checkpoints.
+ *  Finally, place timingMonitor.checkpoint('label_1') calls after segments you wish timed.
+ *  To view the results, run timingMonitor.displayMaxTimes()
+ *  The time associated with the START label is the longest time it took to get from the
+ *  last checkpoint to the starting point.
+ *  Place checkpoints after the code blocks that their label refers to.
  */
 public class TimingMonitor {
     private RobotHardware opMode; // Reference to opmode
@@ -18,7 +28,7 @@ public class TimingMonitor {
     // All checkpoints hit once, names established and arrays populated.
     private boolean firstLoopCompleted;
     private ArrayList<String> checkpointNames;
-    private ArrayList<Double> checkpointTimes;
+    private ArrayList<Double> checkpointMaxTimes;
     private int checkpointIndex;
     private int totalCheckpoints;
     private boolean checkpointOrderError;
@@ -37,7 +47,7 @@ public class TimingMonitor {
         totalCheckpoints = 0;
         checkpointOrderError = false;
         checkpointNames = new ArrayList<>();
-        checkpointTimes = new ArrayList<>();
+        checkpointMaxTimes = new ArrayList<>();
     }
 
     public void loopStart() {
@@ -56,7 +66,7 @@ public class TimingMonitor {
                 checkpointNames.add("START");
                 currentTime = timer.seconds(); // Read and trash time for consistency.
                 timer.reset();
-                checkpointTimes.add(0.0); // Initialize blank on first loop.
+                checkpointMaxTimes.add(0.0); // Initialize blank on first loop.
 
             }
         }
@@ -68,10 +78,10 @@ public class TimingMonitor {
             checkpointIndex = 0; // Only place the checkpoint index is reset.
             currentTime = timer.seconds();
             timer.reset();
-            previousTime = checkpointTimes.get(checkpointIndex);
+            previousTime = checkpointMaxTimes.get(checkpointIndex);
             if(currentTime > previousTime) {
                 // Store new time if it is longer.
-                checkpointTimes.set(checkpointIndex,currentTime);
+                checkpointMaxTimes.set(checkpointIndex,currentTime);
             }
         }
         // Increment the checkpoint index
@@ -88,10 +98,10 @@ public class TimingMonitor {
             if (firstLoopCompleted) {
                 currentTime = timer.seconds();
                 timer.reset();
-                previousTime = checkpointTimes.get(checkpointIndex);
+                previousTime = checkpointMaxTimes.get(checkpointIndex);
                 if (currentTime > previousTime) {
                     // Store new time if it is longer.
-                    checkpointTimes.set(checkpointIndex, currentTime);
+                    checkpointMaxTimes.set(checkpointIndex, currentTime);
                 }
 
                 //Error check the name index
@@ -108,7 +118,7 @@ public class TimingMonitor {
                 // Add checkpoint time to the list.
                 currentTime = timer.seconds(); // Read and trash time for consistency.
                 timer.reset();
-                checkpointTimes.add(0.0); // Initialize blank
+                checkpointMaxTimes.add(0.0); // Initialize blank
             }
             // Increment the checkpoint index
             checkpointIndex++;
@@ -126,7 +136,7 @@ public class TimingMonitor {
         if(firstLoopCompleted) {
             int index = 0;
             for (String checkpoint : checkpointNames) {
-                opMode.telemetry.addData(checkpoint, opMode.df_prec.format(checkpointTimes.get(index)));
+                opMode.telemetry.addData(checkpoint, opMode.df_prec.format(checkpointMaxTimes.get(index)));
                 index++;
             }
         }
