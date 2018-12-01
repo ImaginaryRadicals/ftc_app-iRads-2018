@@ -215,7 +215,7 @@ public class Manual extends RobotHardware {
             if (
                     CoPilot.get() == true && ((Math.abs(controller2.right_stick_y) >= triggerThreshold) ||
                             (Math.abs(controller2.left_stick_y) >= triggerThreshold)) ||
-                            CoPilot.get() == true && ((Math.abs(controller1.right_stick_y) >= triggerThreshold) ||
+                            CoPilot.get() == false && ((Math.abs(controller1.right_stick_y) >= triggerThreshold) ||
                                     (Math.abs(controller1.right_trigger) >= triggerThreshold) || (Math.abs(controller1.left_trigger) >= triggerThreshold))){
                 armState = ArmStates.MANUAL;
             }
