@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
+import java.util.ArrayList;
+
 /**
  * Created by Ashley on 12/18/2017.
  */
@@ -103,6 +105,68 @@ public class AutoDrive {
         return Range.clip(Math.abs(output),0,1);
     }
 
+
+
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+        power = Range.clip(Math.abs(power), 0, 1);
+        int poweredDistance = 5;
+        int arrivedDistance = 50;
+        int rampThreshold = 400;
+        double maxRampPower = 1.0;
+        double minRampPower = 0.0;
+        int errorSignal = opMode.getEncoderValue(motorName) - targetTicks;
+        double direction = errorSignal > 0 ? -1.0: 1.0;
+        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, maxRampPower, minRampPower);
+
+        if (Math.abs(errorSignal) >= poweredDistance) {
+            opMode.setPower(motorName, direction * power * rampDownRatio);
+        } else {
+            opMode.setPower(motorName, 0);
+        }
+
+        if(Math.abs(errorSignal) <= arrivedDistance) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    // multi waypoint state properties
+    String previousStateName_multiWaypoint = "thisIsEmpty";
+    int currentDriveWaypoint = 0;
+
+
+    public boolean multiWaypointState(String stateName_multiWaypoint, double speed, ArrayList<MecanumNavigation.Navigation2D> waypointList) {
+        // Determine if this is a new call to the function, and state variables should be reset.
+        // This functions as the initialization of the state variables.
+        if (stateName_multiWaypoint != previousStateName_multiWaypoint) {
+            currentDriveWaypoint = 0;
+            previousStateName_multiWaypoint = stateName_multiWaypoint;
+        }
+
+        boolean arrived = false;
+        boolean finalArrived = false;
+        int lastIndex = waypointList.size() - 1;
+
+        if (currentDriveWaypoint <= lastIndex){
+            arrived = rotateThenDriveToPosition(waypointList.get(currentDriveWaypoint),speed);
+            if (arrived && currentDriveWaypoint == lastIndex) {
+                finalArrived = true;
+            }
+            if(arrived) {
+                currentDriveWaypoint++;
+            }
+        }
+
+        if (finalArrived) {
+            opMode.stopAllMotors();
+        }
+        opMode.telemetry.addData("Multi Waypoint Drive","");
+        opMode.telemetry.addData("Current Waypoint: ", currentDriveWaypoint);
+        opMode.telemetry.addData("Mini State Name", stateName_multiWaypoint);
+        opMode.telemetry.addData("Target", waypointList.get(currentDriveWaypoint).toString());
+        return finalArrived;
+    }
 
 
 
