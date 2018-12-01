@@ -190,7 +190,7 @@ public class RobotStateMachine {
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
             if (stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
                 if (leftMineral == Color.Mineral.GOLD) {
-                    arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(14, 36, degreesToRadians(0)), speed);
+                    arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(14, 36, degreesToRadians(-45)), speed);
                     if (arrived) {
                         foundMineral = true;
                         stateTimer.reset();
@@ -206,7 +206,7 @@ public class RobotStateMachine {
             }
         } else if (state == AutoState.PREPARATION_RIGHT) {
             // Detect mineral at image center
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(36,14,degreesToRadians(-45)),speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(20,45,degreesToRadians(-45)),speed);
             if(arrived && stateTimer.seconds() > 1 ) {
 //                rightMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
                 //if (rightMineral == Color.Mineral.GOLD) {
