@@ -148,47 +148,59 @@ public class RobotStateMachine {
         } else if (state == AutoState.PREPARATION_CENTER) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-30)), speed);
             if (arrived) {
-                boolean arrivedToPos = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
-
-                if (arrivedToPos) {
-                    stateTimer.reset();
-                    state = AutoState.IDENTIFY_CENTER;
-
-                }
+                stateTimer.reset();
+                state = AutoState.IDENTIFY_CENTER;
             }
+
         } else if (state == AutoState.IDENTIFY_CENTER) {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
 
-            // Detect mineral at image center
-            centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
+            if (arrived && stateTimer.seconds() > 1 && stateTimer.seconds() < 4) {
+                // Detect mineral at image center
+                centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
 
-            if (centerMineral == Color.Mineral.GOLD) {
+                if (centerMineral == Color.Mineral.GOLD) {
+                    stateTimer.reset();
+                    state = AutoState.KNOCK_GOLD_CENTER;
+                } else if(centerMineral == Color.Mineral.SILVER){
+                    stateTimer.reset();
+                    state = AutoState.PREPARATION_LEFT;
+                }
+
+            } else if (stateTimer.seconds() >= 4) {
+                // Timed out: assume detection wasn't possible, act as if it were gold.
                 stateTimer.reset();
                 state = AutoState.KNOCK_GOLD_CENTER;
-            } else {
-                stateTimer.reset();
-                state = AutoState.PREPARATION_LEFT;
             }
+
         } else if (state == AutoState.PREPARATION_LEFT) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(0)), speed);
-
-            state = AutoState.IDENTIFY_LEFT;
+            if(arrived) {
+                stateTimer.reset();
+                state = AutoState.IDENTIFY_LEFT;
+            }
 
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
 
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
-
-            if (leftMineral == Color.Mineral.GOLD) {
+            if (stateTimer.seconds() > 1 && stateTimer.seconds() < 4) {
+                if (leftMineral == Color.Mineral.GOLD) {
                     foundMineral = true;
                     stateTimer.reset();
                     state = AutoState.KNOCK_GOLD_LEFT;
-                } else {
+                } else if (leftMineral == Color.Mineral.SILVER) {
                     stateTimer.reset();
                     state = AutoState.PREPARATION_RIGHT;
                 }
+            } else if (stateTimer.seconds() >= 4) {
+                stateTimer.reset();
+                state = AutoState.KNOCK_GOLD_LEFT;
+            }
         } else if (state == AutoState.PREPARATION_RIGHT) {
             // Detect mineral at image center
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(36,14,degreesToRadians(-45)),speed);
             rightMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.CENTER);
             if (rightMineral == Color.Mineral.GOLD) {
                 foundMineral = true;
@@ -211,32 +223,27 @@ public class RobotStateMachine {
             }
 
 
-        } else if (state == AutoState.KNOCK_GOLD_CENTER || state == AutoState.KNOCK_GOLD_RIGHT || state == AutoState.KNOCK_GOLD_LEFT && foundMineral) {
-            if (state == AutoState.KNOCK_GOLD_CENTER && foundMineral) {
+        } else if (state == AutoState.KNOCK_GOLD_CENTER)  {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(32,32,degreesToRadians(-45)),speed);
+            if (arrived) {
                 stateTimer.reset();
-
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(-45)), speed);
-
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(32, 32, degreesToRadians(-45)), speed);
-
-            } else if (state == AutoState.KNOCK_GOLD_LEFT && foundMineral) {
-                stateTimer.reset();
-
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(14, 36, degreesToRadians(-45)), speed);
-
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(20, 44, degreesToRadians(-45)), speed);
-
-            } else if (state == AutoState.KNOCK_GOLD_RIGHT && foundMineral) {
-                stateTimer.reset();
-
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(36, 14, degreesToRadians(-45)), speed);
-
-                opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(44, 20, degreesToRadians(-45)), speed);
-
-            } else {
-
-                state = AutoState.IDENTIFY_CENTER;
+                state = AutoState.STOP;
             }
+        } else if (state == AutoState.KNOCK_GOLD_LEFT)  {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(20,44,degreesToRadians(-45)),speed);
+            if (arrived) {
+                stateTimer.reset();
+                state = AutoState.STOP;
+            }
+        } else if (state == AutoState.KNOCK_GOLD_RIGHT)  {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(44,20,degreesToRadians(-45)),speed);
+            if (arrived) {
+                stateTimer.reset();
+                state = AutoState.STOP;
+            }
+
+
+
         } else if (state == AutoState.DRIVE_DEPOT) {
             stateTimer.reset();
 
