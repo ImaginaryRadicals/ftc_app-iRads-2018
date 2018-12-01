@@ -122,6 +122,7 @@ public class SimpleVision {
 
     public static enum MineralIdentificationLocation {
         CENTER,
+        BOTTOM,
     }
 
     public GoldMineralPosition goldMineralPosition = GoldMineralPosition.UNKNOWN;
@@ -505,6 +506,10 @@ public class SimpleVision {
                 // Find image center
                 targetX = imageWidth / 2;
                 targetY = imageHeight / 2;
+            } else if (idLocation == MineralIdentificationLocation.BOTTOM) {
+                // Find bottom center
+                targetX = imageWidth /2;
+                targetY = imageHeight; // Bottom is max pixel value.
             } else { // Default to image center.
                 targetX = imageWidth / 2;
                 targetY = imageHeight / 2;
