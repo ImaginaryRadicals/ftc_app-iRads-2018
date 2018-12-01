@@ -30,6 +30,7 @@ public class AutoOpmode extends RobotHardware {
     InteractiveInit interactiveInit = null;
     public Mutable<Boolean> Simple = new Mutable<>(false);
     public Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
+    public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
@@ -80,8 +81,10 @@ public class AutoOpmode extends RobotHardware {
         telemetry.addData("Initialization:", "Successful!");
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
-        interactiveInit.addBoolean(Simple, "Simple Mode", false, true);
+        interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
         interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
+        interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",1.0,.1,.3,.5);
+
     }
 
     @Override
@@ -157,7 +160,7 @@ public class AutoOpmode extends RobotHardware {
         public void run() {
             simpleVision = new SimpleVision(getVuforiaLicenseKey(), AutoOpmode.this,
                     false, true,false,
-                    true, false);
+                    true, true);
         }
     }
 
