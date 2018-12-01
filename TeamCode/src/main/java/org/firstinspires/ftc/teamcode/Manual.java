@@ -130,9 +130,11 @@ public class Manual extends RobotHardware {
         }
         // Move Feeder Servo
         if (controller1.rightBumper()) {
-            moveServoAtRate(ServoName.FEEDER_LIFTER, 1, 1);
+            setAngle(ServoName.FEEDER_LIFTER, 1);
         } else if (controller1.leftBumper()) {
-            moveServoAtRate(ServoName.FEEDER_LIFTER, 0, 1);
+            setAngle(ServoName.FEEDER_LIFTER, 0);
+        } else {
+            setAngle(ServoName.FEEDER_LIFTER, 0.5);
         }
 
         if (copilotEnabled) {
@@ -228,79 +230,79 @@ public class Manual extends RobotHardware {
                 armState = ArmStates.MANUAL;
             }
 
-            switch (armState) {
-                case ARM_START:
-                    armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_BOTTOM_TICKS, power);
-                    wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_START_TICKS, power);
-                    if (armArrived && wristArrived && up) {
-                        armState = ArmStates.WRIST_UP;
-                    }
-                    break;
+        switch (armState) {
+            case ARM_START:
+                armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_BOTTOM_TICKS, power);
+                wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_START_TICKS, power);
+                if (armArrived && wristArrived && up) {
+                    armState = ArmStates.WRIST_UP;
+                }
+                break;
 
-                case WRIST_UP:
-                    armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_BOTTOM_TICKS, power);
-                    wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MAX_TICKS, power);
-                    if (armArrived && wristArrived && up) {
-                        armState = ArmStates.ARM_LEVEL;
-                    } else if (armArrived && wristArrived && down) {
+            case WRIST_UP:
+                armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_BOTTOM_TICKS, power);
+                wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MAX_TICKS, power);
+                if (armArrived && wristArrived && up) {
+                    armState = ArmStates.ARM_LEVEL;
+                } else if (armArrived && wristArrived && down) {
+                    armState = ArmStates.ARM_START;
+                }
+                break;
+
+            case ARM_LEVEL:
+                armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_LEVEL_TICKS, power);
+                wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MAX_TICKS, power);
+                if (armArrived && wristArrived && up) {
+                    armState = ArmStates.ARM_VERTICAL;
+                } else if (armArrived && wristArrived && down) {
+                    armState = ArmStates.WRIST_UP;
+                }
+                break;
+
+            case ARM_VERTICAL:
+                armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_VERTICAL_TICKS, power);
+                wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_STRAIGHT_TICKS, power);
+                if (armArrived && wristArrived && up) {
+                    armState = ArmStates.ARM_SCORE;
+                } else if (armArrived && wristArrived && down) {
+                    armState = ArmStates.ARM_LEVEL;
+                }
+                break;
+
+            case ARM_SCORE:
+                armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_VERTICAL_TICKS, power);
+                wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MIN_TICKS, power);
+                if (armArrived && wristArrived && up) {
+                    //armState = ArmStates.ARM_LEVEL;
+                } else if (armArrived && wristArrived && down) {
+                    armState = ArmStates.ARM_VERTICAL;
+                }
+                break;
+
+            case MANUAL:
+                if (getEncoderValue(MotorName.ARM) < Constants.ARM_LEVEL_TICKS) {
+                    // If Arm is currently below level
+                    if (up) {
                         armState = ArmStates.ARM_START;
-                    }
-                    break;
-
-                case ARM_LEVEL:
-                    armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_LEVEL_TICKS, power);
-                    wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MAX_TICKS, power);
-                    if (armArrived && wristArrived && up) {
-                        armState = ArmStates.ARM_VERTICAL;
-                    } else if (armArrived && wristArrived && down) {
+                    } else if (down) {
                         armState = ArmStates.WRIST_UP;
                     }
-                    break;
-
-                case ARM_VERTICAL:
-                    armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_VERTICAL_TICKS, power);
-                    wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_STRAIGHT_TICKS, power);
-                    if (armArrived && wristArrived && up) {
-                        armState = ArmStates.ARM_SCORE;
-                    } else if (armArrived && wristArrived && down) {
+                } else {
+                    // else if Arm is currently Above Level
+                    if (up) {
+                        armState = ArmStates.ARM_VERTICAL;
+                    } else if (down) {
                         armState = ArmStates.ARM_LEVEL;
                     }
-                    break;
+                }
 
-                case ARM_SCORE:
-                    armArrived = driveMotorToPos(MotorName.ARM, Constants.ARM_VERTICAL_TICKS, power);
-                    wristArrived = driveMotorToPos(MotorName.WRIST, Constants.WRIST_MIN_TICKS, power);
-                    if (armArrived && wristArrived && up) {
-                        //armState = ArmStates.ARM_LEVEL;
-                    } else if (armArrived && wristArrived && down) {
-                        armState = ArmStates.ARM_VERTICAL;
-                    }
-                    break;
+                break;
 
-                case MANUAL:
-                    if (getEncoderValue(MotorName.ARM) < Constants.ARM_LEVEL_TICKS) {
-                        // If Arm is currently below level
-                        if (up) {
-                            armState = ArmStates.ARM_START;
-                        } else if (down) {
-                            armState = ArmStates.WRIST_UP;
-                        }
-                    } else {
-                        // else if Arm is currently Above Level
-                        if (up) {
-                            armState = ArmStates.ARM_VERTICAL;
-                        } else if (down) {
-                            armState = ArmStates.ARM_LEVEL;
-                        }
-                    }
+            default:
+                telemetry.addData("Default arm state ", "if this ran you messed up...");
+                break;
 
-                    break;
-
-                default:
-                    telemetry.addData("Default arm state ", "if this ran you messed up...");
-                    break;
-
-            }
+        }
 
     }
 
