@@ -162,6 +162,14 @@ public class Manual extends RobotHardware {
             } else {
                 setPower(MotorName.WRIST, 0);
             }
+
+            if (controller1.rightBumper() && !controller1.leftBumper()) {
+                setPower(MotorName.FEEDER, feederSpeed);
+            } else if (controller1.leftBumper() && !controller1.rightBumper()) {
+                setPower(MotorName.FEEDER, -feederSpeed);
+            } else {
+                setPower(MotorName.FEEDER, 0);
+            }
         }
     }
 

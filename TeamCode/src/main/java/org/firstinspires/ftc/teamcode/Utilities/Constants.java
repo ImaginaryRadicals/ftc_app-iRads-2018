@@ -23,7 +23,7 @@ public class Constants {
     public static final double WRIST_MAX_ANGLE = 59 + wristFoldedOffset; //Above start
     public static final double WRIST_TICKS_PER_DEGREE = (WRIST_MAX_TICKS - WRIST_START_TICKS) / WRIST_MAX_ANGLE;
 
-    public static final int LIFTER_MAX_TICKS = 0;
+    public static final int LIFTER_MAX_TICKS = 6230;
     public static final int LIFTER_MIN_TICKS = 0;
     public static final double LIFTER_MAX_ANGEL = 0;
 
