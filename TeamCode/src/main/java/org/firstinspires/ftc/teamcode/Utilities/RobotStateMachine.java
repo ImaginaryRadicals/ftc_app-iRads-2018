@@ -87,6 +87,11 @@ public class RobotStateMachine {
         stateTimer.reset();
     }
 
+    public void init_loop() {
+        //Maintain lift winch position while hanging.
+        driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0);
+    }
+
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
         power = Range.clip(Math.abs(power), 0, 1);
         int poweredDistance = 5;
