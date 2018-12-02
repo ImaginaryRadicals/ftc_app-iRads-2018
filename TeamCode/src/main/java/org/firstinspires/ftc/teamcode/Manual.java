@@ -128,24 +128,27 @@ public class Manual extends RobotHardware {
         } else {
             setPower(MotorName.LIFT_WINCH, 0);
         }
-        // Move Feeder Servo
-        if (controller1.rightBumper()) {
-            setAngle(ServoName.FEEDER_LIFTER, 1);
-        } else if (controller1.leftBumper()) {
-            setAngle(ServoName.FEEDER_LIFTER, 0);
-        } else {
-            setAngle(ServoName.FEEDER_LIFTER, 0.5);
-        }
+
 
         if (copilotEnabled) {
             // Copilot Controls
             // Feeder Control
-            if (controller2.right_trigger > triggerThreshold) {
-                setPower(MotorName.FEEDER, Math.pow(controller2.right_trigger, exponential) * feederSpeed);
-            } else if (controller2.left_trigger > triggerThreshold) {
-                setPower(MotorName.FEEDER, Math.pow(-controller2.left_trigger, exponential) * feederSpeed);
+            if (controller2.left_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(controller2.left_trigger, exponential) * feederSpeed);
+            } else if (controller2.right_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(-controller2.right_trigger, exponential) * feederSpeed);
             } else {
                 setPower(MotorName.FEEDER, 0);
+            }
+            // Move Feeder Servo
+            if (controller2.dpadUp()) {
+                setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER) - 10);
+                telemetry.addData("Feeder", "Up");
+            } else if (controller2.dpadDown()) {
+                setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER) + 10);
+                telemetry.addData("Feeder", "Down");
+            } else {
+                setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER));
             }
             // Arm Control
             setPower(MotorName.ARM, Math.pow(-controller2.left_stick_y, exponential) * armSpeed);
