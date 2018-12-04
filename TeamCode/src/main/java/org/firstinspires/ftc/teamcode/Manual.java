@@ -133,10 +133,10 @@ public class Manual extends RobotHardware {
         if (copilotEnabled) {
             // Copilot Controls
             // Feeder Control
-            if (controller2.left_trigger > triggerThreshold) {
-                setPower(MotorName.FEEDER, Math.pow(controller2.left_trigger, exponential) * feederSpeed);
-            } else if (controller2.right_trigger > triggerThreshold) {
-                setPower(MotorName.FEEDER, Math.pow(-controller2.right_trigger, exponential) * feederSpeed);
+            if (controller2.right_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(controller2.right_trigger, exponential) * feederSpeed);
+            } else if (controller2.left_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(-controller2.left_trigger, exponential) * feederSpeed);
             } else {
                 setPower(MotorName.FEEDER, 0);
             }

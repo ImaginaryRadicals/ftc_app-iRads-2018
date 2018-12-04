@@ -422,7 +422,7 @@ public class RobotHardware extends OpMode {
             allMotors.get(MotorName.DRIVE_BACK_RIGHT.ordinal()).setDirection(DcMotor.Direction.REVERSE);
             allMotors.get(MotorName.ARM.ordinal()).setDirection(DcMotor.Direction.REVERSE);
             allMotors.get(MotorName.WRIST.ordinal()).setDirection(DcMotor.Direction.FORWARD);
-            allMotors.get(MotorName.FEEDER.ordinal()).setDirection(DcMotor.Direction.REVERSE);
+            allMotors.get(MotorName.FEEDER.ordinal()).setDirection(DcMotor.Direction.FORWARD);
             allMotors.get(MotorName.LIFT_WINCH.ordinal()).setDirection(DcMotor.Direction.FORWARD);
         } catch (Exception e) {
             telemetry.addData("Unable to set motor direction", "");
