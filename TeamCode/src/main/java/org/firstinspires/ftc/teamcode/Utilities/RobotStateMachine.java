@@ -153,6 +153,14 @@ public class RobotStateMachine {
 
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(13.43, 13.43, degreesToRadians(-45)), speed);
 
+            // attempt to shake lift arm loose.
+            // arrived = opMode.autoDrive.multiWaypointState("DISMOUNT",1.0, new ArrayList<>(Arrays.asList(
+            //        new MecanumNavigation.Navigation2D(12.43+1,12.43+1,degreesToRadians(-45)),
+            //        new MecanumNavigation.Navigation2D(12.43-1,12.43-1,degreesToRadians(-45)),
+            //        new MecanumNavigation.Navigation2D(12.43,12.43,degreesToRadians(-30))
+            // )));
+
+
 
             if (arrived) {
                 stateTimer.reset();

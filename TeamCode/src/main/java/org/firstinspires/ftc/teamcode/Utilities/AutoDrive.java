@@ -150,11 +150,11 @@ public class AutoDrive {
 
         if (currentDriveWaypoint <= lastIndex){
             arrived = rotateThenDriveToPosition(waypointList.get(currentDriveWaypoint),speed);
+            if(arrived && currentDriveWaypoint != lastIndex) {
+                currentDriveWaypoint++;
+            }
             if (arrived && currentDriveWaypoint == lastIndex) {
                 finalArrived = true;
-            }
-            if(arrived) {
-                currentDriveWaypoint++;
             }
         }
 
