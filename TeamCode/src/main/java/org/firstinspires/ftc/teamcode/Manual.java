@@ -118,20 +118,18 @@ public class Manual extends RobotHardware {
         // Mecanum Drive Control
         setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, exponential), Math.pow(controller1.left_stick_y, exponential),
                 Math.pow(controller1.right_stick_x, exponential), Math.pow(controller1.right_stick_y, exponential));
-        // Lift Control
-        if (controller1.dpadUp()) {
-            setPower(MotorName.LIFT_WINCH, lifterSpeed);
-            telemetry.addData("LIFT", "UP");
-        } else if (controller1.dpadDown()) {
-            setPower(MotorName.LIFT_WINCH, -lifterSpeed);
-            telemetry.addData("LIFT", "DOWN");
-        } else {
-            setPower(MotorName.LIFT_WINCH, 0);
-        }
 
 
+        // Based on copilotEnabled, sets controls for
+        // Arm, Wrist, Feeder
+        // Feeder Lift, and Lift Winch
         if (copilotEnabled) {
             // Copilot Controls
+            // Arm Control
+            setPower(MotorName.ARM, Math.pow(-controller2.left_stick_y, exponential) * armSpeed);
+            // Wrist Control
+            setPower(MotorName.WRIST, Math.pow(-controller2.right_stick_y, exponential) * wristSpeed);
+
             // Feeder Control
             if (controller2.right_trigger > triggerThreshold) {
                 setPower(MotorName.FEEDER, Math.pow(controller2.right_trigger, exponential) * feederSpeed);
@@ -140,20 +138,29 @@ public class Manual extends RobotHardware {
             } else {
                 setPower(MotorName.FEEDER, 0);
             }
+
             // Move Feeder Servo
-            if (controller2.dpadUp()) {
+            if (controller2.dpadRight()) {
                 setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER) - 10);
                 telemetry.addData("Feeder", "Up");
-            } else if (controller2.dpadDown()) {
+            } else if (controller2.dpadLeft()) {
                 setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER) + 10);
                 telemetry.addData("Feeder", "Down");
             } else {
                 setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER));
             }
-            // Arm Control
-            setPower(MotorName.ARM, Math.pow(-controller2.left_stick_y, exponential) * armSpeed);
-            // Wrist Control
-            setPower(MotorName.WRIST, Math.pow(-controller2.right_stick_y, exponential) * wristSpeed);
+
+            // Lift Control
+            if (controller2.dpadUp()) {
+                setPower(MotorName.LIFT_WINCH, lifterSpeed);
+                telemetry.addData("LIFT", "UP");
+            } else if (controller2.dpadDown()) {
+                setPower(MotorName.LIFT_WINCH, -lifterSpeed);
+                telemetry.addData("LIFT", "DOWN");
+            } else {
+                setPower(MotorName.LIFT_WINCH, 0);
+            }
+
 
         } else {
             // Pilot Controls
@@ -168,12 +175,35 @@ public class Manual extends RobotHardware {
                 setPower(MotorName.WRIST, 0);
             }
 
+            // Feeder Control
             if (controller1.rightBumper() && !controller1.leftBumper()) {
                 setPower(MotorName.FEEDER, feederSpeed);
             } else if (controller1.leftBumper() && !controller1.rightBumper()) {
                 setPower(MotorName.FEEDER, -feederSpeed);
             } else {
                 setPower(MotorName.FEEDER, 0);
+            }
+
+            // Move Feeder Servo
+            if (controller1.dpadRight()) {
+                setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER) - 10);
+                telemetry.addData("Feeder", "Up");
+            } else if (controller1.dpadLeft()) {
+                setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER) + 10);
+                telemetry.addData("Feeder", "Down");
+            } else {
+                setAngle(ServoName.FEEDER_LIFTER, getAngle(ServoName.FEEDER_LIFTER));
+            }
+
+            // Lift Control
+            if (controller1.dpadUp()) {
+                setPower(MotorName.LIFT_WINCH, lifterSpeed);
+                telemetry.addData("LIFT", "UP");
+            } else if (controller1.dpadDown()) {
+                setPower(MotorName.LIFT_WINCH, -lifterSpeed);
+                telemetry.addData("LIFT", "DOWN");
+            } else {
+                setPower(MotorName.LIFT_WINCH, 0);
             }
         }
     }
