@@ -44,7 +44,7 @@ public class StateMachine {
 
     /**
      * Check if state is initialized, and throw exception if not.
-     * Then, if nextStates has values, StateMachine.add() them and clear new states.
+     * Then, if nextStates has values, StateMachine.add() htem and clear new states.
      * Then, if state.isDeleteRequested(), StateMachine.delete(state)
      * otherwise, run state.update()
      */

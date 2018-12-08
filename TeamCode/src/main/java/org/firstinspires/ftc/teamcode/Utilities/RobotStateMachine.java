@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
+import org.firstinspires.ftc.teamcode.Manual;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
 import java.lang.reflect.Array;
@@ -74,6 +75,8 @@ public class RobotStateMachine {
 
     DcMotor armMotor;
 
+    public ArrayList<Path> paths = new ArrayList<>();
+    private int pathIndex = 0;
 
     public RobotStateMachine(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
         this.opMode = opMode;
@@ -123,6 +126,21 @@ public class RobotStateMachine {
         lastStateLoopPeriod = stateLoopTimer.seconds();
         stateLoopTimer.reset();
 
+        while (pathIndex < paths.size() && paths.get(pathIndex).run(speed))
+        {
+            ++pathIndex;
+        }
+
+        RobotStateMachine.AutoState state = paths.get(pathIndex).getState();
+        switch (state)
+        {
+            case LAND:
+                break;
+        }
+
+
+
+
         if (state != AutoState.CLAIM_DEPOT) {
             driveMotorToPos(RobotHardware.MotorName.ARM, 250, 1.0);
         }
@@ -168,7 +186,7 @@ public class RobotStateMachine {
             }
 
         } else if (state == AutoState.IDENTIFY_CENTER) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(15, 15, degreesToRadians(-45)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(16, 16, degreesToRadians(-45)), speed);
 
             if (arrived && stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
                 // Detect mineral at image center
@@ -189,7 +207,7 @@ public class RobotStateMachine {
             }
 
         } else if (state == AutoState.PREPARATION_LEFT_MINERAL) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(0)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(16, 16, degreesToRadians(0)), speed);
             if(arrived) {
                 stateTimer.reset();
                 state = AutoState.IDENTIFY_LEFT;
@@ -251,11 +269,11 @@ public class RobotStateMachine {
                 state = AutoState.DRIVE_DEPOT;
             }
         } else if (state == AutoState.PREPARATION_RIGHT_DEPOT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(34,12,degreesToRadians(-45)),speed);
-            if (arrived) {
-                stateTimer.reset();
-                state = AutoState.DRIVE_DEPOT;
-            }
+                arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(34,12,degreesToRadians(-45)),speed);
+                if (arrived) {
+                    stateTimer.reset();
+                    state = AutoState.DRIVE_DEPOT;
+                }
         } else if (state == AutoState.PREPARATION_LEFT_DEPOT)  {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12,34,degreesToRadians(-45)),speed);
             if (arrived) {

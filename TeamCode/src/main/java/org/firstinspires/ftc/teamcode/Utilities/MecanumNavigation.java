@@ -152,6 +152,12 @@ public class MecanumNavigation {
             this.theta = theta;
         }
 
+        public void rotate (double degrees) {
+            double radians = degrees * Math.PI / 180;
+            this.x = x * Math.cos(radians) - y * Math.sin(radians);
+            this.y = x * Math.sin(radians) + y * Math.cos(radians);
+        }
+
         // Simple clone.
         public Navigation2D(Navigation2D navigation2D) {
             this(navigation2D.x, navigation2D.y, navigation2D.theta);
