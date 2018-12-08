@@ -27,6 +27,13 @@ public class Manual extends RobotHardware {
     Mutable<Double> LifterSpeed = new Mutable<>(1.0);
     Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
 
+    double armSpeed;
+    double wristSpeed;
+    double feederSpeed;
+    double lifterSpeed;
+    double exponential;
+    boolean copilotEnabled;
+
     //Enum for arm states
     public enum ArmStates{
         ARM_START,
@@ -100,26 +107,46 @@ public class Manual extends RobotHardware {
 
         mecanumNavigation.update();
 
-        double armSpeed = ArmSpeed.get();
-        double wristSpeed = WristSpeed.get();
-        double feederSpeed = FeederSpeed.get();
-        double lifterSpeed = LifterSpeed.get();
-        double exponential = Exponential.get();
-        boolean copilotEnabled = CoPilot.get();
+        armSpeed = ArmSpeed.get();
+        wristSpeed = WristSpeed.get();
+        feederSpeed = FeederSpeed.get();
+        lifterSpeed = LifterSpeed.get();
+        exponential = Exponential.get();
+        copilotEnabled = CoPilot.get();
 
         // Telemetry
         mecanumNavigation.displayPosition();
         telemetry.addData("ArmStates", armState.toString());
 
-        armStateMachine();
 
+        if(!copilotEnabled &&  controller1.leftBumper() && controller1.rightBumper()) {
+            chordControls();
+        } else {
 
-        // Drive Controls
-        // Mecanum Drive Control
-        setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, exponential), Math.pow(controller1.left_stick_y, exponential),
-                Math.pow(controller1.right_stick_x, exponential), Math.pow(controller1.right_stick_y, exponential));
+            armStateMachine();
 
+            // Drive Controls
+            // Mecanum Drive Control
+            setDriveForSimpleMecanum(Math.pow(controller1.left_stick_x, exponential), Math.pow(controller1.left_stick_y, exponential),
+                    Math.pow(controller1.right_stick_x, exponential), Math.pow(controller1.right_stick_y, exponential));
+            nonDriveControls();
+        }
+    }
 
+    private void chordControls(){
+        if(!copilotEnabled && controller1.leftBumper() && controller1.rightBumper()) {
+            // Y recall mecanum navigation point
+            // X store current mecanum navigation point to navMem
+            // A set mecanumNavigation to vision position
+            // B
+            if(controller1.X()) {
+
+            }
+
+        }
+    }
+
+    private void nonDriveControls() {
         // Based on copilotEnabled, sets controls for
         // Arm, Wrist, Feeder
         // Feeder Lift, and Lift Winch
