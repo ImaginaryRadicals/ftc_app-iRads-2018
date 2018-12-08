@@ -75,8 +75,8 @@ public class RobotStateMachine {
 
     DcMotor armMotor;
 
-    public ArrayList<Path> paths = new ArrayList<>();
-    private int pathIndex = 0;
+//    public ArrayList<Path> paths = new ArrayList<>();
+//    private int pathIndex = 0;
 
     public RobotStateMachine(AutoOpmode opMode, Color.Ftc teamColor, RobotHardware.StartPosition startPosition) {
         this.opMode = opMode;
@@ -92,7 +92,8 @@ public class RobotStateMachine {
 
     public void init_loop() {
         //Maintain lift winch position while hanging.
-        driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0);
+        driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, speed);
+        opMode.telemetry.addData("LIFT WINCH", "UP");
     }
 
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
@@ -126,17 +127,17 @@ public class RobotStateMachine {
         lastStateLoopPeriod = stateLoopTimer.seconds();
         stateLoopTimer.reset();
 
-        while (pathIndex < paths.size() && paths.get(pathIndex).run(speed))
-        {
-            ++pathIndex;
-        }
-
-        RobotStateMachine.AutoState state = paths.get(pathIndex).getState();
-        switch (state)
-        {
-            case LAND:
-                break;
-        }
+//        while (pathIndex < paths.size() && paths.get(pathIndex).run(speed))
+//        {
+//            ++pathIndex;
+//        }
+//
+//        RobotStateMachine.AutoState state = paths.get(pathIndex).getState();
+//        switch (state)
+//        {
+//            case LAND:
+//                break;
+//        }
 
 
 
@@ -159,9 +160,9 @@ public class RobotStateMachine {
                 state = AutoState.LAND;
             }
         } else if (state == AutoState.LAND) {
-            opMode.setPower(RobotHardware.MotorName.LIFT_WINCH, speed);
+            arrived = driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, -2967, speed);
 
-            if (stateTimer.seconds() >= 13) {
+            if (arrived) {
                 stateTimer.reset();
 
                 state = AutoState.DISMOUNT;
@@ -169,7 +170,7 @@ public class RobotStateMachine {
 
         } else if (state == AutoState.DISMOUNT) {
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(13.43, 13.43, degreesToRadians(-45)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12.43, 12.43, degreesToRadians(-30)), speed);
 
 
             if (arrived) {
@@ -186,24 +187,28 @@ public class RobotStateMachine {
             }
 
         } else if (state == AutoState.IDENTIFY_CENTER) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(16, 16, degreesToRadians(-45)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(19, 19, degreesToRadians(-45)), speed);
 
-            if (arrived && stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
-                // Detect mineral at image center
-                centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
+//            while (arrived == false) {
+//                stateTimer.reset();
+//            }
 
-                if (centerMineral == Color.Mineral.GOLD) {
+                if (arrived && stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
+                    // Detect mineral at image center
+                    centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
+
+                    if (centerMineral == Color.Mineral.GOLD) {
+                        stateTimer.reset();
+                        state = AutoState.KNOCK_GOLD_CENTER;
+                    } else if(centerMineral == Color.Mineral.SILVER){
+                        stateTimer.reset();
+                        state = AutoState.PREPARATION_LEFT_MINERAL;
+                    }
+
+                } else if (stateTimer.seconds() >= timeout) {
+                    // Timed out: assume detection wasn't possible, act as if it were gold.
                     stateTimer.reset();
-                    state = AutoState.KNOCK_GOLD_CENTER;
-                } else if(centerMineral == Color.Mineral.SILVER){
-                    stateTimer.reset();
-                    state = AutoState.PREPARATION_LEFT_MINERAL;
-                }
-
-            } else if (stateTimer.seconds() >= timeout) {
-                // Timed out: assume detection wasn't possible, act as if it were gold.
-                stateTimer.reset();
-                state = AutoState.KNOCK_GOLD_CENTER;
+                    state = AutoState.STOP;
             }
 
         } else if (state == AutoState.PREPARATION_LEFT_MINERAL) {
@@ -285,17 +290,20 @@ public class RobotStateMachine {
         } else if (state == AutoState.DRIVE_DEPOT) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 58, degreesToRadians(0)), speed);
             if (arrived) {
-                state = AutoState.CLAIM_DEPOT;
-                stateTimer.reset();
+                arrived = driveMotorToPos(RobotHardware.MotorName.FEEDER, 360, speed);
+                if (arrived) {
+                    state = AutoState.CLAIM_DEPOT;
+                    stateTimer.reset();
+                }
             }
 
         } else if (state == AutoState.CLAIM_DEPOT) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-60, 56, degreesToRadians(0)), speed);
             if (arrived) {
-                arrived = driveMotorToPos(RobotHardware.MotorName.ARM, 8787, speed);
-                if (arrived) {
-                    stateTimer.reset();
-                    state = AutoState.DRIVE_CRATER;
+                    arrived = driveMotorToPos(RobotHardware.MotorName.ARM, 8787, speed);
+                    if (arrived) {
+                        stateTimer.reset();
+                        state = AutoState.DRIVE_CRATER;
                 }
             }
 
@@ -319,9 +327,11 @@ public class RobotStateMachine {
                     // DISMOUNT (make space to turn)
                     new MecanumNavigation.Navigation2D(20, 0, degreesToRadians(0)),
                     // ROTATE IN PLACE
-                    new MecanumNavigation.Navigation2D(0, 20, degreesToRadians(45)),
+                    new MecanumNavigation.Navigation2D(20, 20, degreesToRadians(0)),
                     // JUMP INTO CRATER (full speed waypoint)
-                    new MecanumNavigation.Navigation2D(30, 20, degreesToRadians(45))
+                    new MecanumNavigation.Navigation2D(30, 20, degreesToRadians(0)),
+
+                    new MecanumNavigation.Navigation2D(30, 20, degreesToRadians(0))
                 ));
 
             } else {
@@ -331,9 +341,11 @@ public class RobotStateMachine {
                     // DISMOUNT
                     new MecanumNavigation.Navigation2D(0, 20, degreesToRadians(0)),
                     // ROTATE IN PLACE
-                    new MecanumNavigation.Navigation2D(20, 0, degreesToRadians(-45)),
+                    new MecanumNavigation.Navigation2D(20, 20, degreesToRadians(0)),
                     // HIT LEFT MINERAL
-                    new MecanumNavigation.Navigation2D(30, 20, degreesToRadians(-45))
+                    new MecanumNavigation.Navigation2D(30, 20, degreesToRadians(0)),
+
+                    new MecanumNavigation.Navigation2D(30, 20, degreesToRadians(0))
                 ));
             }
 
