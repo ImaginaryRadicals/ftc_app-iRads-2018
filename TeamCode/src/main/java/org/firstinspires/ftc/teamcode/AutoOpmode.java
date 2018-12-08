@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Utilities.CSV;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateMachine;
@@ -26,11 +27,17 @@ public class AutoOpmode extends RobotHardware {
     private Thread thread;
     public Controller controller;
 
+    // Telemetry Recorder
+    private CSV csvWriter;
+    private CSV controlWriter;
+    private boolean writeControls = false;
+
     //Interactive Init menu
     InteractiveInit interactiveInit = null;
     public Mutable<Boolean> Simple = new Mutable<>(false);
     public Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
     public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
+    public Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
@@ -84,6 +91,7 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
         interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",1.0,.1,.3,.5);
+        interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
 
     }
 
@@ -120,6 +128,18 @@ public class AutoOpmode extends RobotHardware {
         robotStateMachine.init();
 
         interactiveInit.lock();
+
+        if(RecordTelemetry.get()) {
+            csvWriter = new CSV(this);
+            csvWriter.open("telemetry.csv");
+
+            if (writeControls) {
+                controlWriter = new CSV(this);
+                controlWriter.open("controls.csv");
+            }
+
+            recordConstantsToFile();
+        }
     }
 
     @Override
@@ -134,6 +154,15 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
         robotStateMachine.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
+
+        // Conditional Telemetry Recording
+        if(RecordTelemetry.get()) {
+            if(writeControls) {
+                writeControlsToFile();
+            }
+            writeTelemetryToFile();
+            timingMonitor.checkpoint("POST telemetry recorder");
+        }
 
         mecanumNavigation.displayPosition();
         telemetry.addData("Current State", robotStateMachine.state.toString());
@@ -152,6 +181,12 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST Vision");
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+        closeCSV();
+    }
+
 
 
 
@@ -164,4 +199,109 @@ public class AutoOpmode extends RobotHardware {
         }
     }
 
+
+
+    private void recordConstantsToFile() {
+        CSV constantsWriter = new CSV(this);
+        constantsWriter.open("constants.csv");
+        constantsWriter.addFieldToRecord("drive_wheel_diameter", Constants.DRIVE_WHEEL_DIAMETER_INCHES);
+        constantsWriter.addFieldToRecord("wheelbase_width_in", Constants.WHEELBASE_WIDTH_IN);
+        constantsWriter.addFieldToRecord("wheelbase_length_in", Constants.WHEELBASE_LENGTH_IN);
+        constantsWriter.addFieldToRecord("wheelbase_k", Math.abs(Constants.WHEELBASE_LENGTH_IN/2.0)
+                + Math.abs(Constants.WHEELBASE_WIDTH_IN/2.0));
+        constantsWriter.addFieldToRecord("drive_wheel_steps_per_rotation", (double)Constants.DRIVE_WHEEL_STEPS_PER_ROT);
+        constantsWriter.completeRecord();
+        constantsWriter.close();
+    }
+
+
+    private void writeControlsToFile() {
+        controlWriter.addFieldToRecord("time",time);
+
+        controlWriter.addFieldToRecord("left_stick_x",controller.left_stick_x);
+        controlWriter.addFieldToRecord("left_stick_y",controller.left_stick_y);
+        controlWriter.addFieldToRecord("right_stick_x",controller.right_stick_x);
+        controlWriter.addFieldToRecord("right_stick_y",controller.right_stick_y);
+        controlWriter.addFieldToRecord("left_trigger",controller.left_trigger);
+        controlWriter.addFieldToRecord("right_trigger",controller.right_trigger);
+
+        controlWriter.addFieldToRecord("right_stick_button",controller.rightStickButton() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("left_stick_button",controller.leftStickButton() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("right_bumper",controller.rightBumper() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("left_bumper",controller.leftBumper() ? 1.0 : 0.0);
+
+        controlWriter.addFieldToRecord("a_button",controller.A() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("b_button",controller.B() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("x_button",controller.X() ? 1.0 : 0.0);
+        controlWriter.addFieldToRecord("y_button",controller.Y() ? 1.0 : 0.0);
+
+        controlWriter.completeRecord();
+    }
+
+
+    private void writeTelemetryToFile() {
+        // setFieldData sets both titles and recordData.
+        csvWriter.addFieldToRecord("time",time);
+        // Capture all servo positions:
+        for (ServoName s : ServoName.values()) {
+            csvWriter.addFieldToRecord(s.name(), getAngle(s));
+        }
+        // Capture all motor encoder values:
+        for (MotorName m : MotorName.values()) {
+            csvWriter.addFieldToRecord(m.name()+"_ticks", (double)getEncoderValue(m));
+        }
+        // Capture all motor power levels:
+        for (MotorName m : MotorName.values()) {
+            csvWriter.addFieldToRecord(m.name()+"_power", getPower(m));
+        }
+        // Capture mecanumNavigation current position
+        csvWriter.addFieldToRecord("x_in",mecanumNavigation.currentPosition.x);
+        csvWriter.addFieldToRecord("y_in",mecanumNavigation.currentPosition.y);
+        csvWriter.addFieldToRecord("theta_rad",mecanumNavigation.currentPosition.theta);
+
+        // Vision detection as number
+        double idLocation;
+        Color.Mineral mineralColor;
+        if (simpleVision != null) {
+            mineralColor = simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
+            switch (mineralColor) {
+                case UNKNOWN:
+                    idLocation = 0;
+                    break;
+                case SILVER:
+                    idLocation = 1;
+                    break;
+                case GOLD:
+                    idLocation = 2;
+                    break;
+                default:
+                    idLocation = -999;
+                    break;
+            }
+            csvWriter.addFieldToRecord("Mineral ID UNK_SLVR_GOLD", idLocation);
+
+
+        }
+
+        // Add IMU data to current csvWriter record
+        //addIMUToRecord(csvWriter);
+
+        // Writes record to file if writer is open.
+        csvWriter.completeRecord();
+
+        telemetry.addData("WRITE CONTROLS",writeControls);
+        if(writeControls) {
+            writeControlsToFile();
+        }
+    }
+
+    void closeCSV() {
+        if(RecordTelemetry.get()) {
+            csvWriter.close();
+            if (writeControls) {
+                controlWriter.close();
+            }
+        }
+
+    }
 }
