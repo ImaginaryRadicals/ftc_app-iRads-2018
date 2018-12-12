@@ -180,6 +180,7 @@ public class AutoOpmode extends RobotHardware {
             telemetry.addData("Vision Not Loaded", "");
         }
         timingMonitor.checkpoint("POST Vision");
+        telemetry.addData("Lift Ticks",getEncoderValue(MotorName.LIFT_WINCH));
     }
 
     @Override

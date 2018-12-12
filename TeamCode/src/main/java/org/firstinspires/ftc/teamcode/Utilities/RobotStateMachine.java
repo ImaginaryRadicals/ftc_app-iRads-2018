@@ -146,14 +146,13 @@ public class RobotStateMachine {
                 state = AutoState.LAND;
             }
         } else if (state == AutoState.LAND) {
-            opMode.setPower(RobotHardware.MotorName.LIFT_WINCH, speed);
+//            opMode.setPower(RobotHardware.MotorName.LIFT_WINCH, speed);
+            arrived = driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MAX_TICKS, 1.0);
 
-            if (stateTimer.seconds() >= 13) {
+            if (arrived || stateTimer.seconds() >= 13) {
                 stateTimer.reset();
-
                 state = AutoState.DISMOUNT;
             }
-
         } else if (state == AutoState.DISMOUNT) {
 
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(13.43, 13.43, degreesToRadians(-45)), speed);
