@@ -107,16 +107,16 @@ public class AutoDrive {
 
 
 
-    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, int rampDistanceTicks) {
         power = Range.clip(Math.abs(power), 0, 1);
         int poweredDistance = 5;
         int arrivedDistance = 50;
-        int rampThreshold = 400;
+
         double maxRampPower = 1.0;
         double minRampPower = 0.0;
         int errorSignal = opMode.getEncoderValue(motorName) - targetTicks;
         double direction = errorSignal > 0 ? -1.0: 1.0;
-        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampThreshold, maxRampPower, minRampPower);
+        double rampDownRatio = AutoDrive.rampDown(Math.abs(errorSignal), rampDistanceTicks, maxRampPower, minRampPower);
 
         if (Math.abs(errorSignal) >= poweredDistance) {
             opMode.setPower(motorName, direction * power * rampDownRatio);
@@ -129,6 +129,11 @@ public class AutoDrive {
         }else {
             return false;
         }
+    }
+
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+        int rampDistanceTicks = 400;
+        return driveMotorToPos (motorName,targetTicks,power,rampDistanceTicks);
     }
 
     // multi waypoint state properties

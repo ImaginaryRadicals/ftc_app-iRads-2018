@@ -89,14 +89,14 @@ public class RobotStateMachine {
 
     public void init_loop() {
         //Maintain lift winch position while hanging.
-        driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0);
+        driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0, 100);
     }
 
-    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
         power = Range.clip(Math.abs(power), 0, 1);
         int poweredDistance = 5;
         int arrivedDistance = 50;
-        int rampThreshold = 400;
+        //int rampThreshold = 400;
         double maxRampPower = 1.0;
         double minRampPower = 0.0;
         int errorSignal = opMode.getEncoderValue(motorName) - targetTicks;
@@ -114,6 +114,11 @@ public class RobotStateMachine {
         }else {
             return false;
         }
+    }
+
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+        int rampDistanceTicks = 400;
+        return driveMotorToPos (motorName,targetTicks,power,rampDistanceTicks);
     }
 
 
