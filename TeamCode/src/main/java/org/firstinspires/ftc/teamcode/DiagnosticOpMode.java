@@ -50,9 +50,9 @@ public class DiagnosticOpMode extends Manual {
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));
 
         // Show color sensor telemetry only if sensor is attached
-        if (colorSensorExists(ColorSensorName.MINERAL_COLOR)) {
-            displayColorSensorTelemetry();
-        }
+//        if (colorSensorExists(ColorSensorName.MINERAL_COLOR)) {
+//            displayColorSensorTelemetry();
+//        }
 
         // Display all ODS sensor light levels
 //        for (OpticalDistanceSensorName o : OpticalDistanceSensorName.values()) {

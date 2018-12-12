@@ -203,8 +203,8 @@ public class RobotHardware extends OpMode {
 
     // The servos on the robot.
     public enum ServoName {
-        FLIPPER_RIGHT,
-        FLIPPER_LEFT,
+//        FLIPPER_RIGHT,
+//        FLIPPER_LEFT,
         FEEDER_LIFTER,
     }
 
@@ -265,7 +265,7 @@ public class RobotHardware extends OpMode {
 
     // The color sensors on the robot.
     public enum ColorSensorName {
-        MINERAL_COLOR,
+//        MINERAL_COLOR,
     }
 
     /**
@@ -325,24 +325,24 @@ public class RobotHardware extends OpMode {
      *
      * @return RED, BLUE, or null
      */
-    public Color.Mineral getMineralColor() {
-        int red = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED);
-        int blue = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE);
-        if (red > blue) {
-            return Color.Mineral.GOLD;
-        } else if (blue > red) {
-            return Color.Mineral.SILVER;
-        } else {
-            return Color.Mineral.UNKNOWN;
-        }
-    }
-
-    public void displayColorSensorTelemetry() {
-        telemetry.addData("Color RED", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED));
-        telemetry.addData("Color GREEN", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.GREEN));
-        telemetry.addData("Color BLUE", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE));
-        telemetry.addData("Mineral Color:", getMineralColor().toString());
-    }
+//    public Color.Mineral getMineralColor() {
+//        int red = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED);
+//        int blue = getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE);
+//        if (red > blue) {
+//            return Color.Mineral.GOLD;
+//        } else if (blue > red) {
+//            return Color.Mineral.SILVER;
+//        } else {
+//            return Color.Mineral.UNKNOWN;
+//        }
+//    }
+//
+//    public void displayColorSensorTelemetry() {
+//        telemetry.addData("Color RED", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.RED));
+//        telemetry.addData("Color GREEN", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.GREEN));
+//        telemetry.addData("Color BLUE", getColorSensor(ColorSensorName.MINERAL_COLOR, Color.Channel.BLUE));
+//        telemetry.addData("Mineral Color:", getMineralColor().toString());
+//    }
 
     // Possible starting positions.
     public enum StartPosition {
@@ -458,11 +458,11 @@ public class RobotHardware extends OpMode {
             }
         }
         // Set servo direction
-        try {
-            allServos.get(ServoName.FLIPPER_LEFT.ordinal()).setDirection(Servo.Direction.REVERSE);
-        } catch (Exception e) {
-            telemetry.addData("Unable to set left servo direction", "");
-        }
+//        try {
+//            allServos.get(ServoName.FLIPPER_LEFT.ordinal()).setDirection(Servo.Direction.REVERSE);
+//        } catch (Exception e) {
+//            telemetry.addData("Unable to set left servo direction", "");
+//        }
 
         allColorSensors = new ArrayList<ColorSensor>();
         for (ColorSensorName s : ColorSensorName.values()) {
