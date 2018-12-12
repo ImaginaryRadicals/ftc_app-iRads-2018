@@ -107,6 +107,7 @@ public class AutoOpmode extends RobotHardware {
         }
 
         interactiveInit.update();
+        robotStateMachine.init_loop();
     }
 
     @Override
