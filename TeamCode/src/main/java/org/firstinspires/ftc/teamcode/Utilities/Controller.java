@@ -201,4 +201,15 @@ public class Controller {
         return 1 == right_bumper;
     }
 
+    static public double deadZone(double input,double deadzone) {
+        if (Math.abs(input) <= deadzone) {
+            return 0.0;
+        } else {
+            double sign = input/Math.abs(input);
+            double output = 1/(1-deadzone)*(Math.abs(input)-deadzone);
+            return sign * output;
+        }
+    }
+
+
 }

@@ -94,7 +94,7 @@ public class RobotStateMachine {
 
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
         power = Range.clip(Math.abs(power), 0, 1);
-        int poweredDistance = 5;
+        int poweredDistance = 0;
         int arrivedDistance = 50;
         //int rampThreshold = 400;
         double maxRampPower = 1.0;
