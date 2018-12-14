@@ -170,6 +170,10 @@ public class MecanumNavigation {
             this(navigation2D.x, navigation2D.y, navigation2D.theta);
         }
 
+        public Navigation2D copy() {
+            return (Navigation2D) this.clone();
+        }
+
         public void add (Navigation2D other) {
             this.x += other.x;
             this.y += other.y;

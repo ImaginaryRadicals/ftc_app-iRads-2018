@@ -137,6 +137,39 @@ public class Waypoints {
         if(teamColor == Color.Ftc.BLUE) {
             if(startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
                 //Blue Crater
+                initialPosition = blueCrater_initialPosition.copy();
+                unhookPosition = blueCrater_unhookPosition.copy();
+                dismountPosition = blueCrater_dismountPosition.copy();
+                scanMineral_center = blueCrater_scanMineral_center.copy();
+                scanMineral_left = blueCrater_scanMineral_left.copy();
+                scanMineral_right = blueCrater_scanMineral_right.copy();
+
+                alignMineral_center =  blueCrater_alignMineral_center.copy();
+                alignMineral_left = blueCrater_alignMineral_left.copy();
+                alignMineral_right = blueCrater_alignMineral_right.copy();
+
+                knockMineral_center = blueCrater_knockMineral_center.copy();
+                knockMineral_left = blueCrater_knockMineral_left.copy();
+                knockMineral_right= blueCrater_knockMineral_right.copy();
+
+                // team side for crater, front or back for depot
+                photoPosition = blueCrater_photoPosition.copy();
+                flagDrop = blueCrater_flagDrop.copy();
+                craterPark = blueCrater_craterPark.copy();
+
+                // Optional team mineral scan
+                partner_scanMineral_center = partner_blueDepot_scanMineral_center.copy();
+                partner_scanMineral_left = partner_blueDepot_scanMineral_left.copy();
+                partner_scanMineral_right = partner_blueDepot_scanMineral_right.copy();
+
+                partner_alignMineral_center = partner_blueDepot_alignMineral_center.copy();
+                partner_alignMineral_left = partner_blueDepot_alignMineral_left.copy();
+                partner_alignMineral_right = partner_blueDepot_alignMineral_right.copy();
+
+                partner_knockMineral_center = partner_blueDepot_knockMineral_center.copy();
+                partner_knockMineral_left = partner_blueDepot_knockMineral_left.copy();
+                partner_knockMineral_right = partner_blueDepot_knockMineral_right.copy();
+
 
 
             } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
