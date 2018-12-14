@@ -10,6 +10,20 @@ public class Waypoints {
     boolean doPartnerMineralField = false;
 
     /**
+     * blueCrater waypoints, as well as partner_blueDepot waypoints (for partner mineral field) are
+     * first defined to be used as a template.  Then a series of rotations are used to define
+     * generic waypoints depending on the start position and team color.
+     *
+     * These initial waypoints for blueCrater and the partner_blueDepot are generated from
+     * a list of parameters to ease tweaking.
+     *
+     * We are allowing the 'left' and 'right' mineral to refer to the robot's perspective,
+     * regardless of which side of the mineral field it is on.  This isn't consistent with a
+     * global naming convention, but it doesn't matter as long as we knock the gold mineral
+     * wherever we find it.
+     */
+
+    /**
      * public waypoints customized for starting location
       */
     public Navigation2D initialPosition;
@@ -53,7 +67,7 @@ public class Waypoints {
     double blueCrater_start_y = 12.43;
     double blueCrater_start_degrees = -45;
     double unhookAngle = 10; // Angle to rotate to unhook.
-    double blueCrater_scanXY = 24; // both X and Y for scan position.
+    double blueCrater_scanXY = 24; // both X and Y for initial scan position.
     double blueCrater_radiusAngle_degrees = 45; // Direction towards blueCrater corner
     double scanRotation = 45; // How many degrees to rotate to scan each mineral.
     double alignmentOffset = 10; // How many inches to add/subtract to shift and align with side minerals.
@@ -63,14 +77,15 @@ public class Waypoints {
     double flagDropDepth = -60;
     double craterPark_x = 60;
     double craterPark_y = 60;
-    // Crater Partner Mineral Scan
-    double partner_depotScan_X = -48;
-    double partner_depotScan_Y = 48;
-    double partner_depotScan_angle_center = 135;
-    double partner_depotScan_angle_offset = 45;
-    double partner_alignmentOffset;
-    double partner_knockOffXY_center;
-    double partner_knockOffset;
+
+    // Crater Partner Mineral Scan (blue depot is in second quadrant)
+    double partner_blueDepot_Scan_X = -48;
+    double partner_blueDepot_Scan_Y = 48;
+    double partner_blueDepot_Scan_angle_center = 225; // not 135, not 45
+    double partner_blueDepot_Scan_angle_offset = 45;
+    double partner_blueDepot_alignmentOffset = 12;
+    double partner_blueDepot_knockOffXY_center = 42;
+    double partner_blueDepot_knockOffset = 12;
     /**
      * Blue crater positions set and used as templates
      */
@@ -96,17 +111,19 @@ public class Waypoints {
     Navigation2D blueCrater_craterPark = new Navigation2D(craterPark_x,craterPark_y,degreesToRadians(0));
 
     // Optional team mineral scan
-    Navigation2D blueCrater_partner_scanMineral_center = new Navigation2D(partner_depotScan_X,partner_depotScan_Y,degreesToRadians(partner_depotScan_angle_center));
-    Navigation2D blueCrater_partner_scanMineral_left = new Navigation2D(partner_depotScan_X,partner_depotScan_Y,degreesToRadians(partner_depotScan_angle_center + partner_depotScan_angle_offset));
-    Navigation2D blueCrater_partner_scanMineral_right = new Navigation2D(partner_depotScan_X,partner_depotScan_Y,degreesToRadians(partner_depotScan_angle_center - partner_depotScan_angle_offset));
+    Navigation2D partner_blueDepot_scanMineral_center = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y,degreesToRadians(partner_blueDepot_Scan_angle_center));
+    Navigation2D partner_blueDepot_scanMineral_left = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y,degreesToRadians(partner_blueDepot_Scan_angle_center + partner_blueDepot_Scan_angle_offset));
+    Navigation2D partner_blueDepot_scanMineral_right = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y,degreesToRadians(partner_blueDepot_Scan_angle_center - partner_blueDepot_Scan_angle_offset));
 
-    Navigation2D blueCrater_partner_alignMineral_center;
-    Navigation2D blueCrater_partner_alignMineral_left;
-    Navigation2D blueCrater_partner_alignMineral_right;
+    // partner is at blue depot when we are at blueCrater
+    // Same as partner_blueDepot_scanMineral_center
+    Navigation2D partner_blueDepot_alignMineral_center = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y, degreesToRadians(partner_blueDepot_Scan_angle_center));
+    Navigation2D partner_blueDepot_alignMineral_left = new Navigation2D(partner_blueDepot_Scan_X - partner_blueDepot_alignmentOffset, partner_blueDepot_Scan_Y + partner_blueDepot_alignmentOffset, degreesToRadians(partner_blueDepot_Scan_angle_center));
+    Navigation2D partner_blueDepot_alignMineral_right = new Navigation2D(partner_blueDepot_Scan_X + partner_blueDepot_alignmentOffset, partner_blueDepot_Scan_Y - partner_blueDepot_alignmentOffset, degreesToRadians(partner_blueDepot_Scan_angle_center));
 
-    Navigation2D blueCrater_partner_knockMineral_center;
-    Navigation2D blueCrater_partner_knockMineral_left;
-    Navigation2D blueCrater_partner_knockMineral_right;
+    Navigation2D partner_blueDepot_knockMineral_center = new Navigation2D(-partner_blueDepot_knockOffXY_center,partner_blueDepot_knockOffXY_center, degreesToRadians(partner_blueDepot_Scan_angle_center));
+    Navigation2D partner_blueDepot_knockMineral_left = new Navigation2D(-partner_blueDepot_knockOffXY_center - partner_blueDepot_knockOffset,partner_blueDepot_knockOffXY_center + partner_blueDepot_knockOffset, degreesToRadians(partner_blueDepot_Scan_angle_center));
+    Navigation2D partner_blueDepot_knockMineral_right = new Navigation2D(-partner_blueDepot_knockOffXY_center + partner_blueDepot_knockOffset,partner_blueDepot_knockOffXY_center - partner_blueDepot_knockOffset, degreesToRadians(partner_blueDepot_Scan_angle_center));
 
 
     public Waypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, boolean doPartnerMineralField) {
@@ -120,6 +137,7 @@ public class Waypoints {
         if(teamColor == Color.Ftc.BLUE) {
             if(startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
                 //Blue Crater
+
 
             } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
                 //Blue Depot
