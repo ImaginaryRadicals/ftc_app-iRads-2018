@@ -156,6 +156,7 @@ public class MecanumNavigation {
             double radians = degrees * Math.PI / 180;
             this.x = x * Math.cos(radians) - y * Math.sin(radians);
             this.y = x * Math.sin(radians) + y * Math.cos(radians);
+            this.theta += radians;
         }
 
         public Navigation2D rotateCopy (double degrees) {
