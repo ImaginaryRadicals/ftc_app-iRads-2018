@@ -8,6 +8,7 @@ public class Waypoints {
     Color.Ftc teamColor;
     RobotHardware.StartPosition startPosition;
     boolean doPartnerMineralField = false;
+    double genericRotate = 0;
 
     /**
      * blueCrater waypoints, as well as partner_blueDepot waypoints (for partner mineral field) are
@@ -74,9 +75,9 @@ public class Waypoints {
     double blueCrater_knockXY_center = 32; // XY position for knocking center mineral
     double knockOffset = 12; // How many inches to add/subtract to knock side minerals.
     double wallOffsetPosition = 58; // Position when traveling along wall from depot to crater
-    double flagDropDepth = -60;
-    double craterPark_x = 60;
-    double craterPark_y = 60;
+    double flagDropDepth = 60;
+    double craterPark_depth = 60;
+    double craterPark_wall_offset = 60;
 
     // Crater Partner Mineral Scan (blue depot is in second quadrant)
     double partner_blueDepot_Scan_X = -48;
@@ -107,8 +108,8 @@ public class Waypoints {
     // team side for crater, front or back for depot
     // Angle set to observation of marker by camera on left side.
     Navigation2D blueCrater_photoPosition = new Navigation2D(0,wallOffsetPosition,degreesToRadians(0));
-    Navigation2D blueCrater_flagDrop = new Navigation2D(flagDropDepth,wallOffsetPosition,degreesToRadians(0));
-    Navigation2D blueCrater_craterPark = new Navigation2D(craterPark_x,craterPark_y,degreesToRadians(0));
+    Navigation2D blueCrater_flagDrop = new Navigation2D(-flagDropDepth,wallOffsetPosition,degreesToRadians(0));
+    Navigation2D blueCrater_craterPark = new Navigation2D(craterPark_depth, craterPark_wall_offset,degreesToRadians(0));
 
     // Optional team mineral scan
     Navigation2D partner_blueDepot_scanMineral_center = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y,degreesToRadians(partner_blueDepot_Scan_angle_center));
@@ -136,44 +137,11 @@ public class Waypoints {
     void customizeWaypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition, boolean doPartnerMineralField) {
         if(teamColor == Color.Ftc.BLUE) {
             if(startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
-                //Blue Crater
-                initialPosition = blueCrater_initialPosition.copy();
-                unhookPosition = blueCrater_unhookPosition.copy();
-                dismountPosition = blueCrater_dismountPosition.copy();
-                scanMineral_center = blueCrater_scanMineral_center.copy();
-                scanMineral_left = blueCrater_scanMineral_left.copy();
-                scanMineral_right = blueCrater_scanMineral_right.copy();
-
-                alignMineral_center =  blueCrater_alignMineral_center.copy();
-                alignMineral_left = blueCrater_alignMineral_left.copy();
-                alignMineral_right = blueCrater_alignMineral_right.copy();
-
-                knockMineral_center = blueCrater_knockMineral_center.copy();
-                knockMineral_left = blueCrater_knockMineral_left.copy();
-                knockMineral_right= blueCrater_knockMineral_right.copy();
-
-                // team side for crater, front or back for depot
-                photoPosition = blueCrater_photoPosition.copy();
-                flagDrop = blueCrater_flagDrop.copy();
-                craterPark = blueCrater_craterPark.copy();
-
-                // Optional team mineral scan
-                partner_scanMineral_center = partner_blueDepot_scanMineral_center.copy();
-                partner_scanMineral_left = partner_blueDepot_scanMineral_left.copy();
-                partner_scanMineral_right = partner_blueDepot_scanMineral_right.copy();
-
-                partner_alignMineral_center = partner_blueDepot_alignMineral_center.copy();
-                partner_alignMineral_left = partner_blueDepot_alignMineral_left.copy();
-                partner_alignMineral_right = partner_blueDepot_alignMineral_right.copy();
-
-                partner_knockMineral_center = partner_blueDepot_knockMineral_center.copy();
-                partner_knockMineral_left = partner_blueDepot_knockMineral_left.copy();
-                partner_knockMineral_right = partner_blueDepot_knockMineral_right.copy();
-
-
+                create_blue_crater_waypoints();
 
             } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
                 //Blue Depot
+                create_blue_depot_waypoints();
 
             } else {
                 throw new IllegalStateException("Invalid Starting Position");
@@ -181,9 +149,13 @@ public class Waypoints {
         } else if (teamColor == Color.Ftc.RED) {
             if(startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
                 //Red Crater
+                create_blue_crater_waypoints();
+                rotate_waypoints_in_place(180);
 
             } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
                 //Red Depot
+                create_blue_depot_waypoints();
+                rotate_waypoints_in_place(180);
 
             } else {
                 throw new IllegalStateException("Invalid Starting Position");
@@ -202,4 +174,97 @@ public class Waypoints {
         return radians * 180 / Math.PI;
     }
 
+    void create_blue_crater_waypoints() {
+        //Blue Crater
+        initialPosition = blueCrater_initialPosition.copy();
+        unhookPosition = blueCrater_unhookPosition.copy();
+        dismountPosition = blueCrater_dismountPosition.copy();
+        scanMineral_center = blueCrater_scanMineral_center.copy();
+        scanMineral_left = blueCrater_scanMineral_left.copy();
+        scanMineral_right = blueCrater_scanMineral_right.copy();
+
+        alignMineral_center =  blueCrater_alignMineral_center.copy();
+        alignMineral_left = blueCrater_alignMineral_left.copy();
+        alignMineral_right = blueCrater_alignMineral_right.copy();
+
+        knockMineral_center = blueCrater_knockMineral_center.copy();
+        knockMineral_left = blueCrater_knockMineral_left.copy();
+        knockMineral_right= blueCrater_knockMineral_right.copy();
+
+        // team side for crater, front or back for depot
+        photoPosition = blueCrater_photoPosition.copy();
+        flagDrop = blueCrater_flagDrop.copy();
+        craterPark = blueCrater_craterPark.copy();
+
+        // Optional team mineral scan
+        partner_scanMineral_center = partner_blueDepot_scanMineral_center.copy();
+        partner_scanMineral_left = partner_blueDepot_scanMineral_left.copy();
+        partner_scanMineral_right = partner_blueDepot_scanMineral_right.copy();
+
+        partner_alignMineral_center = partner_blueDepot_alignMineral_center.copy();
+        partner_alignMineral_left = partner_blueDepot_alignMineral_left.copy();
+        partner_alignMineral_right = partner_blueDepot_alignMineral_right.copy();
+
+        partner_knockMineral_center = partner_blueDepot_knockMineral_center.copy();
+        partner_knockMineral_left = partner_blueDepot_knockMineral_left.copy();
+        partner_knockMineral_right = partner_blueDepot_knockMineral_right.copy();
+    }
+
+
+    void rotate_waypoints_in_place(double rotateDegrees) {
+        // rotate the generic waypoints around (0,0), storing
+        // back into the generic waypoints.
+
+        initialPosition.rotate(rotateDegrees);
+        unhookPosition.rotate(rotateDegrees);
+        dismountPosition.rotate(rotateDegrees);
+        scanMineral_center.rotate(rotateDegrees);
+        scanMineral_left.rotate(rotateDegrees);
+        scanMineral_right.rotate(rotateDegrees);
+        alignMineral_center.rotate(rotateDegrees);
+        alignMineral_left.rotate(rotateDegrees);
+        alignMineral_right.rotate(rotateDegrees);
+        knockMineral_center.rotate(rotateDegrees);
+        knockMineral_left.rotate(rotateDegrees);
+        knockMineral_right.rotate(rotateDegrees);
+        photoPosition.rotate(rotateDegrees);
+        flagDrop.rotate(rotateDegrees);
+        craterPark.rotate(rotateDegrees);
+        partner_scanMineral_center.rotate(rotateDegrees);
+        partner_scanMineral_left.rotate(rotateDegrees);
+        partner_scanMineral_right.rotate(rotateDegrees);
+        partner_alignMineral_center.rotate(rotateDegrees);
+        partner_alignMineral_left.rotate(rotateDegrees);
+        partner_alignMineral_right.rotate(rotateDegrees);
+        partner_knockMineral_center.rotate(rotateDegrees);
+        partner_knockMineral_left.rotate(rotateDegrees);
+        partner_knockMineral_right.rotate(rotateDegrees);
+    }
+
+
+    void create_blue_depot_waypoints() {
+        create_blue_crater_waypoints();
+        // generally 90 degree rotation from blueCrater points
+        genericRotate = 90;
+        rotate_waypoints_in_place(genericRotate);
+
+
+        flagDrop = new Navigation2D(-wallOffsetPosition, flagDropDepth, degreesToRadians(-90));
+        craterPark = new Navigation2D(-craterPark_wall_offset, -craterPark_depth, degreesToRadians(-90));
+
+
+        // Optional team mineral scan
+        // For blueDepot, using same points as partner standard scan and knock.
+        partner_scanMineral_center = blueCrater_scanMineral_center.copy();
+        partner_scanMineral_left = blueCrater_scanMineral_left.copy();
+        partner_scanMineral_right = blueCrater_scanMineral_right.copy();
+
+        partner_alignMineral_center = blueCrater_alignMineral_center.copy();
+        partner_alignMineral_left = blueCrater_alignMineral_left.copy();
+        partner_alignMineral_right = blueCrater_alignMineral_right.copy();
+
+        partner_knockMineral_center = blueCrater_knockMineral_center.copy();
+        partner_knockMineral_left = blueCrater_knockMineral_left.copy();
+        partner_knockMineral_right = blueCrater_knockMineral_right.copy();
+    }
 }
