@@ -36,6 +36,7 @@ public class RobotStateMachine {
         ALIGN_LEFT_DEPOT,
         ALIGN_RIGHT_DEPOT,
         DRIVE_DEPOT,
+        JOLT_FEEDER_ARM,
         CLAIM_DEPOT,
         DRIVE_CRATER,
         ENTER_CRATER,
@@ -268,6 +269,20 @@ public class RobotStateMachine {
         } else if (state == AutoState.DRIVE_DEPOT) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.photoPosition, speed);
             if (arrived) {
+                state = AutoState.JOLT_FEEDER_ARM;
+                stateTimer.reset();
+            }
+        } else if (state == AutoState.JOLT_FEEDER_ARM) {
+            double joltDelay = 1.0;
+            double joltInterval = 0.5;
+            double joltSpeed = 1.0;
+
+            if(stateTimer.seconds() > joltDelay && stateTimer.seconds() <= joltDelay + joltInterval) {
+                opMode.setDriveForTank(joltSpeed,joltSpeed);
+            } else if(stateTimer.seconds() > joltDelay + joltInterval && stateTimer.seconds() <= joltDelay + 2*joltInterval) {
+                opMode.setDriveForTank(-joltSpeed,-joltSpeed);
+                opMode.setDriveForTank(1,1);
+            } else if (stateTimer.seconds() > joltDelay + 2*joltInterval) {
                 state = AutoState.CLAIM_DEPOT;
                 stateTimer.reset();
             }
