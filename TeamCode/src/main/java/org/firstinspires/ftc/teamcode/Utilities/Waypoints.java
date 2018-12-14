@@ -68,6 +68,7 @@ public class Waypoints {
     double blueCrater_start_y = 12.43;
     double blueCrater_start_degrees = -45;
     double unhookAngle = 10; // Angle to rotate to unhook.
+    double unhookStrafe = 1;
     double blueCrater_scanXY = 24; // both X and Y for initial scan position.
     double blueCrater_radiusAngle_degrees = 45; // Direction towards blueCrater corner
     double scanRotation = 45; // How many degrees to rotate to scan each mineral.
@@ -91,7 +92,7 @@ public class Waypoints {
      * Blue crater positions set and used as templates
      */
     Navigation2D blueCrater_initialPosition = new Navigation2D(blueCrater_start_x,blueCrater_start_y,degreesToRadians(blueCrater_start_degrees));
-    Navigation2D blueCrater_unhookPosition = new Navigation2D(blueCrater_start_x,blueCrater_start_y,degreesToRadians(blueCrater_start_degrees + unhookAngle));
+    Navigation2D blueCrater_unhookPosition = new Navigation2D(blueCrater_start_x + unhookStrafe,blueCrater_start_y - unhookStrafe,degreesToRadians(blueCrater_start_degrees + unhookAngle));
     Navigation2D blueCrater_dismountPosition = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees + unhookAngle));
     Navigation2D blueCrater_scanMineral_center = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees));
     Navigation2D blueCrater_scanMineral_left = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees + scanRotation));

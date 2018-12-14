@@ -38,6 +38,7 @@ public class AutoOpmode extends RobotHardware {
     public Mutable<Boolean> UsingMiniRobot = new Mutable<>(false);
     public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
     public Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
+    public Mutable<Boolean> doPartnerMinerals = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
@@ -92,7 +93,7 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",1.0,.1,.3,.5);
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
-
+        interactiveInit.addBoolean(doPartnerMinerals,"Partner Mineral", true, false);
     }
 
     @Override
@@ -107,7 +108,8 @@ public class AutoOpmode extends RobotHardware {
         }
 
         interactiveInit.update();
-        robotStateMachine.init_loop();
+        //Maintain lift winch position while hanging.
+        robotStateMachine.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0, 100);
     }
 
     @Override

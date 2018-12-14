@@ -4,12 +4,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -22,20 +20,21 @@ public class RobotStateMachine {
     public enum AutoState {
         START,
         LAND,
+        UNHOOK,
         DISMOUNT,
         IDENTIFY_CENTER,
         IDENTIFY_LEFT,
         IDENTIFY_RIGHT,
-        PREPARATION_CENTER_MINERAL,
-        PREPARATION_LEFT_MINERAL,
-        PREPARATION_RIGHT_MINERAL,
+        ALIGN_CENTER_MINERAL,
+        ALIGN_LEFT_MINERAL,
+        ALIGN_RIGHT_MINERAL,
         UNKNOWN,
         KNOCK_GOLD_CENTER,
         KNOCK_GOLD_LEFT,
         KNOCK_GOLD_RIGHT,
-        PREPARATION_CENTER_DEPOT,
-        PREPARATION_LEFT_DEPOT,
-        PREPARATION_RIGHT_DEPOT,
+        ALIGN_CENTER_DEPOT,
+        ALIGN_LEFT_DEPOT,
+        ALIGN_RIGHT_DEPOT,
         DRIVE_DEPOT,
         CLAIM_DEPOT,
         DRIVE_CRATER,
@@ -51,6 +50,7 @@ public class RobotStateMachine {
     private ElapsedTime stateLoopTimer = new ElapsedTime();
     private double lastStateLoopPeriod = 0;
     private ElapsedTime stateTimer = new ElapsedTime();
+    private Waypoints waypoints;
 
     // Colors
     public Color.Ftc teamColor = Color.Ftc.UNKNOWN;
@@ -85,11 +85,7 @@ public class RobotStateMachine {
     public void init() {
         stateLoopTimer.reset();
         stateTimer.reset();
-    }
-
-    public void init_loop() {
-        //Maintain lift winch position while hanging.
-        driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0, 100);
+        waypoints = new Waypoints(teamColor, startPosition, opMode.doPartnerMinerals.get());
     }
 
     public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
@@ -141,21 +137,27 @@ public class RobotStateMachine {
 
             } else {
                 // This needs to be set based on our starting location. DEBUG
-                opMode.mecanumNavigation.setCurrentPosition(new MecanumNavigation.Navigation2D(12.43, 12.43, degreesToRadians(-45)));
+                opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
                 stateTimer.reset();
                 state = AutoState.LAND;
             }
         } else if (state == AutoState.LAND) {
-//            opMode.setPower(RobotHardware.MotorName.LIFT_WINCH, speed);
             arrived = driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MAX_TICKS, 1.0);
 
-            if (arrived || stateTimer.seconds() >= 13) {
+            if (arrived || stateTimer.seconds() >= 8) {
+                opMode.stopAllMotors();
                 stateTimer.reset();
+                state = AutoState.UNHOOK;
+            }
+        } else if (state == AutoState.UNHOOK) {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.unhookPosition, speed);
+            if (arrived) {
                 state = AutoState.DISMOUNT;
+                stateTimer.reset();
             }
         } else if (state == AutoState.DISMOUNT) {
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(13.43, 13.43, degreesToRadians(-45)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.dismountPosition, speed);
 
             // attempt to shake lift arm loose.
             // arrived = opMode.autoDrive.multiWaypointState("DISMOUNT",1.0, new ArrayList<>(Arrays.asList(
@@ -164,23 +166,21 @@ public class RobotStateMachine {
             //        new MecanumNavigation.Navigation2D(12.43,12.43,degreesToRadians(-30))
             // )));
 
-
-
             if (arrived) {
                 stateTimer.reset();
 
-                state = AutoState.PREPARATION_CENTER_MINERAL;
+                state = AutoState.ALIGN_CENTER_MINERAL;
 
             }
-        } else if (state == AutoState.PREPARATION_CENTER_MINERAL) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(17, 17, degreesToRadians(-45)), speed);
+        } else if (state == AutoState.ALIGN_CENTER_MINERAL) {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_center, speed);
             if (arrived) {
                 stateTimer.reset();
                 state = AutoState.IDENTIFY_CENTER;
             }
 
         } else if (state == AutoState.IDENTIFY_CENTER) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(15, 15, degreesToRadians(-45)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.scanMineral_center, speed);
 
             if (arrived && stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
                 // Detect mineral at image center
@@ -191,30 +191,21 @@ public class RobotStateMachine {
                     state = AutoState.KNOCK_GOLD_CENTER;
                 } else if(centerMineral == Color.Mineral.SILVER){
                     stateTimer.reset();
-                    state = AutoState.PREPARATION_LEFT_MINERAL;
+                    state = AutoState.IDENTIFY_LEFT;
                 }
 
             } else if (stateTimer.seconds() >= timeout) {
                 // Timed out: assume detection wasn't possible, act as if it were gold.
                 stateTimer.reset();
-                state = AutoState.KNOCK_GOLD_CENTER;
+                state = AutoState.STOP;
             }
-
-        } else if (state == AutoState.PREPARATION_LEFT_MINERAL) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24, 24, degreesToRadians(0)), speed);
-            if(arrived) {
-                stateTimer.reset();
-                state = AutoState.IDENTIFY_LEFT;
-            }
-
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
-
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.scanMineral_left, speed);
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
             if (stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
                 if (leftMineral == Color.Mineral.GOLD) {
-                    arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(14, 36, degreesToRadians(-45)), speed);
                     if (arrived) {
                         foundMineral = true;
                         stateTimer.reset();
@@ -222,16 +213,16 @@ public class RobotStateMachine {
                     }
                 } else if (leftMineral == Color.Mineral.SILVER) {
                     stateTimer.reset();
-                    state = AutoState.PREPARATION_RIGHT_MINERAL;
+                    state = AutoState.ALIGN_RIGHT_MINERAL;
                 }
             } else if (stateTimer.seconds() >= timeout) {
                 stateTimer.reset();
                 state = AutoState.STOP;
             }
-        } else if (state == AutoState.PREPARATION_RIGHT_MINERAL) {
+        } else if (state == AutoState.ALIGN_RIGHT_MINERAL) {
 
             // Detect mineral at image center
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(36,14,degreesToRadians(-45)),speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_right, speed);
             if(arrived && stateTimer.seconds() > 1 ) {
                     stateTimer.reset();
                     state = AutoState.KNOCK_GOLD_RIGHT;
@@ -239,52 +230,50 @@ public class RobotStateMachine {
 
         } else if (state == AutoState.KNOCK_GOLD_CENTER)  {
 
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(32,32,degreesToRadians(-45)),speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.knockMineral_center, speed);
             if (arrived) {
                 stateTimer.reset();
-                state = AutoState.PREPARATION_CENTER_DEPOT;
+                state = AutoState.ALIGN_CENTER_DEPOT;
             }
         } else if (state == AutoState.KNOCK_GOLD_LEFT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(20,44,degreesToRadians(-45)),speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.knockMineral_left, speed);
             if (arrived) {
                 stateTimer.reset();
-                state = AutoState.PREPARATION_LEFT_DEPOT;
+                state = AutoState.ALIGN_LEFT_DEPOT;
             }
         } else if (state == AutoState.KNOCK_GOLD_RIGHT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(46,20,degreesToRadians(-45)),speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.knockMineral_right, speed);
             if (arrived) {
                 stateTimer.reset();
-                state = AutoState.PREPARATION_RIGHT_DEPOT;
+                state = AutoState.ALIGN_RIGHT_DEPOT;
             }
-        } else if (state == AutoState.PREPARATION_CENTER_DEPOT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(24,24,degreesToRadians(-45)),speed);
-            if (arrived) {
-                stateTimer.reset();
-                state = AutoState.DRIVE_DEPOT;
-            }
-        } else if (state == AutoState.PREPARATION_RIGHT_DEPOT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(34,12,degreesToRadians(-45)),speed);
+        } else if (state == AutoState.ALIGN_CENTER_DEPOT)  {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_center, speed);
             if (arrived) {
                 stateTimer.reset();
                 state = AutoState.DRIVE_DEPOT;
             }
-        } else if (state == AutoState.PREPARATION_LEFT_DEPOT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(12,34,degreesToRadians(-45)),speed);
+        } else if (state == AutoState.ALIGN_RIGHT_DEPOT)  {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_right, speed);
             if (arrived) {
                 stateTimer.reset();
                 state = AutoState.DRIVE_DEPOT;
             }
-
-
+        } else if (state == AutoState.ALIGN_LEFT_DEPOT)  {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_left, speed);
+            if (arrived) {
+                stateTimer.reset();
+                state = AutoState.DRIVE_DEPOT;
+            }
         } else if (state == AutoState.DRIVE_DEPOT) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(0, 58, degreesToRadians(0)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.photoPosition, speed);
             if (arrived) {
                 state = AutoState.CLAIM_DEPOT;
                 stateTimer.reset();
             }
 
         } else if (state == AutoState.CLAIM_DEPOT) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(-60, 56, degreesToRadians(0)), speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.flagDrop, speed);
             if (arrived) {
                 arrived = driveMotorToPos(RobotHardware.MotorName.ARM, 8787, speed);
                 if (arrived) {
@@ -294,10 +283,10 @@ public class RobotStateMachine {
             }
 
         } else if (state == AutoState.DRIVE_CRATER) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(60, 60, degreesToRadians(0)),1);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.craterPark, speed);
                 if (arrived) {
-
-
+                    state = AutoState.STOP;
+                    stateTimer.reset();
                 }
         } else if (state == AutoState.SIMPLE_START) {
             // In these waypoint lists, the first entry is only used to set the
