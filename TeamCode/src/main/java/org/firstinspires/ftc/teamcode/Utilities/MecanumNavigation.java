@@ -194,7 +194,7 @@ public class MecanumNavigation {
         public Navigation2D minusEquals (Navigation2D other) {
             return new Navigation2D(this.x - other.x,
                                     this.y - other.y,
-                                 this.theta - other.theta);
+                                 radianRound(this.theta - other.theta));
         }
 
         // Distance formula
@@ -343,7 +343,7 @@ public class MecanumNavigation {
      * @param radians
      * @return
      */
-    public double radianRound(double radians) {
+    static public double radianRound(double radians) {
         while (radians > Math.PI) {
             radians -= 2*Math.PI;
         }
@@ -351,5 +351,17 @@ public class MecanumNavigation {
             radians += 2*Math.PI;
         }
         return radians;
+    }
+
+
+    public double boundDegrees(double angleDegrees) {
+        while (Math.abs(angleDegrees) > 180) {
+            if (angleDegrees < -180) {
+                angleDegrees += 360;
+            } else {
+                angleDegrees -= 360;
+            }
+        }
+        return angleDegrees;
     }
 }
