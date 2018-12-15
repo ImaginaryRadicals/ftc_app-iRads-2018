@@ -232,6 +232,7 @@ public class IMUUtilities {
 
 
     // Calculation helpers
+    // Initial and final headings are just used to help comparisons of orientation.
     private double headingCompensation = 0;
     private double initialHeading = 0;
     private double finalHeading = 0;

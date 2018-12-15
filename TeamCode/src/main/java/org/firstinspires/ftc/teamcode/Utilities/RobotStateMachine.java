@@ -138,8 +138,12 @@ public class RobotStateMachine {
                 state = AutoState.SIMPLE_START;
 
             } else {
-                // This needs to be set based on our starting location. DEBUG
+                // This needs to be set based on our starting location.
                 opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
+                if (opMode.useIMU.get()) {
+                    opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(waypoints.initialPosition.theta));
+                    opMode.imuUtilities.setInitialHeading(); // Records starting heading for comparison.
+                }
                 stateTimer.reset();
                 state = AutoState.LAND;
             }
@@ -148,6 +152,14 @@ public class RobotStateMachine {
 
             if (arrived || stateTimer.seconds() >= 8) {
                 opMode.stopAllMotors();
+                if (opMode.useIMU.get()) {
+                    // Modify current position to account for rotation during descent measured by gyro.
+                    opMode.imuUtilities.setFinalHeading(); // Record our new angle after motion.
+                    double headingChange = opMode.imuUtilities.getHeadingChange();
+                    MecanumNavigation.Navigation2D currentPosition = opMode.mecanumNavigation.currentPosition.copy();
+                    currentPosition.theta += degreesToRadians(headingChange);
+                    opMode.mecanumNavigation.setCurrentPosition(currentPosition);
+                }
                 stateTimer.reset();
                 state = AutoState.UNHOOK;
             }
@@ -375,7 +387,7 @@ public class RobotStateMachine {
 
         } else if (state == AutoState.SIMPLE_DEPOT) {
             state = AutoState.SIMPLE_CRATER; // They are the same right now.
-            
+
         } else if (state == AutoState.STOP) {
             opMode.stopAllMotors();
             opMode.stop();
@@ -384,7 +396,7 @@ public class RobotStateMachine {
             opMode.stopAllMotors();
         }
     }
-    
+
     private double degreesToRadians(double degrees) {
         return degrees * Math.PI / 180;
     }
