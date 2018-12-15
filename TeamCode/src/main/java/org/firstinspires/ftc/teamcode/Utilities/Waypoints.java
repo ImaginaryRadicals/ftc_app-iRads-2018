@@ -78,9 +78,9 @@ public class Waypoints {
     double knockOffset = 12; // How many inches to add/subtract to knock side minerals.
     double wallOffsetPosition = 58; // Position when traveling along wall from depot to crater
     double photoRotation = 0;
-    double flagDropDepth = 55;
-    double craterPark_depth = 50;
-    double craterPark_wall_offset = 60;
+    double flagDropDepth = 48;
+    double craterPark_depth = 15;
+    double craterPark_wall_offset = 68;
 
     // Crater Partner Mineral Scan (blue depot is in second quadrant)
     double partner_blueDepot_Scan_X = -48;
