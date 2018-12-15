@@ -53,6 +53,7 @@ public class RobotStateMachine {
     private ElapsedTime stateLoopTimer = new ElapsedTime();
     private double lastStateLoopPeriod = 0;
     private ElapsedTime stateTimer = new ElapsedTime();
+    private ElapsedTime mineralIdentificationTimer = new ElapsedTime();
     private Waypoints waypoints;
 
     // Colors
@@ -88,6 +89,7 @@ public class RobotStateMachine {
     public void init() {
         stateLoopTimer.reset();
         stateTimer.reset();
+        mineralIdentificationTimer.reset();
         waypoints = new Waypoints(teamColor, startPosition, opMode.doPartnerMinerals.get());
     }
 
@@ -123,6 +125,7 @@ public class RobotStateMachine {
 
     public void update() {
 
+        double identificationTime = 2;
         double timeout = 6; // Identification timeout.
         lastStateLoopPeriod = stateLoopTimer.seconds();
         stateLoopTimer.reset();
@@ -187,8 +190,11 @@ public class RobotStateMachine {
 
         } else if (state == AutoState.IDENTIFY_CENTER) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.scanMineral_center, speed);
+            if (!arrived) {
+                mineralIdentificationTimer.reset();
+            }
 
-            if (arrived && stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
+            if (arrived && mineralIdentificationTimer.seconds() > identificationTime && stateTimer.seconds() < timeout) {
                 // Detect mineral at image center
                 centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
 
@@ -208,9 +214,13 @@ public class RobotStateMachine {
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_left, speed);
+            if (!arrived) {
+                mineralIdentificationTimer.reset();
+            }
+            
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
-            if (stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
+            if (mineralIdentificationTimer.seconds() > identificationTime && stateTimer.seconds() < timeout) {
                 if (leftMineral == Color.Mineral.GOLD) {
                     if (arrived) {
                         foundMineral = true;
