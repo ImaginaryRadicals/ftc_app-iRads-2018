@@ -67,7 +67,7 @@ public class Waypoints {
 
     double blueCrater_start_x = 12.43;
     double blueCrater_start_y = 12.43;
-    double blueCrater_start_degrees = -45;
+    double blueCrater_start_degrees = -45 + 9;
     double unhookAngle = 10; // Angle to rotate to unhook.
     double unhookStrafe = 1;
     double blueCrater_scanXY = 24; // both X and Y for initial scan position.
