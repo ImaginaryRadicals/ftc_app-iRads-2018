@@ -207,7 +207,7 @@ public class RobotStateMachine {
             }
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.scanMineral_left, speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_left, speed);
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
             if (stateTimer.seconds() > 1 && stateTimer.seconds() < timeout) {
