@@ -24,6 +24,14 @@ public class Tank extends RobotHardware {
         setPower(MotorName.FEEDER, gamepad1.right_trigger);
         setPower(MotorName.ARM, -gamepad1.right_stick_y);
         setPower(MotorName.WRIST, gamepad1.right_stick_x);
+
+        // Telemetry
+//        telemetry.addLine(); // Create Space
+        // Display all motor encoder values
+        for (MotorName m : MotorName.values()) {
+            telemetry.addData(m.name(), getEncoderValue(m));
+        }
+
     }
 
 
