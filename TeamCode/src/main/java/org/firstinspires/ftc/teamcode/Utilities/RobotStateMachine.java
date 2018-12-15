@@ -217,7 +217,7 @@ public class RobotStateMachine {
             if (!arrived) {
                 mineralIdentificationTimer.reset();
             }
-            
+
             // Detect mineral at image center
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
             if (mineralIdentificationTimer.seconds() > identificationTime && stateTimer.seconds() < timeout) {
@@ -310,6 +310,7 @@ public class RobotStateMachine {
             if (arrived) {
                 arrived = driveMotorToPos(RobotHardware.MotorName.ARM, 8787, speed);
                 if (arrived) {
+                    updateMecanumHeadingFromGyro();
                     stateTimer.reset();
                     state = AutoState.CLAIM_DEPOT;
                 }
@@ -441,10 +442,14 @@ public class RobotStateMachine {
     }
 
 
-    private MecanumNavigation.Navigation2D getGlyphOffsetFromRotation(double rotationRadians) {
-        double distanceToGlyphCenter = 12+6-7+1.5; // Added half of glyph width to lever arm.
-        return new MecanumNavigation.Navigation2D( distanceToGlyphCenter * ( Math.cos(rotationRadians) - 1), distanceToGlyphCenter * Math.sin(rotationRadians), rotationRadians);
+    private void updateMecanumHeadingFromGyro() {
+        if (opMode.useIMU.get()) {
+            // Modify current position to account for rotation during descent measured by gyro.
+            opMode.imuUtilities.updateNow();
+            double gyroHeading = opMode.imuUtilities.getCompensatedHeading();
+            MecanumNavigation.Navigation2D currentPosition = opMode.mecanumNavigation.currentPosition.copy();
+            currentPosition.theta = degreesToRadians(gyroHeading);
+            opMode.mecanumNavigation.setCurrentPosition(currentPosition);
+        }
     }
-
-
 }
