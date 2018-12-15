@@ -48,6 +48,26 @@ public class IMUUtilities {
     }
 
 
+    public void updateNow() {
+        // If IMU is missing, do nothing.
+        if (imu == null) {return;}
+        lastUpdateSec = opMode.time;
+
+        imuSystemStatus = imu.getSystemStatus();
+        imuCalibrationStatus = imu.getCalibrationStatus();
+
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        gravity = imu.getGravity();
+        acceleration = imu.getLinearAcceleration();
+
+        heading = angles.firstAngle;
+        roll = angles.secondAngle;
+        pitch = angles.thirdAngle;
+        xAccel = acceleration.xAccel;
+        yAccel = acceleration.yAccel;
+        zAccel = acceleration.zAccel;
+    }
+
     public void update() {
         // If IMU is missing, do nothing.
         if (imu == null) {return;}
@@ -55,21 +75,7 @@ public class IMUUtilities {
         // Update rate is limited by minUpdateDelay to prevent too many costly operations.
         // Updating this data is quite expensive.
         if (opMode.time - lastUpdateSec > minUpdateDelay) {
-            lastUpdateSec = opMode.time;
-
-            imuSystemStatus = imu.getSystemStatus();
-            imuCalibrationStatus = imu.getCalibrationStatus();
-
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            gravity = imu.getGravity();
-            acceleration = imu.getLinearAcceleration();
-
-            heading = angles.firstAngle;
-            roll = angles.secondAngle;
-            pitch = angles.thirdAngle;
-            xAccel = acceleration.xAccel;
-            yAccel = acceleration.yAccel;
-            zAccel = acceleration.zAccel;
+          updateNow();
         }
     }
 

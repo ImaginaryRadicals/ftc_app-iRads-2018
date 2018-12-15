@@ -141,6 +141,7 @@ public class RobotStateMachine {
                 // This needs to be set based on our starting location.
                 opMode.mecanumNavigation.setCurrentPosition(waypoints.initialPosition);
                 if (opMode.useIMU.get()) {
+                    opMode.imuUtilities.updateNow();
                     opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(waypoints.initialPosition.theta));
                     opMode.imuUtilities.setInitialHeading(); // Records starting heading for comparison.
                 }
@@ -154,6 +155,7 @@ public class RobotStateMachine {
                 opMode.stopAllMotors();
                 if (opMode.useIMU.get()) {
                     // Modify current position to account for rotation during descent measured by gyro.
+                    opMode.imuUtilities.updateNow();
                     opMode.imuUtilities.setFinalHeading(); // Record our new angle after motion.
                     double headingChange = opMode.imuUtilities.getHeadingChange();
                     MecanumNavigation.Navigation2D currentPosition = opMode.mecanumNavigation.currentPosition.copy();
@@ -170,21 +172,10 @@ public class RobotStateMachine {
                 stateTimer.reset();
             }
         } else if (state == AutoState.DISMOUNT) {
-
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.dismountPosition, speed);
-
-            // attempt to shake lift arm loose.
-            // arrived = opMode.autoDrive.multiWaypointState("DISMOUNT",1.0, new ArrayList<>(Arrays.asList(
-            //        new MecanumNavigation.Navigation2D(12.43+1,12.43+1,degreesToRadians(-45)),
-            //        new MecanumNavigation.Navigation2D(12.43-1,12.43-1,degreesToRadians(-45)),
-            //        new MecanumNavigation.Navigation2D(12.43,12.43,degreesToRadians(-30))
-            // )));
-
             if (arrived) {
                 stateTimer.reset();
-
                 state = AutoState.ALIGN_CENTER_MINERAL;
-
             }
         } else if (state == AutoState.ALIGN_CENTER_MINERAL) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_center, speed);
@@ -211,7 +202,7 @@ public class RobotStateMachine {
             } else if (stateTimer.seconds() >= timeout) {
                 // Timed out: assume detection wasn't possible, act as if it were gold.
                 stateTimer.reset();
-                state = AutoState.STOP;
+                state = AutoState.STOP; // Problematic.
             }
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
@@ -234,8 +225,6 @@ public class RobotStateMachine {
                 state = AutoState.STOP;
             }
         } else if (state == AutoState.ALIGN_RIGHT_MINERAL) {
-
-            // Detect mineral at image center
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_right, speed);
             if(arrived && stateTimer.seconds() > 1 ) {
                     stateTimer.reset();
@@ -243,7 +232,6 @@ public class RobotStateMachine {
             }
 
         } else if (state == AutoState.KNOCK_GOLD_CENTER)  {
-
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.knockMineral_center, speed);
             if (arrived) {
                 stateTimer.reset();

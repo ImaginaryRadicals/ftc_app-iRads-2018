@@ -172,6 +172,7 @@ public class AutoOpmode extends RobotHardware {
             imuUtilities.update();
             imuUtilities.getCompensatedHeading();
             timingMonitor.checkpoint("POST imuUtilities.update()");
+            telemetry.addData("descent rotation",imuUtilities.getHeadingChange());
         }
 
         // Conditional Telemetry Recording
@@ -278,6 +279,9 @@ public class AutoOpmode extends RobotHardware {
         csvWriter.addFieldToRecord("x_in",mecanumNavigation.currentPosition.x);
         csvWriter.addFieldToRecord("y_in",mecanumNavigation.currentPosition.y);
         csvWriter.addFieldToRecord("theta_rad",mecanumNavigation.currentPosition.theta);
+        if(useIMU.get()) {
+            csvWriter.addFieldToRecord("IMU_heading",imuUtilities.getCompensatedHeading());
+        }
 
         // Vision detection as number
         double idLocation;
