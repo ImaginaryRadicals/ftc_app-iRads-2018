@@ -43,6 +43,7 @@ public class Waypoints {
     public Navigation2D knockMineral_right;
 
     public Navigation2D photoPosition; // team side for crater, front or back for depot
+    public Navigation2D photoRotate;
     public Navigation2D flagDrop;
     public Navigation2D craterPark;
 
@@ -76,8 +77,9 @@ public class Waypoints {
     double blueCrater_knockXY_center = 32; // XY position for knocking center mineral
     double knockOffset = 12; // How many inches to add/subtract to knock side minerals.
     double wallOffsetPosition = 58; // Position when traveling along wall from depot to crater
-    double flagDropDepth = 60;
-    double craterPark_depth = 60;
+    double photoRotation = 0;
+    double flagDropDepth = 55;
+    double craterPark_depth = 50;
     double craterPark_wall_offset = 60;
 
     // Crater Partner Mineral Scan (blue depot is in second quadrant)
@@ -108,7 +110,8 @@ public class Waypoints {
 
     // team side for crater, front or back for depot
     // Angle set to observation of marker by camera on left side.
-    Navigation2D blueCrater_photoPosition = new Navigation2D(0,wallOffsetPosition,degreesToRadians(0));
+    Navigation2D blueCrater_photoPosition = new Navigation2D(0,wallOffsetPosition,degreesToRadians(blueCrater_start_degrees));
+    Navigation2D blueCrater_photoRotate = new Navigation2D(0, wallOffsetPosition, degreesToRadians(photoRotation));
     Navigation2D blueCrater_flagDrop = new Navigation2D(-flagDropDepth,wallOffsetPosition,degreesToRadians(0));
     Navigation2D blueCrater_craterPark = new Navigation2D(craterPark_depth, craterPark_wall_offset,degreesToRadians(0));
 
@@ -194,6 +197,7 @@ public class Waypoints {
 
         // team side for crater, front or back for depot
         photoPosition = blueCrater_photoPosition.copy();
+        photoRotate = blueCrater_photoRotate.copy();
         flagDrop = blueCrater_flagDrop.copy();
         craterPark = blueCrater_craterPark.copy();
 
@@ -229,6 +233,7 @@ public class Waypoints {
         knockMineral_left.rotate(rotateDegrees);
         knockMineral_right.rotate(rotateDegrees);
         photoPosition.rotate(rotateDegrees);
+        photoRotate.rotate(rotateDegrees);
         flagDrop.rotate(rotateDegrees);
         craterPark.rotate(rotateDegrees);
         partner_scanMineral_center.rotate(rotateDegrees);

@@ -36,6 +36,7 @@ public class RobotStateMachine {
         ALIGN_LEFT_DEPOT,
         ALIGN_RIGHT_DEPOT,
         DRIVE_DEPOT,
+        PHOTO_ROTATE,
         JOLT_FEEDER_ARM,
         CLAIM_DEPOT,
         DRIVE_CRATER,
@@ -269,20 +270,26 @@ public class RobotStateMachine {
         } else if (state == AutoState.DRIVE_DEPOT) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.photoPosition, speed);
             if (arrived) {
-                state = AutoState.JOLT_FEEDER_ARM;
+                state = AutoState.PHOTO_ROTATE;
                 stateTimer.reset();
             }
+        } else if (state == AutoState.PHOTO_ROTATE) {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.photoRotate, speed);
+            if (arrived) {
+                stateTimer.reset();
+                state = AutoState.JOLT_FEEDER_ARM;
+            }
+
         } else if (state == AutoState.JOLT_FEEDER_ARM) {
             double joltDelay = 1.0;
-            double joltInterval = 0.5;
+            double joltInterval = 0.1;
             double joltSpeed = 1.0;
 
-            if(stateTimer.seconds() > joltDelay && stateTimer.seconds() <= joltDelay + joltInterval) {
-                opMode.setDriveForTank(joltSpeed,joltSpeed);
-            } else if(stateTimer.seconds() > joltDelay + joltInterval && stateTimer.seconds() <= joltDelay + 2*joltInterval) {
-                opMode.setDriveForTank(-joltSpeed,-joltSpeed);
-                opMode.setDriveForTank(1,1);
-            } else if (stateTimer.seconds() > joltDelay + 2*joltInterval) {
+            if (stateTimer.seconds() > joltDelay && stateTimer.seconds() <= joltDelay + joltInterval) {
+                opMode.setDriveForTank(joltSpeed, joltSpeed);
+            } else if (stateTimer.seconds() > joltDelay + joltInterval && stateTimer.seconds() <= joltDelay + 2 * joltInterval) {
+                opMode.setDriveForTank(-joltSpeed, -joltSpeed);
+            } else if (stateTimer.seconds() > joltDelay + 2 * joltInterval) {
                 state = AutoState.CLAIM_DEPOT;
                 stateTimer.reset();
             }
@@ -416,97 +423,10 @@ public class RobotStateMachine {
     }
 
 
-    private ArrayList<MecanumNavigation.Navigation2D>
-            generateWaypoints(Color.Ftc teamColor, RobotHardware.StartPosition startPosition,
-                                RelicRecoveryVuMark positionVumark, double insertionSkewRadiansCCW) {
-        ArrayList<MecanumNavigation.Navigation2D> waypointArray = new ArrayList<>(Arrays.asList(new MecanumNavigation.Navigation2D(0,0,0)));
-
-        double dismountBlueDistance = 24;
-        double dismountRedDistance = 25;
-        double alignmentStrafeCorner = 12;
-        double alignmentDriveCenter = 22 - 6 + 2 - 6.25;
-        double approachCorner = 0;
-        double approachCenter = 0;
-        double insertCorner = 12;
-        double insertCenter = 12;
-        double backupDistance = 4;
-
-        // Select Driving waypoints
-        if (teamColor == Color.Ftc.BLUE) {
-            if (startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
-                /** Blue Crater */
-                waypointArray = new ArrayList<>(Arrays.asList(
-                    // DISMOUNT
-                    new MecanumNavigation.Navigation2D(0,
-                            0, degreesToRadians(0))
-                ));
-            } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
-                /** Blue Depot */
-                waypointArray = new ArrayList<>(Arrays.asList(
-                        // DISMOUNT
-                        new MecanumNavigation.Navigation2D(0,
-                                0, degreesToRadians(0))
-                ));
-            }
-        } else if (teamColor == Color.Ftc.RED) {
-            if (startPosition == RobotHardware.StartPosition.FIELD_CRATER) {
-                /** Red Corner */
-                waypointArray = new ArrayList<>(Arrays.asList(
-                        // DISMOUNT
-                        new MecanumNavigation.Navigation2D(0,
-                                0, degreesToRadians(0))
-                ));
-            } else if (startPosition == RobotHardware.StartPosition.FIELD_DEPOT) {
-                /** Red Center */
-                waypointArray = new ArrayList<>(Arrays.asList(
-                        // DISMOUNT
-                        new MecanumNavigation.Navigation2D(0,
-                                0, degreesToRadians(0))
-                ));
-            }
-        } else {
-            opMode.stopAllMotors();
-            stateTimer.reset();
-            state = AutoState.STOP;
-        }
-
-        return waypointArray;
-    }
-
-
-
-
     private MecanumNavigation.Navigation2D getGlyphOffsetFromRotation(double rotationRadians) {
         double distanceToGlyphCenter = 12+6-7+1.5; // Added half of glyph width to lever arm.
         return new MecanumNavigation.Navigation2D( distanceToGlyphCenter * ( Math.cos(rotationRadians) - 1), distanceToGlyphCenter * Math.sin(rotationRadians), rotationRadians);
     }
 
-    /**
-     * Get the number of inches the robot needs to slide toward the right Cryptobox column
-     * in order to line the glyph up with the desired column, at the desired skew angle.
-     * @param vumarkPosition
-     * @param skewAngleRadiansCCW
-     * @return
-     */
-    private double getGlyphboxOffsetTowardRight( RelicRecoveryVuMark vumarkPosition, double skewAngleRadiansCCW) {
-        MecanumNavigation.Navigation2D glyphOffsetFromRotation = getGlyphOffsetFromRotation(skewAngleRadiansCCW);
-        double columnWidth = 7.63;
-        double offsetRightTotal = 0;
-        if (vumarkPosition == RelicRecoveryVuMark.LEFT) {
-            offsetRightTotal -= columnWidth;
-        } else if (vumarkPosition == RelicRecoveryVuMark.RIGHT) {
-            offsetRightTotal += columnWidth;
-        }
-        offsetRightTotal += glyphOffsetFromRotation.y;
-
-        return offsetRightTotal;
-    }
-
-    private boolean driveToWaypointAtRate(int waypointNumber, double driveRate) {
-        // Show Target Status and debug info
-        opMode.telemetry.addData("Current Waypoint: ", currentDriveWaypoint);
-        opMode.telemetry.addData("Target", waypointArrayGlobal.get(waypointNumber).toString());
-        return opMode.autoDrive.rotateThenDriveToPosition(waypointArrayGlobal.get(waypointNumber),driveRate);
-    }
 
 }
