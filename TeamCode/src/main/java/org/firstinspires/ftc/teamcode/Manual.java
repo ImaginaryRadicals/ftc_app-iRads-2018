@@ -33,6 +33,7 @@ public class Manual extends RobotHardware {
     double lifterSpeed;
     double exponential;
     boolean copilotEnabled;
+    int liftEncoderHoldPosition = 0;
 
     //Enum for arm states
     public enum ArmStates{
@@ -180,12 +181,15 @@ public class Manual extends RobotHardware {
             // Lift Control
             if (controller2.dpadUp()) {
                 setPower(MotorName.LIFT_WINCH, lifterSpeed);
+                liftEncoderHoldPosition = getEncoderValue(MotorName.LIFT_WINCH);
                 telemetry.addData("LIFT", "UP");
             } else if (controller2.dpadDown()) {
                 setPower(MotorName.LIFT_WINCH, -lifterSpeed);
+                liftEncoderHoldPosition = getEncoderValue(MotorName.LIFT_WINCH);
                 telemetry.addData("LIFT", "DOWN");
             } else {
                 setPower(MotorName.LIFT_WINCH, 0);
+                driveMotorToPos(MotorName.LIFT_WINCH,liftEncoderHoldPosition,1.0, 100);
             }
 
 
@@ -225,23 +229,25 @@ public class Manual extends RobotHardware {
             // Lift Control
             if (controller1.dpadUp()) {
                 setPower(MotorName.LIFT_WINCH, lifterSpeed);
+                liftEncoderHoldPosition = getEncoderValue(MotorName.LIFT_WINCH);
                 telemetry.addData("LIFT", "UP");
             } else if (controller1.dpadDown()) {
                 setPower(MotorName.LIFT_WINCH, -lifterSpeed);
+                liftEncoderHoldPosition = getEncoderValue(MotorName.LIFT_WINCH);
                 telemetry.addData("LIFT", "DOWN");
             } else {
                 setPower(MotorName.LIFT_WINCH, 0);
+                driveMotorToPos(MotorName.LIFT_WINCH,liftEncoderHoldPosition,1.0, 100);
             }
         }
     }
 
 
 
-    public boolean driveMotorToPos (MotorName motorName, int targetTicks, double power) {
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power, double rampThreshold) {
         power = Range.clip(Math.abs(power), 0, 1);
-        int poweredDistance = 5;
+        int poweredDistance = 0;
         int arrivedDistance = 50;
-        int rampThreshold = 400;
         double maxRampPower = 1.0;
         double minRampPower = 0.0;
         int errorSignal = getEncoderValue(motorName) - targetTicks;
@@ -259,6 +265,11 @@ public class Manual extends RobotHardware {
         }else {
             return false;
         }
+    }
+
+    public boolean driveMotorToPos (RobotHardware.MotorName motorName, int targetTicks, double power) {
+        int rampDistanceTicks = 400;
+        return driveMotorToPos (motorName,targetTicks,power,rampDistanceTicks);
     }
 
 
