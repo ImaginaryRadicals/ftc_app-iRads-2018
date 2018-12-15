@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
+import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
 import org.firstinspires.ftc.teamcode.Utilities.RobotStateMachine;
@@ -26,6 +27,7 @@ public class AutoOpmode extends RobotHardware {
     public SimpleVision simpleVision;
     private Thread thread;
     public Controller controller;
+    public IMUUtilities imuUtilities;
 
     // Telemetry Recorder
     private CSV csvWriter;
@@ -39,6 +41,7 @@ public class AutoOpmode extends RobotHardware {
     public Mutable<Double> AutoDriveSpeed = new Mutable<>(0.5);
     public Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
     public Mutable<Boolean> doPartnerMinerals = new Mutable<>(false);
+    public Mutable<Boolean> useIMU = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
@@ -87,13 +90,16 @@ public class AutoOpmode extends RobotHardware {
         // Finally, construct the state machine.
         robotStateMachine = new RobotStateMachine(this, robotColor, robotStartPos);
         telemetry.addData("Initialization:", "Successful!");
+
         // Initialization Menu
         interactiveInit = new InteractiveInit(this);
+        interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5);
+        interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
+        interactiveInit.addBoolean(useIMU,"Use IMU", true, false);
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
         interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
-        interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",1.0,.1,.3,.5);
-        interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
         interactiveInit.addBoolean(doPartnerMinerals,"Partner Mineral", true, false);
+
     }
 
     @Override
@@ -143,6 +149,11 @@ public class AutoOpmode extends RobotHardware {
 
             recordConstantsToFile();
         }
+
+        if ( useIMU.get() ) {
+            // Only initialize the imu if it is going to be used.
+            imuUtilities = new IMUUtilities(this,"IMU_1");
+        }
     }
 
     @Override
@@ -157,6 +168,11 @@ public class AutoOpmode extends RobotHardware {
         timingMonitor.checkpoint("POST mecanumNavigation.update()");
         robotStateMachine.update();
         timingMonitor.checkpoint("POST robotStateMachine.update()");
+        if ( useIMU.get() ) {
+            imuUtilities.update();
+            imuUtilities.getCompensatedHeading();
+            timingMonitor.checkpoint("POST imuUtilities.update()");
+        }
 
         // Conditional Telemetry Recording
         if(RecordTelemetry.get()) {

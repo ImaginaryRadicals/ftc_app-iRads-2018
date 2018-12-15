@@ -230,4 +230,31 @@ public class IMUUtilities {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
+
+    // Calculation helpers
+    private double headingCompensation = 0;
+    private double initialHeading = 0;
+    private double finalHeading = 0;
+
+   public void setCompensatedHeading(double compensatedHeadingDegrees) {
+       headingCompensation = compensatedHeadingDegrees - heading;
+   }
+
+   public double getCompensatedHeading() {
+       return heading + headingCompensation;
+   }
+
+   public void setInitialHeading() {
+       initialHeading = heading;
+   }
+
+   public void setFinalHeading() {
+       finalHeading = heading;
+   }
+
+   public double getHeadingChange() {
+       return finalHeading - initialHeading;
+   }
+
+
 }

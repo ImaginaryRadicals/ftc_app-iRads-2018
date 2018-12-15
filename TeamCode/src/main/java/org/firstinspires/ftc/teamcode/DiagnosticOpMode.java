@@ -36,6 +36,7 @@ public class DiagnosticOpMode extends Manual {
         showDiagnosticTelemetry();
         telemetry.addLine();
         if (imuHelper.imu != null) imuHelper.displayTelemetry();
+        telemetry.addData("IMU Rotation",imuHelper.heading);
         telemetry.addLine();
         timingMonitor.displayMaxTimes();
         telemetry.addLine();
