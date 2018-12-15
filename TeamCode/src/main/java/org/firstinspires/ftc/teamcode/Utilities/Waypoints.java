@@ -45,6 +45,7 @@ public class Waypoints {
     public Navigation2D photoPosition; // team side for crater, front or back for depot
     public Navigation2D photoRotate;
     public Navigation2D flagDrop;
+    public Navigation2D depot;
     public Navigation2D craterPark;
 
     // Optional team mineral scan
@@ -78,7 +79,8 @@ public class Waypoints {
     double knockOffset = 12; // How many inches to add/subtract to knock side minerals.
     double wallOffsetPosition = 58; // Position when traveling along wall from depot to crater
     double photoRotation = 0;
-    double flagDropDepth = 48;
+    double flagDropDepth = 46;
+    double depotDepth = 52;
     double craterPark_depth = 15;
     double craterPark_wall_offset = 68;
 
@@ -113,6 +115,7 @@ public class Waypoints {
     Navigation2D blueCrater_photoPosition = new Navigation2D(0,wallOffsetPosition,degreesToRadians(blueCrater_start_degrees));
     Navigation2D blueCrater_photoRotate = new Navigation2D(0, wallOffsetPosition, degreesToRadians(photoRotation));
     Navigation2D blueCrater_flagDrop = new Navigation2D(-flagDropDepth,wallOffsetPosition,degreesToRadians(0));
+    Navigation2D blueCrater_depotDepth = new Navigation2D(-depotDepth,wallOffsetPosition,degreesToRadians(0));
     Navigation2D blueCrater_craterPark = new Navigation2D(craterPark_depth, craterPark_wall_offset,degreesToRadians(0));
 
     // Optional team mineral scan
@@ -199,6 +202,7 @@ public class Waypoints {
         photoPosition = blueCrater_photoPosition.copy();
         photoRotate = blueCrater_photoRotate.copy();
         flagDrop = blueCrater_flagDrop.copy();
+        depot = blueCrater_depotDepth.copy();
         craterPark = blueCrater_craterPark.copy();
 
         // Optional team mineral scan
@@ -234,6 +238,7 @@ public class Waypoints {
         knockMineral_right.rotate(rotateDegrees);
         photoPosition.rotate(rotateDegrees);
         photoRotate.rotate(rotateDegrees);
+        depot.rotate(rotateDegrees);
         flagDrop.rotate(rotateDegrees);
         craterPark.rotate(rotateDegrees);
         partner_scanMineral_center.rotate(rotateDegrees);

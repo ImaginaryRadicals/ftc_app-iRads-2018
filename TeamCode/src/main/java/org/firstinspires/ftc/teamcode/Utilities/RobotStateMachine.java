@@ -38,6 +38,7 @@ public class RobotStateMachine {
         DRIVE_DEPOT,
         PHOTO_ROTATE,
         JOLT_FEEDER_ARM,
+        DROP_FLAG,
         CLAIM_DEPOT,
         DRIVE_CRATER,
         ENTER_CRATER,
@@ -126,7 +127,7 @@ public class RobotStateMachine {
         lastStateLoopPeriod = stateLoopTimer.seconds();
         stateLoopTimer.reset();
 
-        if (state != AutoState.CLAIM_DEPOT) {
+        if (state != AutoState.DROP_FLAG) {
             driveMotorToPos(RobotHardware.MotorName.ARM, 250, 1.0);
         }
 
@@ -290,18 +291,25 @@ public class RobotStateMachine {
             } else if (stateTimer.seconds() > joltDelay + joltInterval && stateTimer.seconds() <= joltDelay + 2 * joltInterval) {
                 opMode.setDriveForTank(-joltSpeed, -joltSpeed);
             } else if (stateTimer.seconds() > joltDelay + 2 * joltInterval) {
-                state = AutoState.CLAIM_DEPOT;
+                state = AutoState.DROP_FLAG;
                 stateTimer.reset();
             }
 
-        } else if (state == AutoState.CLAIM_DEPOT) {
+        } else if (state == AutoState.DROP_FLAG) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.flagDrop, speed);
             if (arrived) {
                 arrived = driveMotorToPos(RobotHardware.MotorName.ARM, 8787, speed);
                 if (arrived) {
                     stateTimer.reset();
-                    state = AutoState.DRIVE_CRATER;
+                    state = AutoState.CLAIM_DEPOT;
                 }
+            }
+
+        } else if (state == AutoState.CLAIM_DEPOT) {
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.depot, speed);
+            if (arrived) {
+                    stateTimer.reset();
+                    state = AutoState.DRIVE_CRATER;
             }
 
         } else if (state == AutoState.DRIVE_CRATER) {
