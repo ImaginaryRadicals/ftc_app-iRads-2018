@@ -209,7 +209,7 @@ public class RobotStateMachine {
             } else if (stateTimer.seconds() >= timeout) {
                 // Timed out: assume detection wasn't possible, act as if it were gold.
                 stateTimer.reset();
-                state = AutoState.STOP; // Problematic.
+                state = AutoState.KNOCK_GOLD_CENTER; // Problematic.
             }
         } else if (state == AutoState.IDENTIFY_LEFT) {
             // First rotate robot to point camera toward the left mineral.
@@ -233,7 +233,7 @@ public class RobotStateMachine {
                 }
             } else if (stateTimer.seconds() >= timeout) {
                 stateTimer.reset();
-                state = AutoState.STOP;
+                state = AutoState.KNOCK_GOLD_LEFT;
             }
         } else if (state == AutoState.ALIGN_RIGHT_MINERAL) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_right, speed);
