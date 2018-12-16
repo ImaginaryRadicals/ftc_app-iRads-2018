@@ -75,7 +75,7 @@ public class Waypoints {
     double blueCrater_radiusAngle_degrees = 45; // Direction towards blueCrater corner
     double scanRotation = 45; // How many degrees to rotate to scan each mineral.
     double alignmentOffset = 10; // How many inches to add/subtract to shift and align with side minerals.
-    double blueCrater_knockXY_center = 32; // XY position for knocking center mineral
+    double blueCrater_knockXY_center = 34; // XY position for knocking center mineral
     double knockOffset = 15; // How many inches to add/subtract to knock side minerals.
     double wallOffsetPosition = 58; // Position when traveling along wall from depot to crater
     double photoRotation = 0;

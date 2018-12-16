@@ -196,21 +196,19 @@ public class Manual extends RobotHardware {
         } else {
             // Pilot Controls
             // Arm Control
-            setPower(MotorName.ARM, Math.pow(-controller1.right_stick_y, exponential) * armSpeed);
+            if (controller1.rightBumper()) {
+                setPower(MotorName.ARM, Math.pow(-controller1.left_stick_y, exponential) * armSpeed);
+            }
             // Wrist Control
-            if (controller1.right_trigger > triggerThreshold) {
-                setPower(MotorName.WRIST, Math.pow(controller1.right_trigger, exponential) * wristSpeed);
-            } else if (controller1.left_trigger > triggerThreshold) {
-                setPower(MotorName.WRIST, Math.pow(-controller1.left_trigger, exponential) * wristSpeed);
-            } else {
-                setPower(MotorName.WRIST, 0);
+            if (controller1.rightBumper() && controller1.right_trigger > triggerThreshold) {
+                setPower(MotorName.WRIST, Math.pow(controller1.right_stick_y, exponential) * wristSpeed);
             }
 
             // Feeder Control
-            if (controller1.rightBumper() && !controller1.leftBumper()) {
-                setPower(MotorName.FEEDER, feederSpeed);
-            } else if (controller1.leftBumper() && !controller1.rightBumper()) {
-                setPower(MotorName.FEEDER, -feederSpeed);
+            if (controller1.rightBumper() && controller1.right_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(controller1.right_trigger, exponential) * feederSpeed);
+            } else if (controller1.rightBumper() && controller1.left_trigger > triggerThreshold) {
+                setPower(MotorName.FEEDER, Math.pow(controller1.left_trigger, exponential) * feederSpeed);
             } else {
                 setPower(MotorName.FEEDER, 0);
             }
