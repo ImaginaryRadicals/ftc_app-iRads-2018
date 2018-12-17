@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
-public class RobotStateContext implements RobotStateMachineInterface {
+public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
 
 
     RobotStateContext() {
