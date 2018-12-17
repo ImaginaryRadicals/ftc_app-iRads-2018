@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Utilities.CSV;
+import org.firstinspires.ftc.teamcode.Utilities.Executive;
 import org.firstinspires.ftc.teamcode.Utilities.IMUUtilities;
 import org.firstinspires.ftc.teamcode.Utilities.InteractiveInit;
 import org.firstinspires.ftc.teamcode.Utilities.Mutable;
@@ -24,7 +25,7 @@ public class AutoOpmode extends RobotHardware {
     public AutoDrive autoDrive;
     protected Color.Ftc robotColor;
     protected StartPosition robotStartPos;
-    protected RobotStateMachine robotStateMachine;
+    protected Executive.RobotStateMachineContextInterface robotStateMachine;
     public SimpleVision simpleVision;
     private Thread thread;
     public Controller controller;
@@ -107,6 +108,12 @@ public class AutoOpmode extends RobotHardware {
         soundManager.addSound("silver");
         soundManager.preloadAllSounds();
 
+        // Initialized so autoDrive can be used to hold lifter position.
+        // Will be reinitialized in start() after the drive train is selected.
+        mecanumNavigation = new MecanumNavigation(this,Constants.getDriveTrainMecanum());
+        mecanumNavigation.initialize(new MecanumNavigation.Navigation2D(0, 0, 0));
+        autoDrive = new AutoDrive(this, mecanumNavigation);
+
     }
 
     @Override
@@ -122,7 +129,7 @@ public class AutoOpmode extends RobotHardware {
 
         interactiveInit.update();
         //Maintain lift winch position while hanging.
-        robotStateMachine.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0, 100);
+        autoDrive.driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0, 100);
     }
 
     @Override
@@ -192,7 +199,7 @@ public class AutoOpmode extends RobotHardware {
         }
 
         mecanumNavigation.displayPosition();
-        telemetry.addData("Current State", robotStateMachine.state.toString());
+        telemetry.addData("Current State", robotStateMachine.getCurrentState());
         telemetry.addLine();
         telemetry.addData("Period Average (sec)", df_prec.format(getAveragePeriodSec()));
         telemetry.addData("Period Max (sec)", df_prec.format(getMaxPeriodSec()));

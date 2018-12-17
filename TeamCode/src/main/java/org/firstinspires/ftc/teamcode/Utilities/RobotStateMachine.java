@@ -14,7 +14,7 @@ import java.util.Arrays;
  * Created by Ashley on 12/16/2017.
  */
 
-public class RobotStateMachine {
+public class RobotStateMachine implements Executive.RobotStateMachineContextInterface {
 
     public enum AutoState {
         START,
@@ -84,6 +84,9 @@ public class RobotStateMachine {
         this.startPosition = startPosition;
     }
 
+    public String getCurrentState() {
+        return state.toString();
+    }
 
     public void init() {
         stateLoopTimer.reset();
