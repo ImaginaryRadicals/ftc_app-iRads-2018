@@ -71,7 +71,7 @@ public class Executive {
             Set<StateType> stateTypeSet = stateMap.keySet();
             StateType[] stateTypeKeyArray = stateTypeSet.toArray(new StateType[stateTypeSet.size()]);
             for (StateType type : stateTypeKeyArray) {
-                 stateMap.get(type).init();
+                 stateMap.get(type).init(this);
             }
         }
 
@@ -133,40 +133,25 @@ public class Executive {
             // Defining default constructor
             // However, we NEED the state machine reference.
             // Handled by allowing init to take a stateMachien argument.
-            throw new Warning("State Constructor should be given stateMachine reference as argument.");
         }
 
-        public StateBase(StateMachine stateMachine) {
-            this.stateMachine = stateMachine;
-        }
-
-        public void init() {
-            if (stateMachine != null) {
-                this.opMode = stateMachine.opMode;
-                initialized = true;
-                stateTimer.reset();
-                statePeriod.reset();
-            } else {
-                throw new RuntimeException("StateMachine reference must be provided to initialize state.");
-            }
-        }
 
         public void init(StateMachine stateMachine) {
             this.stateMachine = stateMachine;
             this.opMode = stateMachine.opMode;
-            init();
+            initialized = true;
+            stateTimer.reset();
+            statePeriod.reset();
         }
 
         public void update() {
             lastStatePeriod = statePeriod.seconds();
             statePeriod.reset();
-
-
         }
 
         protected void nextState(StateMachine.StateType stateType, StateBase state) {
             stateMachine.changeState(stateType,state);
-            stateMachine.stateMap.get(stateType).init();
+            stateMachine.stateMap.get(stateType).init(stateMachine);
         }
 
         public void reset() {

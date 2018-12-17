@@ -18,10 +18,8 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
     }
 
     public void init() {
-        Executive.StateBase initialState = new Start_State(this.stateMachine);
-
-        stateMachine.changeState(Executive.StateMachine.StateType.DRIVE,
-                initialState);
+        Executive.StateBase initialState = new Start_State();
+        stateMachine.changeState(Executive.StateMachine.StateType.DRIVE, initialState);
         stateMachine.init();
     }
 
@@ -35,43 +33,32 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
      */
 
     class Start_State extends Executive.StateBase {
-        Start_State(Executive.StateMachine stateMachine) {
-            this.stateMachine = stateMachine;
-        }
-
         @Override
         public void update() {
             super.update();
-            nextState(Executive.StateMachine.StateType.DRIVE,
-                    new Stop_State(stateMachine));
+            if(stateTimer.seconds() > 1) {
+                nextState(Executive.StateMachine.StateType.DRIVE, new Drive_WaypointA_State());
+            }
         }
     }
 
     class Drive_WaypointA_State extends Executive.StateBase {
-        Drive_WaypointA_State(Executive.StateMachine stateMachine) {
-            this.stateMachine = stateMachine;
-        }
-
         @Override
         public void update() {
             super.update();
             arrived = opMode.autoDrive.rotateThenDriveToPosition(new MecanumNavigation.Navigation2D(10,10,45), 0.8);
             if (arrived) {
-                nextState(Executive.StateMachine.StateType.DRIVE, new Stop_State(stateMachine));
+                nextState(Executive.StateMachine.StateType.DRIVE, new Stop_State());
             }
         }
     }
 
 
     class Stop_State extends Executive.StateBase {
-        Stop_State(Executive.StateMachine stateMachine) {
-            this.stateMachine = stateMachine;
-        }
-
         @Override
         public void update() {
             super.update();
-
+            opMode.stopAllMotors();
         }
     }
 
