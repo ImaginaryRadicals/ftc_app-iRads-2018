@@ -1,5 +1,11 @@
 package org.firstinspires.ftc.teamcode.Utilities;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.internal.android.dx.util.Warning;
+import org.firstinspires.ftc.teamcode.AutoOpmode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,24 +26,29 @@ public class Executive {
     }
 
 
-    /**
-     * State Machine will support one additional concurrent state for each possible StateType.
-     * Note that StateMachine.remove(StateType.ARM) would remove an existing ARM state, for
-     * example.
-     */
-    public enum StateType {
-        DRIVE,
-        ARM,
-        LIFT,
-    }
 
     /**
      * Robot state machine, supporting multiple named simultaneous states, expanded by adding to an enum.
      */
-    public class StateMachine {
+    static public class StateMachine {
 
         private Map<StateType, StateBase> stateMap = new HashMap<>();
+        AutoOpmode opMode;
 
+        /**
+         * State Machine will support one additional concurrent state for each possible StateType.
+         * Note that StateMachine.remove(StateType.ARM) would remove an existing ARM state, for
+         * example.
+         */
+        public enum StateType {
+            DRIVE,
+            ARM,
+            LIFT,
+        }
+
+        public StateMachine(AutoOpmode opMode) {
+            this.opMode = opMode;
+        }
 
         public void changeState(StateType stateType, StateBase state) {
             stateMap.put(stateType, state);
@@ -101,24 +112,61 @@ public class Executive {
     }
 
 
-
+    /**
+     * State base class.
+     */
     // The class is abstract, but the internal methods are not abstract so that they can be optionally implemented
-    public abstract class StateBase {
+    static public abstract class StateBase {
 
-        StateMachine stateMachine;
+        StateMachine stateMachine; // Reference to outer state machine, for modifying states.
+        AutoOpmode opMode;
+        ElapsedTime stateTimer; // Time how long state has been active
+        ElapsedTime statePeriod; // Time how long since state has been executed.
+        double lastStatePeriod = 0;
+        boolean arrived = false;
+
         private boolean initialized = false;
         private boolean deleteRequested = false;
+
+
+        public StateBase() {
+            // Defining default constructor
+            // However, we NEED the state machine reference.
+            // Handled by allowing init to take a stateMachien argument.
+            throw new Warning("State Constructor should be given stateMachine reference as argument.");
+        }
 
         public StateBase(StateMachine stateMachine) {
             this.stateMachine = stateMachine;
         }
 
         public void init() {
-            initialized = true;
+            if (stateMachine != null) {
+                this.opMode = stateMachine.opMode;
+                initialized = true;
+                stateTimer.reset();
+                statePeriod.reset();
+            } else {
+                throw new RuntimeException("StateMachine reference must be provided to initialize state.");
+            }
+        }
+
+        public void init(StateMachine stateMachine) {
+            this.stateMachine = stateMachine;
+            this.opMode = stateMachine.opMode;
+            init();
         }
 
         public void update() {
+            lastStatePeriod = statePeriod.seconds();
+            statePeriod.reset();
 
+
+        }
+
+        protected void nextState(StateMachine.StateType stateType, StateBase state) {
+            stateMachine.changeState(stateType,state);
+            stateMachine.stateMap.get(stateType).init();
         }
 
         public void reset() {
