@@ -23,6 +23,7 @@ public class Executive {
     public interface RobotStateMachineContextInterface {
         void init();
         void update();
+        String getCurrentState();
     }
 
 
@@ -65,6 +66,22 @@ public class Executive {
                     stateMap.remove(stateType);
                 }
             }
+        }
+
+        public String getCurrentState(StateType stateType) {
+            StateBase state = stateMap.get(stateType);
+            return state.getClass().toString();
+        }
+
+        public String getCurrentState() {
+            String stateString = "";
+            Set<StateType> stateTypeSet = stateMap.keySet();
+            StateType[] stateTypeKeyArray = stateTypeSet.toArray(new StateType[stateTypeSet.size()]);
+            for (StateType type : stateTypeKeyArray) {
+                StateBase state = stateMap.get(type);
+                stateString += state + "  ";
+            }
+            return stateString;
         }
 
         public void init() {
