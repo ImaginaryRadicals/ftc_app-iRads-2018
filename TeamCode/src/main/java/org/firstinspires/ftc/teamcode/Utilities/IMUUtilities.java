@@ -264,4 +264,14 @@ public class IMUUtilities {
    }
 
 
+
+    public void updateMecanumHeadingFromGyro(MecanumNavigation mecanumNavigation) {
+            // Modify current position to account for rotation during descent measured by gyro.
+            updateNow();
+            double gyroHeading = getCompensatedHeading();
+            MecanumNavigation.Navigation2D currentPosition = mecanumNavigation.currentPosition.copy();
+            currentPosition.theta = gyroHeading * Math.PI / 180;
+            mecanumNavigation.setCurrentPosition(currentPosition);
+    }
+
 }
