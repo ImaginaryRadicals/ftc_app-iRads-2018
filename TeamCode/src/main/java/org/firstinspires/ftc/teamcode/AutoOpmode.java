@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Utilities.Constants;
 import org.firstinspires.ftc.teamcode.Utilities.Controller;
 import org.firstinspires.ftc.teamcode.Utilities.MecanumNavigation;
 import org.firstinspires.ftc.teamcode.Utilities.SimpleVision;
+import org.firstinspires.ftc.teamcode.Utilities.SoundManager;
 import org.firstinspires.ftc.teamcode.Utilities.TimingMonitor;
 
 public class AutoOpmode extends RobotHardware {
@@ -28,6 +29,7 @@ public class AutoOpmode extends RobotHardware {
     private Thread thread;
     public Controller controller;
     public IMUUtilities imuUtilities;
+    public SoundManager soundManager;
 
     // Telemetry Recorder
     private CSV csvWriter;
@@ -99,6 +101,11 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
         interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
         interactiveInit.addBoolean(doPartnerMinerals,"Partner Mineral", true, false);
+
+        soundManager = new SoundManager(this);
+        soundManager.addSound("gold");
+        soundManager.addSound("silver");
+        soundManager.preloadAllSounds();
 
     }
 

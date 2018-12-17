@@ -199,9 +199,11 @@ public class RobotStateMachine {
                 centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
 
                 if (centerMineral == Color.Mineral.GOLD) {
+                    opMode.soundManager.play("gold");
                     stateTimer.reset();
                     state = AutoState.KNOCK_GOLD_CENTER;
                 } else if(centerMineral == Color.Mineral.SILVER){
+                    opMode.soundManager.play("silver");
                     stateTimer.reset();
                     state = AutoState.IDENTIFY_LEFT;
                 }
@@ -222,12 +224,14 @@ public class RobotStateMachine {
             leftMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
             if (mineralIdentificationTimer.seconds() > identificationTime && stateTimer.seconds() < timeout) {
                 if (leftMineral == Color.Mineral.GOLD) {
-                    if (arrived) {
+                    if (arrived) { // Why only check for arrived on GOLD mineral?
+                        opMode.soundManager.play("gold");
                         foundMineral = true;
                         stateTimer.reset();
                         state = AutoState.KNOCK_GOLD_LEFT;
                     }
                 } else if (leftMineral == Color.Mineral.SILVER) {
+                    opMode.soundManager.play("silver");
                     stateTimer.reset();
                     state = AutoState.ALIGN_RIGHT_MINERAL;
                 }
