@@ -42,10 +42,10 @@ public class Waypoints {
     public Navigation2D knockMineral_left;
     public Navigation2D knockMineral_right;
 
-    public Navigation2D photoPosition; // team side for crater, front or back for depot
+    public Navigation2D photoPosition; // team side for crater, front or back for depotPush
     public Navigation2D photoRotate;
     public Navigation2D flagDrop;
-    public Navigation2D depot;
+    public Navigation2D depotPush;
     public Navigation2D craterPark;
 
     // Optional team mineral scan
@@ -77,14 +77,14 @@ public class Waypoints {
     double alignmentOffset = 10; // How many inches to add/subtract to shift and align with side minerals.
     double blueCrater_knockXY_center = 34; // XY position for knocking center mineral
     double knockOffset = 15; // How many inches to add/subtract to knock side minerals.
-    double wallOffsetPosition = 58; // Position when traveling along wall from depot to crater
+    double wallOffsetPosition = 58; // Position when traveling along wall from depotPush to crater
     double photoRotation = 0;
     double flagDropDepth = 46;
     double depotDepth = 52;
     double craterPark_depth = 15;
     double craterPark_wall_offset = 68;
 
-    // Crater Partner Mineral Scan (blue depot is in second quadrant)
+    // Crater Partner Mineral Scan (blue depotPush is in second quadrant)
     double partner_blueDepot_Scan_X = -48;
     double partner_blueDepot_Scan_Y = 48;
     double partner_blueDepot_Scan_angle_center = 225; // not 135, not 45
@@ -110,12 +110,12 @@ public class Waypoints {
     Navigation2D blueCrater_knockMineral_left = new Navigation2D(blueCrater_knockXY_center - knockOffset,blueCrater_knockXY_center + knockOffset,degreesToRadians(blueCrater_start_degrees));
     Navigation2D blueCrater_knockMineral_right = new Navigation2D(blueCrater_knockXY_center + knockOffset,blueCrater_knockXY_center - knockOffset,degreesToRadians(blueCrater_start_degrees));
 
-    // team side for crater, front or back for depot
+    // team side for crater, front or back for depotPush
     // Angle set to observation of marker by camera on left side.
     Navigation2D blueCrater_photoPosition = new Navigation2D(0,wallOffsetPosition,degreesToRadians(blueCrater_start_degrees));
     Navigation2D blueCrater_photoRotate = new Navigation2D(0, wallOffsetPosition, degreesToRadians(photoRotation));
     Navigation2D blueCrater_flagDrop = new Navigation2D(-flagDropDepth,wallOffsetPosition,degreesToRadians(0));
-    Navigation2D blueCrater_depotDepth = new Navigation2D(-depotDepth,wallOffsetPosition,degreesToRadians(0));
+    Navigation2D blueCrater_depotPush = new Navigation2D(-depotDepth,wallOffsetPosition,degreesToRadians(0));
     Navigation2D blueCrater_craterPark = new Navigation2D(craterPark_depth, craterPark_wall_offset,degreesToRadians(0));
 
     // Optional team mineral scan
@@ -123,7 +123,7 @@ public class Waypoints {
     Navigation2D partner_blueDepot_scanMineral_left = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y,degreesToRadians(partner_blueDepot_Scan_angle_center + partner_blueDepot_Scan_angle_offset));
     Navigation2D partner_blueDepot_scanMineral_right = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y,degreesToRadians(partner_blueDepot_Scan_angle_center - partner_blueDepot_Scan_angle_offset));
 
-    // partner is at blue depot when we are at blueCrater
+    // partner is at blue depotPush when we are at blueCrater
     // Same as partner_blueDepot_scanMineral_center
     Navigation2D partner_blueDepot_alignMineral_center = new Navigation2D(partner_blueDepot_Scan_X, partner_blueDepot_Scan_Y, degreesToRadians(partner_blueDepot_Scan_angle_center));
     Navigation2D partner_blueDepot_alignMineral_left = new Navigation2D(partner_blueDepot_Scan_X - partner_blueDepot_alignmentOffset, partner_blueDepot_Scan_Y + partner_blueDepot_alignmentOffset, degreesToRadians(partner_blueDepot_Scan_angle_center));
@@ -198,11 +198,11 @@ public class Waypoints {
         knockMineral_left = blueCrater_knockMineral_left.copy();
         knockMineral_right= blueCrater_knockMineral_right.copy();
 
-        // team side for crater, front or back for depot
+        // team side for crater, front or back for depotPush
         photoPosition = blueCrater_photoPosition.copy();
         photoRotate = blueCrater_photoRotate.copy();
         flagDrop = blueCrater_flagDrop.copy();
-        depot = blueCrater_depotDepth.copy();
+        depotPush = blueCrater_depotPush.copy();
         craterPark = blueCrater_craterPark.copy();
 
         // Optional team mineral scan
@@ -238,7 +238,7 @@ public class Waypoints {
         knockMineral_right.rotate(rotateDegrees);
         photoPosition.rotate(rotateDegrees);
         photoRotate.rotate(rotateDegrees);
-        depot.rotate(rotateDegrees);
+        depotPush.rotate(rotateDegrees);
         flagDrop.rotate(rotateDegrees);
         craterPark.rotate(rotateDegrees);
         partner_scanMineral_center.rotate(rotateDegrees);
@@ -260,7 +260,13 @@ public class Waypoints {
         rotate_waypoints_in_place(genericRotate);
 
 
+        // This angle doesn't give a view of the vuforia target, which could be
+        // problematic later if that is used. In that case, this photoRotate definition can be
+        // commented out, and the state machine can be modified to skip this waypoint when
+        // a view of the vuforia target is not needed.
+        photoRotate = new Navigation2D(-wallOffsetPosition, 0, degreesToRadians(-90));
         flagDrop = new Navigation2D(-wallOffsetPosition, flagDropDepth, degreesToRadians(-90));
+        depotPush = new Navigation2D(-wallOffsetPosition,depotDepth,degreesToRadians(-90));
         craterPark = new Navigation2D(-craterPark_wall_offset, -craterPark_depth, degreesToRadians(-90));
 
 

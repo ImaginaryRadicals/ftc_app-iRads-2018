@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.AutoOpmode;
 import org.firstinspires.ftc.teamcode.RobotHardware;
 
@@ -321,7 +320,7 @@ public class RobotStateMachine {
             }
 
         } else if (state == AutoState.CLAIM_DEPOT) {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.depot, speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.depotPush, speed);
             if (arrived) {
                     stateTimer.reset();
                     state = AutoState.DRIVE_CRATER;
