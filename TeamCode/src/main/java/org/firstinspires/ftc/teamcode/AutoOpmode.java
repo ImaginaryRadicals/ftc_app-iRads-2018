@@ -97,7 +97,7 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit = new InteractiveInit(this);
         interactiveInit.addDouble(AutoDriveSpeed, "DriveSpeed",0.8,1.0,.1,.3,.5);
         interactiveInit.addBoolean(RecordTelemetry,"Record Telemetry", true, false);
-        interactiveInit.addBoolean(useIMU,"Use IMU", true, false);
+        interactiveInit.addBoolean(useIMU,"Use IMU", false, true);
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
         interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
         interactiveInit.addBoolean(doPartnerMinerals,"Partner Mineral", true, false);

@@ -72,6 +72,7 @@ public class RobotStateMachine {
     public boolean foundMineral = false;
     public boolean centerGold = false;
     public boolean arrived = false;
+    boolean lifter_arrived = false;
 
     private ArrayList<MecanumNavigation.Navigation2D> simpleWaypointArray;
 
@@ -125,7 +126,7 @@ public class RobotStateMachine {
     public void update() {
 
         double identificationTime = 2;
-        double timeout = 6; // Identification timeout.
+        double timeout = 10; // Identification timeout.
         lastStateLoopPeriod = stateLoopTimer.seconds();
         stateLoopTimer.reset();
 
@@ -179,6 +180,7 @@ public class RobotStateMachine {
             if (arrived) {
                 stateTimer.reset();
                 state = AutoState.ALIGN_CENTER_MINERAL;
+                updateMecanumHeadingFromGyro();
             }
         } else if (state == AutoState.ALIGN_CENTER_MINERAL) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_center, speed);
@@ -189,11 +191,12 @@ public class RobotStateMachine {
 
         } else if (state == AutoState.IDENTIFY_CENTER) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.scanMineral_center, speed);
-            if (!arrived) {
+            lifter_arrived = driveMotorToPos(RobotHardware.MotorName.LIFT_WINCH, Constants.LIFTER_MIN_TICKS, 1.0);
+            if (!arrived || !lifter_arrived) {
                 mineralIdentificationTimer.reset();
             }
 
-            if (arrived && mineralIdentificationTimer.seconds() > identificationTime && stateTimer.seconds() < timeout) {
+            if (arrived && lifter_arrived && mineralIdentificationTimer.seconds() > identificationTime && stateTimer.seconds() < timeout) {
                 // Detect mineral at image center
                 centerMineral = opMode.simpleVision.identifyMineral(SimpleVision.MineralIdentificationLocation.BOTTOM);
 
@@ -264,6 +267,7 @@ public class RobotStateMachine {
                 state = AutoState.ALIGN_RIGHT_DEPOT;
             }
         } else if (state == AutoState.ALIGN_CENTER_DEPOT)  {
+            updateMecanumHeadingFromGyro();
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_center, speed);
             if (arrived) {
                 stateTimer.reset();
@@ -282,6 +286,7 @@ public class RobotStateMachine {
                 state = AutoState.DRIVE_DEPOT;
             }
         } else if (state == AutoState.DRIVE_DEPOT) {
+            updateMecanumHeadingFromGyro();
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.photoPosition, speed);
             if (arrived) {
                 state = AutoState.PHOTO_ROTATE;

@@ -441,7 +441,7 @@ public class RobotHardware extends OpMode {
             allMotors.get(MotorName.WRIST.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             allMotors.get(MotorName.WRIST.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             allMotors.get(MotorName.FEEDER.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            allMotors.get(MotorName.FEEDER.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            allMotors.get(MotorName.FEEDER.ordinal()).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             allMotors.get(MotorName.LIFT_WINCH.ordinal()).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             allMotors.get(MotorName.LIFT_WINCH.ordinal()).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         } catch (Exception e) {
