@@ -37,6 +37,7 @@ public class RobotStateMachine {
         DRIVE_DEPOT,
         PHOTO_ROTATE,
         JOLT_FEEDER_ARM,
+        EARLY_DROP_FLAG,
         DROP_FLAG,
         CLAIM_DEPOT,
         DRIVE_CRATER,
@@ -147,7 +148,6 @@ public class RobotStateMachine {
                 if (opMode.useIMU.get()) {
                     opMode.imuUtilities.updateNow();
                     opMode.imuUtilities.setCompensatedHeading(radiansToDegrees(waypoints.initialPosition.theta));
-                    opMode.imuUtilities.setInitialHeading(); // Records starting heading for comparison.
                 }
                 stateTimer.reset();
                 state = AutoState.LAND;
@@ -157,15 +157,7 @@ public class RobotStateMachine {
 
             if (arrived || stateTimer.seconds() >= 8) {
                 opMode.stopAllMotors();
-                if (opMode.useIMU.get()) {
-                    // Modify current position to account for rotation during descent measured by gyro.
-                    opMode.imuUtilities.updateNow();
-                    opMode.imuUtilities.setFinalHeading(); // Record our new angle after motion.
-                    double headingChange = opMode.imuUtilities.getHeadingChange();
-                    MecanumNavigation.Navigation2D currentPosition = opMode.mecanumNavigation.currentPosition.copy();
-                    currentPosition.theta += degreesToRadians(headingChange);
-                    opMode.mecanumNavigation.setCurrentPosition(currentPosition);
-                }
+                updateMecanumHeadingFromGyro();
                 stateTimer.reset();
                 state = AutoState.UNHOOK;
             }
@@ -267,27 +259,29 @@ public class RobotStateMachine {
                 state = AutoState.ALIGN_RIGHT_DEPOT;
             }
         } else if (state == AutoState.ALIGN_CENTER_DEPOT)  {
-            updateMecanumHeadingFromGyro();
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_center, speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.depot_Alignment_center, speed);
             if (arrived) {
                 stateTimer.reset();
                 state = AutoState.DRIVE_DEPOT;
+                updateMecanumHeadingFromGyro();
             }
         } else if (state == AutoState.ALIGN_RIGHT_DEPOT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_right, speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.depot_Alignment_right, speed);
             if (arrived) {
                 stateTimer.reset();
                 state = AutoState.DRIVE_DEPOT;
+                updateMecanumHeadingFromGyro();
             }
         } else if (state == AutoState.ALIGN_LEFT_DEPOT)  {
-            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.alignMineral_left, speed);
+            arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.depot_Alignment_left, speed);
             if (arrived) {
                 stateTimer.reset();
                 state = AutoState.DRIVE_DEPOT;
+                updateMecanumHeadingFromGyro();
             }
         } else if (state == AutoState.DRIVE_DEPOT) {
-            updateMecanumHeadingFromGyro();
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.photoPosition, speed);
+
             if (arrived) {
                 state = AutoState.PHOTO_ROTATE;
                 stateTimer.reset();
@@ -324,11 +318,13 @@ public class RobotStateMachine {
                 }
             }
 
+
         } else if (state == AutoState.CLAIM_DEPOT) {
             arrived = opMode.autoDrive.rotateThenDriveToPosition(waypoints.depotPush, speed);
             if (arrived) {
-                    stateTimer.reset();
-                    state = AutoState.DRIVE_CRATER;
+                updateMecanumHeadingFromGyro();
+                stateTimer.reset();
+                state = AutoState.DRIVE_CRATER;
             }
 
         } else if (state == AutoState.DRIVE_CRATER) {

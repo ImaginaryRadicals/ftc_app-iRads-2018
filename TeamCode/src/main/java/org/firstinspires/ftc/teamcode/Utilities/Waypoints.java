@@ -42,6 +42,10 @@ public class Waypoints {
     public Navigation2D knockMineral_left;
     public Navigation2D knockMineral_right;
 
+    public Navigation2D depot_Alignment_center;
+    public Navigation2D depot_Alignment_right;
+    public Navigation2D depot_Alignment_left;
+
     public Navigation2D photoPosition; // team side for crater, front or back for depotPush
     public Navigation2D photoRotate;
     public Navigation2D flagDrop;
@@ -66,23 +70,29 @@ public class Waypoints {
      */
     double cameraOffset = -90; // extra rotation needed to point the camera in given direction
 
-    double blueCrater_start_x = 12.43;
-    double blueCrater_start_y = 12.43;
-    double blueCrater_start_degrees = -45 + 9;
-    double unhookAngle = 10; // Angle to rotate to unhook.
+    double blueCrater_start_x = 14.25;
+    double blueCrater_start_y = 11.5;
+    double blueCrater_start_degrees = -45;
+    double blueCrater_hanging_biased = 9;
+    double unhookAngle = 10 + 9; // Angle to rotate to unhook.
+    double camera_Biased_backwards = -1;
     double unhookStrafe = 1;
     double blueCrater_scanXY = 24; // both X and Y for initial scan position.
     double blueCrater_radiusAngle_degrees = 45; // Direction towards blueCrater corner
     double scanRotation = 45; // How many degrees to rotate to scan each mineral.
+    double depotAlignmentXY = 25;
     double alignmentOffset = 10; // How many inches to add/subtract to shift and align with side minerals.
+    double depot_Alignment_offset = 10;
     double blueCrater_knockXY_center = 34; // XY position for knocking center mineral
     double knockOffset = 15 - 4.9; // How many inches to add/subtract to knock side minerals.
-    double wallOffsetPosition = 58; // Position when traveling along wall from depotPush to crater
+    double wallOffsetPosition = 58 + 4; // Position when traveling along wall from depotPush to crater
     double photoRotation = 0;
     double flagDropDepth = 46;
     double depotDepth = 52;
     double craterPark_depth = 15;
-    double craterPark_wall_offset = 68;
+    double craterPark_wall_offset = 62;
+    double camera_Correction_X = camera_Biased_backwards / Math.sqrt(2);
+    double camera_Correction_Y = -camera_Biased_backwards / Math.sqrt(2);
 
     // Crater Partner Mineral Scan (blue depotPush is in second quadrant)
     double partner_blueDepot_Scan_X = -48;
@@ -92,23 +102,28 @@ public class Waypoints {
     double partner_blueDepot_alignmentOffset = 12;
     double partner_blueDepot_knockOffXY_center = 42;
     double partner_blueDepot_knockOffset = 12;
+
     /**
      * Blue crater positions set and used as templates
      */
-    Navigation2D blueCrater_initialPosition = new Navigation2D(blueCrater_start_x,blueCrater_start_y,degreesToRadians(blueCrater_start_degrees));
+    Navigation2D blueCrater_initialPosition = new Navigation2D(blueCrater_start_x,blueCrater_start_y,degreesToRadians(blueCrater_start_degrees + blueCrater_hanging_biased));
     Navigation2D blueCrater_unhookPosition = new Navigation2D(blueCrater_start_x + unhookStrafe,blueCrater_start_y - unhookStrafe,degreesToRadians(blueCrater_start_degrees + unhookAngle));
     Navigation2D blueCrater_dismountPosition = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees + unhookAngle));
     Navigation2D blueCrater_scanMineral_center = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees));
     Navigation2D blueCrater_scanMineral_left = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees + scanRotation));
     Navigation2D blueCrater_scanMineral_right = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees - scanRotation));
 
-    Navigation2D blueCrater_alignMineral_center = new Navigation2D(blueCrater_scanXY,blueCrater_scanXY,degreesToRadians(blueCrater_start_degrees));
-    Navigation2D blueCrater_alignMineral_left = new Navigation2D(blueCrater_scanXY - alignmentOffset,blueCrater_scanXY + alignmentOffset,degreesToRadians(blueCrater_start_degrees));
-    Navigation2D blueCrater_alignMineral_right = new Navigation2D(blueCrater_scanXY + alignmentOffset,blueCrater_scanXY - alignmentOffset,degreesToRadians(blueCrater_start_degrees));
+    Navigation2D blueCrater_alignMineral_center = new Navigation2D(blueCrater_scanXY + camera_Correction_X,blueCrater_scanXY + camera_Correction_Y,degreesToRadians(blueCrater_start_degrees));
+    Navigation2D blueCrater_alignMineral_left = new Navigation2D(blueCrater_scanXY - alignmentOffset + camera_Correction_X,blueCrater_scanXY + alignmentOffset + camera_Correction_Y,degreesToRadians(blueCrater_start_degrees));
+    Navigation2D blueCrater_alignMineral_right = new Navigation2D(blueCrater_scanXY + alignmentOffset + camera_Correction_X,blueCrater_scanXY - alignmentOffset + camera_Correction_Y,degreesToRadians(blueCrater_start_degrees));
 
     Navigation2D blueCrater_knockMineral_center = new Navigation2D(blueCrater_knockXY_center,blueCrater_knockXY_center,degreesToRadians(blueCrater_start_degrees));
     Navigation2D blueCrater_knockMineral_left = new Navigation2D(blueCrater_knockXY_center - knockOffset,blueCrater_knockXY_center + knockOffset,degreesToRadians(blueCrater_start_degrees));
     Navigation2D blueCrater_knockMineral_right = new Navigation2D(blueCrater_knockXY_center + knockOffset,blueCrater_knockXY_center - knockOffset,degreesToRadians(blueCrater_start_degrees));
+
+    Navigation2D blueCrater_alignDepot_center = new Navigation2D(depotAlignmentXY + camera_Correction_X,depotAlignmentXY + camera_Correction_Y,degreesToRadians(blueCrater_start_degrees));
+    Navigation2D blueCrater_alignDepot_left = new Navigation2D(depotAlignmentXY - depot_Alignment_offset + camera_Correction_X,depotAlignmentXY + depot_Alignment_offset + camera_Correction_Y,degreesToRadians(blueCrater_start_degrees));
+    Navigation2D blueCrater_alignDepot_right = new Navigation2D(depotAlignmentXY + depot_Alignment_offset + camera_Correction_X,depotAlignmentXY - depot_Alignment_offset + camera_Correction_Y,degreesToRadians(blueCrater_start_degrees));
 
     // team side for crater, front or back for depotPush
     // Angle set to observation of marker by camera on left side.
@@ -198,6 +213,11 @@ public class Waypoints {
         knockMineral_left = blueCrater_knockMineral_left.copy();
         knockMineral_right= blueCrater_knockMineral_right.copy();
 
+        depot_Alignment_center = blueCrater_alignDepot_center.copy();
+        depot_Alignment_right = blueCrater_alignDepot_right.copy();
+        depot_Alignment_left = blueCrater_alignDepot_left.copy();
+
+
         // team side for crater, front or back for depotPush
         photoPosition = blueCrater_photoPosition.copy();
         photoRotate = blueCrater_photoRotate.copy();
@@ -236,6 +256,9 @@ public class Waypoints {
         knockMineral_center.rotate(rotateDegrees);
         knockMineral_left.rotate(rotateDegrees);
         knockMineral_right.rotate(rotateDegrees);
+        depot_Alignment_center.rotate(rotateDegrees);
+        depot_Alignment_right.rotate(rotateDegrees);
+        depot_Alignment_left.rotate(rotateDegrees);
         photoPosition.rotate(rotateDegrees);
         photoRotate.rotate(rotateDegrees);
         depotPush.rotate(rotateDegrees);

@@ -44,6 +44,7 @@ public class AutoOpmode extends RobotHardware {
     public Mutable<Boolean> RecordTelemetry = new Mutable<>(false);
     public Mutable<Boolean> doPartnerMinerals = new Mutable<>(false);
     public Mutable<Boolean> useIMU = new Mutable<>(false);
+    public Mutable<Boolean> earlyFlagDrop = new Mutable<>(false);
 
     @Autonomous(name="auto.Red.Crater", group="Auto")
     public static class AutoRedCrater extends AutoOpmode {
@@ -101,6 +102,7 @@ public class AutoOpmode extends RobotHardware {
         interactiveInit.addBoolean(Simple, "Simple Mode", true, false);
         interactiveInit.addBoolean(UsingMiniRobot, "Using MiniRobot", true, false);
         interactiveInit.addBoolean(doPartnerMinerals,"Partner Mineral", true, false);
+        interactiveInit.addBoolean(earlyFlagDrop, "Drop flag ealry", false, true);
 
         soundManager = new SoundManager(this);
         soundManager.addSound("gold");
